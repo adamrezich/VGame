@@ -32,6 +32,7 @@ namespace VGame {
 
 		public void AddState(State state) {
 			state.StateManager = this;
+			state.InputManager = game.InputManager;
 			states.Add(state);
 			state.Initialize();
 		}

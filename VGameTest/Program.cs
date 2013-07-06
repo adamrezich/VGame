@@ -12,9 +12,13 @@ namespace VGameTest {
 	class TestState : State {
 		int x = 0;
 		int y = 0;
+		public override void Initialize() {
+			InputManager.CursorVisible = false;
+			InputManager.ConstrainMouse = true;
+		}
 		public override void Update() {
-			Console.WriteLine("UPDATE");
-			Sdl.SDL_GetMouseState(out x, out y);
+			x = InputManager.MousePosition.X;
+			y = InputManager.MousePosition.Y;
 		}
 		public override void Draw(Context g) {
 			g.MoveTo(x - 10, y - 10);

@@ -49,6 +49,7 @@ namespace VGame {
 		}
 
 		protected void Tick() {
+			InputManager.Tick();
 			Update();
 			PollEvents();
 			Renderer.Draw();

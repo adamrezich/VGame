@@ -47,6 +47,7 @@
     <Compile Include="State.cs" />
     <Compile Include="StateManager.cs" />
     <Compile Include="StateProxy.cs" />
+    <Compile Include="Point.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

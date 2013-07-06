@@ -12,6 +12,15 @@ namespace VGame {
 			}
 		}
 		StateManager stateManager;
+		public InputManager InputManager {
+			get {
+				return inputManager;
+			}
+			internal set {
+				inputManager = value;
+			}
+		}
+		InputManager inputManager;
 		public bool IsExiting {
 			get {
 				return isExiting;
