@@ -2,16 +2,16 @@ using System;
 using Cairo;
 
 namespace VGame {
-	public abstract class Screen {
-		public ScreenManager ScreenManager {
+	public abstract class State {
+		public StateManager StateManager {
 			get {
-				return screenManager;
+				return stateManager;
 			}
 			internal set {
-				screenManager = value;
+				stateManager = value;
 			}
 		}
-		ScreenManager screenManager;
+		StateManager stateManager;
 		public bool IsExiting {
 			get {
 				return isExiting;
@@ -21,13 +21,13 @@ namespace VGame {
 			}
 		}
 		bool isExiting = false;
-		public bool IsLastActiveScreen {
+		public bool IsLastActiveState {
 			get {
-				return ScreenManager.LastActiveScreen == this;
+				return StateManager.LastActiveState == this;
 			}
 		}
 
-		public Screen() {
+		public State() {
 		}
 
 		public virtual void Initialize() {
@@ -40,7 +40,7 @@ namespace VGame {
 		}
 		public void Exit() {
 			isExiting = true;
-			ScreenManager.RemoveScreen(this);
+			StateManager.RemoveState(this);
 		}
 	}
 }

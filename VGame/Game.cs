@@ -7,7 +7,7 @@ namespace VGame {
 	public class Game {
 		public Renderer Renderer;
 		public InputManager InputManager;
-		public ScreenManager ScreenManager;
+		public StateManager StateManager;
 		public bool Exiting {
 			get {
 				return exiting;
@@ -18,7 +18,7 @@ namespace VGame {
 		public Game() {
 			Renderer = new Renderer(this, 1280, 720, true);
 			InputManager = new InputManager(this);
-			ScreenManager = new ScreenManager(this);
+			StateManager = new StateManager(this);
 			Initialize();
 		}
 
@@ -29,7 +29,7 @@ namespace VGame {
 		public virtual void Update() {
 		}
 		public virtual void Draw(Context g) {
-			ScreenManager.Draw(g);
+			StateManager.Draw(g);
 		}
 		public void Run() {
 			while (!exiting) {

@@ -1,27 +1,27 @@
 using System;
 
 namespace VGame {
-	public class ScreenProxy : Screen {
-		public Screen Now;
-		public Screen After;
+	public class StateProxy : State {
+		public State Now;
+		public State After;
 		bool updated = false;
-		public ScreenProxy(Screen now, Screen after) {
+		public StateProxy(State now, State after) {
 			Now = now;
 			After = after;
 		}
 
 		public override void Initialize() {
-			ScreenManager.AddScreen(Now);
+			StateManager.AddState(Now);
 		}
 		public override void Update() {
 			base.Update();
-			if (ScreenManager.LastActiveScreen != this)
+			if (StateManager.LastActiveState != this)
 				return;
 			if (!updated) {
 				updated = true;
 				return;
 			}
-			ScreenManager.ReplaceScreen(After);
+			StateManager.ReplaceState(After);
 		}
 	}
 }

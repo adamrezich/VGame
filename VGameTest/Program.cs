@@ -5,10 +5,10 @@ using Cairo;
 namespace VGameTest {
 	class TestGame : Game {
 		public override void Initialize() {
-			ScreenManager.AddScreen(new TestScreen());
+			StateManager.AddState(new TestState());
 		}
 	}
-	class TestScreen : Screen {
+	class TestState : State {
 		public override void Draw(Context g) {
 			g.MoveTo(20, 20);
 			g.LineTo(120, 20);
