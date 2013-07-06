@@ -43,7 +43,7 @@ namespace VGame {
 		}
 		public virtual void HandleInput() {
 		}
-		public virtual void Draw(Context g) {
+		public virtual void Draw(Renderer r, Context g) {
 		}
 		public virtual void Update() {
 		}

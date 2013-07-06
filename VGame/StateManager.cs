@@ -25,6 +25,16 @@ namespace VGame {
 				return state;
 			}
 		}
+		public Renderer Renderer {
+			get {
+				return game.Renderer;
+			}
+		}
+		public InputManager InputManager {
+			get {
+				return game.InputManager;
+			}
+		}
 
 		public StateManager(Game game) {
 			this.game = game;
@@ -77,7 +87,7 @@ namespace VGame {
 		}
 		public void Draw(Context g) {
 			foreach (State state in states) {
-				state.Draw(g);
+				state.Draw(Renderer, g);
 			}
 		}
 	}
