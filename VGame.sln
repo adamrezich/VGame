@@ -5,6 +5,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VGame", "VGame\VGame.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VGameTest", "VGameTest\VGameTest.csproj", "{BE7ED58D-6D29-4E37-B160-35DA06F97516}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1A80EE3B-EE5D-41BA-B9D4-71399900215E}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -19,6 +24,8 @@ Global
 		{BE7ED58D-6D29-4E37-B160-35DA06F97516}.Debug|x86.Build.0 = Debug|x86
 		{BE7ED58D-6D29-4E37-B160-35DA06F97516}.Release|x86.ActiveCfg = Release|x86
 		{BE7ED58D-6D29-4E37-B160-35DA06F97516}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = VGameTest\VGameTest.csproj
