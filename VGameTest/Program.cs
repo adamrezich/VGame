@@ -4,7 +4,12 @@ using Cairo;
 
 namespace VGameTest {
 	class TestGame : Game {
-		public override void Draw(Cairo.Context g) {
+		public override void Initialize() {
+			ScreenManager.AddScreen(new TestScreen());
+		}
+	}
+	class TestScreen : Screen {
+		public override void Draw(Context g) {
 			g.MoveTo(20, 20);
 			g.LineTo(120, 20);
 			g.LineTo(120, 120);

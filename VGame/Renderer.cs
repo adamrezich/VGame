@@ -30,25 +30,13 @@ namespace VGame {
 			}
 		}
 
-		public Renderer(Game _game, int _width, int _height, bool _borderless) {
-			game = _game;
-			width = _width;
-			height = _height;
-			borderless = _borderless;
+		public Renderer(Game game, int width, int height, bool borderless) {
+			this.game = game;
+			this.width = width;
+			this.height = height;
+			this.borderless = borderless;
 
-			int init, flags;
-
-			Sdl.SDL_putenv("SDL_VIDEO_CENTERED=center");
-			init = Sdl.SDL_Init(Sdl.SDL_INIT_VIDEO);
-			flags = (Sdl.SDL_SWSURFACE | Sdl.SDL_DOUBLEBUF | Sdl.SDL_ANYFORMAT);
-			if (borderless)
-				flags = flags | Sdl.SDL_NOFRAME;
-			surfacePtr = Sdl.SDL_SetVideoMode(width, height, bpp, flags);
-
-			Sdl.SDL_Surface surface = (Sdl.SDL_Surface)Marshal.PtrToStructure(surfacePtr, typeof(Sdl.SDL_Surface));
-			sdlBuffer = surface.pixels;
-
-			imgSurface = new ImageSurface(sdlBuffer, Format.RGB24, width, height, width * 4);
+			Initialize();
 		}
 		~Renderer() {
 			Sdl.SDL_FreeSurface(surfacePtr);
@@ -66,6 +54,22 @@ namespace VGame {
 		}
 		public void Close() {
 			Sdl.SDL_Quit();
+		}
+
+		protected void Initialize() {
+			int init, flags;
+
+			Sdl.SDL_putenv("SDL_VIDEO_CENTERED=center");
+			init = Sdl.SDL_Init(Sdl.SDL_INIT_VIDEO);
+			flags = (Sdl.SDL_SWSURFACE | Sdl.SDL_DOUBLEBUF | Sdl.SDL_ANYFORMAT);
+			if (borderless)
+				flags = flags | Sdl.SDL_NOFRAME;
+			surfacePtr = Sdl.SDL_SetVideoMode(width, height, bpp, flags);
+
+			Sdl.SDL_Surface surface = (Sdl.SDL_Surface)Marshal.PtrToStructure(surfacePtr, typeof(Sdl.SDL_Surface));
+			sdlBuffer = surface.pixels;
+
+			imgSurface = new ImageSurface(sdlBuffer, Format.RGB24, width, height, width * 4);
 		}
 	}
 }

@@ -17,15 +17,19 @@ namespace VGame {
 
 		public Game() {
 			Renderer = new Renderer(this, 1280, 720, true);
-			InputManager = new InputManager();
-			ScreenManager = new ScreenManager();
+			InputManager = new InputManager(this);
+			ScreenManager = new ScreenManager(this);
+			Initialize();
 		}
 
+		public virtual void Initialize() {
+		}
 		public virtual void HandleInput() {
 		}
 		public virtual void Update() {
 		}
 		public virtual void Draw(Context g) {
+			ScreenManager.Draw(g);
 		}
 		public void Run() {
 			while (!exiting) {
