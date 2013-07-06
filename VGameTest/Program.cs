@@ -10,21 +10,19 @@ namespace VGameTest {
 		}
 	}
 	class TestState : State {
-		int x = 0;
-		int y = 0;
+		VGame.Point playerPosition = new VGame.Point();
 		public override void Initialize() {
 			InputManager.CursorVisible = false;
 			InputManager.ConstrainMouse = true;
 		}
 		public override void Update() {
-			x = InputManager.MousePosition.X;
-			y = InputManager.MousePosition.Y;
+			playerPosition = InputManager.MousePosition;
 		}
 		public override void Draw(Context g) {
-			g.MoveTo(x - 10, y - 10);
-			g.LineTo(x + 10, y - 10);
-			g.LineTo(x + 10, y + 10);
-			g.LineTo(x - 10, y + 10);
+			g.MoveTo(playerPosition.X - 10, playerPosition.Y - 10);
+			g.LineTo(playerPosition.X + 10, playerPosition.Y - 10);
+			g.LineTo(playerPosition.X + 10, playerPosition.Y + 10);
+			g.LineTo(playerPosition.X - 10, playerPosition.Y + 10);
 			g.ClosePath();
 			g.Color = new Color(1, 1, 1);
 			g.FillPreserve();
