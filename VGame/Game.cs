@@ -8,12 +8,18 @@ namespace VGame {
 		public Renderer Renderer;
 		public InputManager InputManager;
 		public StateManager StateManager;
-		public bool Exiting {
+		public bool IsExiting {
 			get {
 				return exiting;
 			}
 		}
 		protected bool exiting = false;
+		public bool IsActive {
+			get {
+				// TODO: Implement
+				return true;
+			}
+		}
 
 		public Game() {
 			Renderer = new Renderer(this, 1280, 720, true);
@@ -27,6 +33,7 @@ namespace VGame {
 		public virtual void HandleInput() {
 		}
 		public virtual void Update() {
+			StateManager.Update();
 		}
 		public virtual void Draw(Context g) {
 			StateManager.Draw(g);

@@ -60,6 +60,20 @@ namespace VGame {
 			states.Clear();
 		}
 
+		public void Update() {
+			foreach (State state in states)
+				statesToUpdate.Add(state);
+			bool lastStateInputHandled = !game.IsActive;
+			while (statesToUpdate.Count > 0) {
+				State state = statesToUpdate.Last();
+				statesToUpdate.RemoveAt(statesToUpdate.Count - 1);
+				state.Update();
+				if (lastStateInputHandled) {
+					state.HandleInput();
+					lastStateInputHandled = true;
+				}
+			}
+		}
 		public void Draw(Context g) {
 			foreach (State state in states) {
 				state.Draw(g);

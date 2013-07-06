@@ -1,6 +1,7 @@
 using System;
-using VGame;
+using Tao.Sdl;
 using Cairo;
+using VGame;
 
 namespace VGameTest {
 	class TestGame : Game {
@@ -9,11 +10,17 @@ namespace VGameTest {
 		}
 	}
 	class TestState : State {
+		int x = 0;
+		int y = 0;
+		public override void Update() {
+			Console.WriteLine("UPDATE");
+			Sdl.SDL_GetMouseState(out x, out y);
+		}
 		public override void Draw(Context g) {
-			g.MoveTo(20, 20);
-			g.LineTo(120, 20);
-			g.LineTo(120, 120);
-			g.LineTo(20, 120);
+			g.MoveTo(x - 10, y - 10);
+			g.LineTo(x + 10, y - 10);
+			g.LineTo(x + 10, y + 10);
+			g.LineTo(x - 10, y + 10);
 			g.ClosePath();
 			g.Color = new Color(1, 1, 1);
 			g.FillPreserve();
