@@ -32,8 +32,8 @@ namespace VGame {
 		}
 		public virtual void HandleInput() {
 		}
-		public virtual void Update() {
-			StateManager.Update();
+		public virtual void Update(GameTime gameTime) {
+			StateManager.Update(gameTime);
 		}
 		public virtual void Draw() {
 			StateManager.Draw();
@@ -77,7 +77,7 @@ namespace VGame {
 
 		protected void Tick() {
 			InputManager.Tick();
-			Update();
+			Update(new GameTime());
 			PollEvents();
 			Renderer.Draw();
 		}

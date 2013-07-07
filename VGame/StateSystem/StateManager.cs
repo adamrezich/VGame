@@ -79,14 +79,14 @@ namespace VGame {
 				states.Last().OnFocus();
 		}
 
-		public void Update() {
+		public void Update(GameTime gameTime) {
 			foreach (State state in states)
 				statesToUpdate.Add(state);
 			bool lastStateInputHandled = !Game.IsActive;
 			while (statesToUpdate.Count > 0) {
 				State state = statesToUpdate.Last();
 				statesToUpdate.RemoveAt(statesToUpdate.Count - 1);
-				state.Update();
+				state.Update(gameTime);
 				if (!lastStateInputHandled) {
 					state.HandleInput();
 					lastStateInputHandled = true;

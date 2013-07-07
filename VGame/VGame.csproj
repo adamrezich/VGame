@@ -48,9 +48,6 @@
     <Compile Include="Renderer.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="InputManager.cs" />
-    <Compile Include="State.cs" />
-    <Compile Include="StateManager.cs" />
-    <Compile Include="StateProxy.cs" />
     <Compile Include="MonoGame\MathHelper.cs" />
     <Compile Include="MonoGame\Point.cs" />
     <Compile Include="MonoGame\Rectangle.cs" />
@@ -59,13 +56,19 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="MouseState.cs" />
-    <Compile Include="Menu.cs" />
     <Compile Include="ColorPresets.cs" />
     <Compile Include="Shapes.cs" />
     <Compile Include="KeyboardState.cs" />
+    <Compile Include="StateSystem\State.cs" />
+    <Compile Include="StateSystem\StateManager.cs" />
+    <Compile Include="StateSystem\StateProxy.cs" />
+    <Compile Include="StateSystem\Menu.cs" />
+    <Compile Include="StateSystem\MenuEntry.cs" />
+    <Compile Include="MonoGame\GameTime.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="MonoGame\" />
+    <Folder Include="StateSystem\" />
   </ItemGroup>
 </Project>

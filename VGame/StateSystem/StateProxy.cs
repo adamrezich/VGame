@@ -13,8 +13,8 @@ namespace VGame {
 		public override void Initialize() {
 			StateManager.AddState(Now);
 		}
-		public override void Update() {
-			base.Update();
+		public override void Update(GameTime gameTime) {
+			base.Update(gameTime);
 			if (StateManager.LastActiveState != this)
 				return;
 			if (!updated) {
