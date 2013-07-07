@@ -4,7 +4,7 @@ using Tao.Sdl;
 using Cairo;
 
 namespace VGame {
-	public class Renderer {
+	public class Renderer : IDisposable {
 		Game game;
 		IntPtr sdlBuffer;
 		IntPtr surfacePtr;
@@ -15,6 +15,8 @@ namespace VGame {
 		ImageSurface imgSurface;
 		bool borderless = false;
 		bool antialiasing = true;
+		Context context;
+		bool isDisposing = false;
 		public int Width {
 			get {
 				return width;
@@ -38,6 +40,11 @@ namespace VGame {
 				antialiasing = value;
 			}
 		}
+		public Context Context {
+			get {
+				return context;
+			}
+		}
 
 		public Renderer(Game game, int width, int height, bool borderless) {
 			this.game = game;
@@ -48,7 +55,27 @@ namespace VGame {
 			Initialize();
 		}
 		~Renderer() {
-			Sdl.SDL_FreeSurface(surfacePtr);
+			Dispose(false);
+		}
+		
+		public void Dispose() {
+			this.Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+		protected virtual void Dispose(bool disposing) {
+			if (!this.isDisposing) {
+				if (disposing) {
+					if (surfacePtr != IntPtr.Zero && surfacePtr != null)
+					    Sdl.SDL_FreeSurface(surfacePtr);
+					surfacePtr = IntPtr.Zero;
+					Sdl.SDL_Quit();
+					if (context.Target != null)
+						((IDisposable)context.Target).Dispose();
+					if (context != null)
+						((IDisposable)context).Dispose();
+				}
+				this.isDisposing = true;
+			}
 		}
 
 		public void Antialias(Context g) {
@@ -59,14 +86,13 @@ namespace VGame {
 			g.Paint();
 		}
 		public void Draw() {
-			using (Context g = new Context(imgSurface)) {
-				Clear(g);
-				game.Draw(g);
-			}
+
+			Clear(context);
+			game.Draw(context);
 			resultFlip = Sdl.SDL_Flip(surfacePtr);
 		}
 		public void Close() {
-			Sdl.SDL_Quit();
+			Dispose(true);
 		}
 
 		public void DrawText(Cairo.Context g, Vector2 position, string text, double scale, TextAlign hAlign, TextAlign vAlign, Cairo.Color? fillColor, Cairo.Color? strokeColor, Cairo.Color? backgroundColor, double angle, string font) {
@@ -142,6 +168,7 @@ namespace VGame {
 			sdlBuffer = surface.pixels;
 
 			imgSurface = new ImageSurface(sdlBuffer, Format.RGB24, width, height, width * 4);
+			context = new Context(imgSurface);
 		}
 	}
 }
