@@ -12,15 +12,15 @@ namespace VGameTest {
 	class TestState : State {
 		VGame.Point playerPosition = new VGame.Point();
 		public override void Initialize() {
-			InputManager.CursorVisible = false;
-			InputManager.ConstrainMouse = true;
+			Game.CursorVisible = false;
+			Game.ConstrainMouse = true;
 		}
 		public override void Update() {
 			playerPosition = InputManager.MousePosition;
 			if (InputManager.MouseButtonState(MouseButton.Left) == ButtonState.Pressed)
-				InputManager.ConstrainMouse = !InputManager.ConstrainMouse;
+				Game.ConstrainMouse = !Game.ConstrainMouse;
 			if (InputManager.MouseButtonState(MouseButton.Right) == ButtonState.Pressed)
-				InputManager.CursorVisible = !InputManager.CursorVisible;
+				Game.CursorVisible = !Game.CursorVisible;
 		}
 		public override void Draw(Context g) {
 			Renderer.DrawText(new Vector2(0, 0), "LEFT CLICK TO UNLOCK THE MOUSE FROM THE SCREEN, RIGHT CLICK TO TOGGLE THE CURSOR", 24, TextAlign.Left, TextAlign.Top, new Color(1, 1, 1), new Color(0, 0, 0), null, 0, null);

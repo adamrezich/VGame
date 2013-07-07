@@ -14,16 +14,17 @@ namespace VGame {
 		StateManager stateManager;
 		public InputManager InputManager {
 			get {
-				return inputManager;
-			}
-			internal set {
-				inputManager = value;
+				return stateManager.InputManager;
 			}
 		}
-		InputManager inputManager;
 		public Renderer Renderer {
 			get {
 				return stateManager.Renderer;
+			}
+		}
+		public Game Game {
+			get {
+				return stateManager.Game;
 			}
 		}
 		public bool IsExiting {

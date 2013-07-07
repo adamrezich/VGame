@@ -48,6 +48,33 @@ namespace VGame {
 			exiting = true;
 		}
 
+		public string WindowCaption {
+			get {
+				string title, icon;
+				Sdl.SDL_WM_GetCaption(out title, out icon);
+				return title;
+			}
+			set {
+				Sdl.SDL_WM_SetCaption(value, null);
+			}
+		}
+		public bool CursorVisible {
+			get {
+				return Sdl.SDL_ShowCursor(Sdl.SDL_QUERY) == Sdl.SDL_ENABLE;
+			}
+			set {
+				Sdl.SDL_ShowCursor(value ? Sdl.SDL_ENABLE : Sdl.SDL_DISABLE);
+			}
+		}
+		public bool ConstrainMouse {
+			get {
+				return Sdl.SDL_WM_GrabInput(Sdl.SDL_QUERY) == Sdl.SDL_GRAB_ON;
+			}
+			set {
+				Sdl.SDL_WM_GrabInput(value ? Sdl.SDL_GRAB_ON : Sdl.SDL_GRAB_OFF);
+			}
+		}
+
 		protected void Tick() {
 			InputManager.Tick();
 			Update();

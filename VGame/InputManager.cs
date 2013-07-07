@@ -9,23 +9,6 @@ namespace VGame {
 		MouseState lastMouseState;
 		Dictionary<MouseButton, bool> downMouseButtons = new Dictionary<MouseButton, bool>();
 
-		public bool CursorVisible {
-			get {
-				return Sdl.SDL_ShowCursor(Sdl.SDL_QUERY) == Sdl.SDL_ENABLE;
-			}
-			set {
-				Sdl.SDL_ShowCursor(value ? Sdl.SDL_ENABLE : Sdl.SDL_DISABLE);
-			}
-		}
-		public bool ConstrainMouse {
-			get {
-				return Sdl.SDL_WM_GrabInput(Sdl.SDL_QUERY) == Sdl.SDL_GRAB_ON;
-			}
-			set {
-				Sdl.SDL_WM_GrabInput(value ? Sdl.SDL_GRAB_ON : Sdl.SDL_GRAB_OFF);
-			}
-		}
-
 		public InputManager(Game game) {
 			this.game = game;
 			downMouseButtons.Add(MouseButton.Left, false);

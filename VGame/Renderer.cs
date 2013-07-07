@@ -46,17 +46,6 @@ namespace VGame {
 			}
 		}
 
-		public string WindowCaption {
-			get {
-				string title, icon;
-				Sdl.SDL_WM_GetCaption(out title, out icon);
-				return title;
-			}
-			set {
-				Sdl.SDL_WM_SetCaption(value, null);
-			}
-		}
-
 		public Renderer(Game game, int width, int height, bool borderless) {
 			this.game = game;
 			this.width = width;

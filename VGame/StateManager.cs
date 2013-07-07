@@ -7,7 +7,7 @@ namespace VGame {
 	public class StateManager {
 		List<State> states = new List<State>();
 		List<State> statesToUpdate = new List<State>();
-		Game game;
+		public Game Game;
 		public State LastActiveState {
 			get {
 				State state = null;
@@ -27,22 +27,21 @@ namespace VGame {
 		}
 		public Renderer Renderer {
 			get {
-				return game.Renderer;
+				return Game.Renderer;
 			}
 		}
 		public InputManager InputManager {
 			get {
-				return game.InputManager;
+				return Game.InputManager;
 			}
 		}
 
 		public StateManager(Game game) {
-			this.game = game;
+			Game = game;
 		}
 
 		public void AddState(State state) {
 			state.StateManager = this;
-			state.InputManager = game.InputManager;
 			states.Add(state);
 			state.Initialize();
 		}
@@ -74,7 +73,7 @@ namespace VGame {
 		public void Update() {
 			foreach (State state in states)
 				statesToUpdate.Add(state);
-			bool lastStateInputHandled = !game.IsActive;
+			bool lastStateInputHandled = !Game.IsActive;
 			while (statesToUpdate.Count > 0) {
 				State state = statesToUpdate.Last();
 				statesToUpdate.RemoveAt(statesToUpdate.Count - 1);
