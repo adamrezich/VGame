@@ -47,9 +47,9 @@ namespace VGame {
 
 		public virtual void Initialize() {
 		}
-		public virtual void HandleInput() {
+		public virtual void HandleInput(GameTime gameTime) {
 		}
-		public virtual void Draw() {
+		public virtual void Draw(GameTime gameTime) {
 		}
 		public virtual void Update(GameTime gameTime) {
 		}

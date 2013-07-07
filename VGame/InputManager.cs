@@ -56,6 +56,9 @@ namespace VGame {
 			ButtonState state = KeyState(key);
 			return state == ButtonState.Down || state == ButtonState.Pressed;
 		}
+		public List<char> GetTextInput() {
+			return keyboardState.Unicode;
+		}
 		public ButtonState MouseButtonState(MouseButton button) {
 			switch (button) {
 				case MouseButton.Left:
@@ -103,7 +106,7 @@ namespace VGame {
 			                            NewButtonState(lastMouseState.RightButton, downMouseButtons[MouseButton.Right]),
 			                            NewButtonState(lastMouseState.XButton1, downMouseButtons[MouseButton.XButton1]),
 			                            NewButtonState(lastMouseState.XButton2, downMouseButtons[MouseButton.XButton2]));
-			keyboardState = new KeyboardState(new Dictionary<Keys, ButtonState>(), newUnicode);
+			keyboardState = new KeyboardState(new Dictionary<Keys, ButtonState>(), new List<char>(newUnicode));
 			foreach (KeyValuePair<Keys, bool> kvp in downKeys) {
 				ButtonState oldState = ButtonState.Up;
 				if (lastKeyboardState.Keys.ContainsKey(kvp.Key))
@@ -234,7 +237,7 @@ namespace VGame {
 		RightAlt = Sdl.SDLK_RALT,
 		LeftShift = Sdl.SDLK_LSHIFT,
 		RightShift = Sdl.SDLK_RSHIFT,
-		BackSpace = Sdl.SDLK_BACKSPACE,
+		Backspace = Sdl.SDLK_BACKSPACE,
 		A = Sdl.SDLK_a,
 		B = Sdl.SDLK_b,
 		C = Sdl.SDLK_c,

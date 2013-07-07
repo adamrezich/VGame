@@ -28,15 +28,15 @@ namespace VGame {
 			Initialize();
 		}
 
-		public virtual void Initialize() {
+		protected virtual void Initialize() {
 		}
-		public virtual void HandleInput() {
+		protected virtual void HandleInput() {
 		}
-		public virtual void Update(GameTime gameTime) {
+		protected virtual void Update(GameTime gameTime) {
 			StateManager.Update(gameTime);
 		}
-		public virtual void Draw() {
-			StateManager.Draw();
+		public virtual void Draw(GameTime gameTime) {
+			StateManager.Draw(gameTime);
 		}
 		public void Run() {
 			while (!exiting) {
@@ -76,10 +76,12 @@ namespace VGame {
 		}
 
 		protected void Tick() {
+			// TODO: Make this actually do something!
+			GameTime gt = new GameTime();
 			InputManager.Tick();
-			Update(new GameTime());
+			Update(gt);
 			PollEvents();
-			Renderer.Draw();
+			Renderer.Draw(gt);
 		}
 		protected void PollEvents() {
 			Sdl.SDL_Event e;

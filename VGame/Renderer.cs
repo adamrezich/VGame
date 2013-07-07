@@ -45,6 +45,11 @@ namespace VGame {
 				return context;
 			}
 		}
+		public int FPS {
+			get {
+				return 108;
+			}
+		}
 
 		public Renderer(Game game, int width, int height, bool borderless) {
 			this.game = game;
@@ -88,9 +93,9 @@ namespace VGame {
 			context.Color = color;
 			context.Paint();
 		}
-		public void Draw() {
+		public void Draw(GameTime gameTime) {
 			Clear();
-			game.Draw();
+			game.Draw(gameTime);
 			resultFlip = Sdl.SDL_Flip(surfacePtr);
 		}
 		public void Close() {

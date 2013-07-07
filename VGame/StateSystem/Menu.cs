@@ -28,7 +28,7 @@ namespace VGame {
 			Cancelable = cancelable;
 		}
 
-		public override void HandleInput() {
+		public override void HandleInput(GameTime gameTime) {
 			if (InputManager.MouseMoved)
 				mousing = true;
 			if ((InputManager.KeyState(Keys.Down) == ButtonState.Pressed || (InputManager.KeyState(Keys.Tab) == ButtonState.Pressed && !InputManager.IsShiftKeyDown)) && !InputManager.MouseMoved) {
@@ -75,6 +75,12 @@ namespace VGame {
 			}
 			if (InputManager.KeyState(Keys.Escape) == ButtonState.Pressed)
 				OnCancel();
+			List<char> unicode = InputManager.GetTextInput();
+			if (unicode.Count > 0 || InputManager.KeyState(Keys.Backspace) == ButtonState.Pressed) {
+				mousing = false;
+				if (selectedIndex.HasValue && entries[(int)selectedIndex].Enabled)
+					OnTextEntry((int)selectedIndex, unicode, InputManager.KeyState(Keys.Backspace) == ButtonState.Pressed);
+			}
 		}
 		protected void UpdateSelected() {
 			bool foundGoodOne = false;
@@ -105,7 +111,7 @@ namespace VGame {
 			foreach (MenuEntry e in entries)
 				e.Update();
 		}
-		public override void Draw() {
+		public override void Draw(GameTime gameTime) {
 			Cairo.Context g = Renderer.Context;
 
 			Vector2 midTop = new Vector2(Renderer.Width / 2, 0);

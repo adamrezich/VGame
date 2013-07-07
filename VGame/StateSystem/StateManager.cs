@@ -88,14 +88,14 @@ namespace VGame {
 				statesToUpdate.RemoveAt(statesToUpdate.Count - 1);
 				state.Update(gameTime);
 				if (!lastStateInputHandled) {
-					state.HandleInput();
+					state.HandleInput(gameTime);
 					lastStateInputHandled = true;
 				}
 			}
 		}
-		public void Draw() {
+		public void Draw(GameTime gameTime) {
 			foreach (State state in states) {
-				state.Draw();
+				state.Draw(gameTime);
 			}
 		}
 	}
