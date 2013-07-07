@@ -147,5 +147,35 @@ namespace VGame {
 		XButton1,
 		XButton2
 	}
+	public enum Keys {
+		Up = Sdl.SDLK_UP,
+		Down = Sdl.SDLK_DOWN,
+		Left = Sdl.SDLK_LEFT,
+		Right = Sdl.SDLK_RIGHT,
+		Enter = Sdl.SDLK_RETURN,
+		Space = Sdl.SDLK_SPACE,
+		Escape = Sdl.SDLK_ESCAPE,
+		Tab = Sdl.SDLK_TAB,
+		LeftControl = Sdl.SDLK_LCTRL,
+		RightControl = Sdl.SDLK_RCTRL,
+		LeftAlt = Sdl.SDLK_LALT,
+		RightAlt = Sdl.SDLK_RALT,
+		LeftShift = Sdl.SDLK_LSHIFT,
+		RightShift = Sdl.SDLK_RSHIFT
+	}
+	public enum KeyModifiers {
+		None = Sdl.KMOD_NONE,
+		Numlock = Sdl.KMOD_NUM,
+		CapsLock = Sdl.KMOD_CAPS,
+		LeftControl = Sdl.KMOD_LCTRL,
+		RightControl = Sdl.KMOD_RCTRL,
+		RightShift = Sdl.KMOD_RSHIFT,
+		LeftShift = Sdl.KMOD_LSHIFT,
+		RightAlt = Sdl.KMOD_RALT,
+		LeftAlt = Sdl.KMOD_LALT,
+		Control = Sdl.KMOD_CTRL,
+		Shift = Sdl.KMOD_SHIFT,
+		Alt = Sdl.KMOD_ALT
+	}
 }
 

@@ -23,6 +23,7 @@ namespace VGameTest {
 				Game.CursorVisible = !Game.CursorVisible;
 		}
 		public override void Draw(Context g) {
+			Renderer.Clear(ColorPresets.LightSteelBlue);
 			Renderer.DrawText(new Vector2(0, 0), "LEFT CLICK TO UNLOCK THE MOUSE FROM THE SCREEN, RIGHT CLICK TO TOGGLE THE CURSOR", 24, TextAlign.Left, TextAlign.Top, new Color(1, 1, 1), new Color(0, 0, 0), null, 0, null);
 			g.MoveTo(playerPosition.X - 10, playerPosition.Y - 10);
 			g.LineTo(playerPosition.X + 10, playerPosition.Y - 10);

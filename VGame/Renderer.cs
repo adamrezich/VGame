@@ -82,7 +82,10 @@ namespace VGame {
 			context.Antialias = antialiasing ? Cairo.Antialias.Subpixel : Cairo.Antialias.None;
 		}
 		public void Clear() {
-			context.Color = new Cairo.Color(1, 0, 0);
+			Clear(ColorPresets.Black);
+		}
+		public void Clear(Color color) {
+			context.Color = color;
 			context.Paint();
 		}
 		public void Draw() {

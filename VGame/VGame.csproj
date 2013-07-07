@@ -59,6 +59,9 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="MouseState.cs" />
+    <Compile Include="Menu.cs" />
+    <Compile Include="ColorPresets.cs" />
+    <Compile Include="Shapes.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
