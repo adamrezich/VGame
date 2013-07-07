@@ -35,8 +35,8 @@ namespace VGame {
 		public virtual void Update() {
 			StateManager.Update();
 		}
-		public virtual void Draw(Context g) {
-			StateManager.Draw(g);
+		public virtual void Draw() {
+			StateManager.Draw();
 		}
 		public void Run() {
 			while (!exiting) {

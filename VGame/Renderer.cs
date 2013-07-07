@@ -90,7 +90,7 @@ namespace VGame {
 		}
 		public void Draw() {
 			Clear();
-			game.Draw(context);
+			game.Draw();
 			resultFlip = Sdl.SDL_Flip(surfacePtr);
 		}
 		public void Close() {

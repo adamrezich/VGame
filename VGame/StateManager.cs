@@ -78,15 +78,15 @@ namespace VGame {
 				State state = statesToUpdate.Last();
 				statesToUpdate.RemoveAt(statesToUpdate.Count - 1);
 				state.Update();
-				if (lastStateInputHandled) {
+				if (!lastStateInputHandled) {
 					state.HandleInput();
 					lastStateInputHandled = true;
 				}
 			}
 		}
-		public void Draw(Context g) {
+		public void Draw() {
 			foreach (State state in states) {
-				state.Draw(g);
+				state.Draw();
 			}
 		}
 	}

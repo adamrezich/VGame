@@ -49,7 +49,7 @@ namespace VGame {
 		}
 		public virtual void HandleInput() {
 		}
-		public virtual void Draw(Context g) {
+		public virtual void Draw() {
 		}
 		public virtual void Update() {
 		}

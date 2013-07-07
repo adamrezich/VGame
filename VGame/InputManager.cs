@@ -21,6 +21,28 @@ namespace VGame {
 			mouseState = new MouseState(0, 0, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up);
 			lastMouseState = new MouseState(0, 0, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up);
 		}
+		public bool IsShiftKeyDown {
+			get {
+				return false;
+			}
+		}
+		public bool IsControlKeyDown {
+			get {
+				return false;
+			}
+		}
+		public bool IsAltKeyDown {
+			get {
+				return false;
+			}
+		}
+		public ButtonState KeyState(Keys key) {
+			return ButtonState.Up;
+		}
+		public bool KeyDown(Keys key) {
+			ButtonState state = KeyState(key);
+			return state == ButtonState.Down || state == ButtonState.Pressed;
+		}
 		public ButtonState MouseButtonState(MouseButton button) {
 			switch (button) {
 				case MouseButton.Left:
@@ -48,6 +70,11 @@ namespace VGame {
 		public Point MousePositionLast {
 			get {
 				return lastMouseState.Position;
+			}
+		}
+		public bool MouseMoved {
+			get {
+				return mouseState.Position != lastMouseState.Position;
 			}
 		}
 		public void Tick() {
