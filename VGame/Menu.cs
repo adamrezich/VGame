@@ -95,7 +95,7 @@ namespace VGame {
 			}
 		}
 
-		public override void Initialize() {
+		public override void OnFocus() {
 			Game.ConstrainMouse = false;
 		}
 		public override void Update() {

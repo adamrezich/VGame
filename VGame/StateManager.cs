@@ -44,6 +44,7 @@ namespace VGame {
 			state.StateManager = this;
 			states.Add(state);
 			state.Initialize();
+			FocusLastState();
 		}
 
 		public void RemoveState() {
@@ -51,13 +52,16 @@ namespace VGame {
 		}
 		public void RemoveState(State state) {
 			states.Remove(state);
+			FocusLastState();
 		}
 		public void RemoveStateAt(int index) {
 			states.RemoveAt(index);
+			FocusLastState();
 		}
 		public void ReplaceState(State state) {
 			if (states.Count > 0)
 				states[states.Count].Exit();
+			AddState(state);
 		}
 		public void ReplaceAllStates(State state) {
 			ClearStates();
@@ -68,6 +72,11 @@ namespace VGame {
 		}
 		public void ClearStates() {
 			states.Clear();
+		}
+
+		protected void FocusLastState() {
+			if (states.Count > 0)
+				states.Last().OnFocus();
 		}
 
 		public void Update() {

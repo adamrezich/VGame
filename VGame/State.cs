@@ -53,6 +53,8 @@ namespace VGame {
 		}
 		public virtual void Update() {
 		}
+		public virtual void OnFocus() {
+		}
 		public void Exit() {
 			isExiting = true;
 			StateManager.RemoveState(this);
