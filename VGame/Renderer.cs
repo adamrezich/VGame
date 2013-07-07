@@ -17,6 +17,9 @@ namespace VGame {
 		bool antialiasing = true;
 		Context context;
 		bool isDisposing = false;
+		int fps = 0;
+		int totalFrames = 0;
+		double elapsedTime = 0;
 		public int Width {
 			get {
 				return width;
@@ -47,7 +50,7 @@ namespace VGame {
 		}
 		public int FPS {
 			get {
-				return 108;
+				return fps;
 			}
 		}
 
@@ -94,6 +97,13 @@ namespace VGame {
 			context.Paint();
 		}
 		public void Draw(GameTime gameTime) {
+			elapsedTime += gameTime.ElapsedGameTime.TotalMilliseconds;
+			totalFrames++;
+			if (elapsedTime >= 1000) {
+				fps = totalFrames;
+				totalFrames = 0;
+				elapsedTime = 0;
+			}
 			Clear();
 			game.Draw(gameTime);
 			resultFlip = Sdl.SDL_Flip(surfacePtr);

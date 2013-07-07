@@ -60,7 +60,7 @@ namespace VGame {
 		}
 		public void ReplaceState(State state) {
 			if (states.Count > 0)
-				states[states.Count].Exit();
+				states.Last().Exit();
 			AddState(state);
 		}
 		public void ReplaceAllStates(State state) {
