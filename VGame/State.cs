@@ -21,6 +21,11 @@ namespace VGame {
 			}
 		}
 		InputManager inputManager;
+		public Renderer Renderer {
+			get {
+				return stateManager.Renderer;
+			}
+		}
 		public bool IsExiting {
 			get {
 				return isExiting;
@@ -43,7 +48,7 @@ namespace VGame {
 		}
 		public virtual void HandleInput() {
 		}
-		public virtual void Draw(Renderer r, Context g) {
+		public virtual void Draw(Context g) {
 		}
 		public virtual void Update() {
 		}

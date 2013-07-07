@@ -17,11 +17,13 @@ namespace VGameTest {
 		}
 		public override void Update() {
 			playerPosition = InputManager.MousePosition;
-			if (InputManager.MouseButtonState(MouseButton.Left) != ButtonState.Up && InputManager.MouseButtonState(MouseButton.Left) != ButtonState.Down)
-				Console.WriteLine(InputManager.MouseButtonState(MouseButton.Left));
+			if (InputManager.MouseButtonState(MouseButton.Left) == ButtonState.Pressed)
+				InputManager.ConstrainMouse = !InputManager.ConstrainMouse;
+			if (InputManager.MouseButtonState(MouseButton.Right) == ButtonState.Pressed)
+				InputManager.CursorVisible = !InputManager.CursorVisible;
 		}
-		public override void Draw(Renderer r, Context g) {
-			r.DrawText(g, new Vector2(0, 0), "TEST", 24, TextAlign.Left, TextAlign.Top, new Color(1, 1, 1), new Color(0, 0, 0), null, 0, null);
+		public override void Draw(Context g) {
+			Renderer.DrawText(new Vector2(0, 0), "LEFT CLICK TO UNLOCK THE MOUSE FROM THE SCREEN, RIGHT CLICK TO TOGGLE THE CURSOR", 24, TextAlign.Left, TextAlign.Top, new Color(1, 1, 1), new Color(0, 0, 0), null, 0, null);
 			g.MoveTo(playerPosition.X - 10, playerPosition.Y - 10);
 			g.LineTo(playerPosition.X + 10, playerPosition.Y - 10);
 			g.LineTo(playerPosition.X + 10, playerPosition.Y + 10);

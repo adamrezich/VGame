@@ -62,6 +62,11 @@ namespace VGame {
 				return mouseState.Position;
 			}
 		}
+		public Point MousePositionLast {
+			get {
+				return lastMouseState.Position;
+			}
+		}
 		public void Tick() {
 			lastMouseState = mouseState;
 			int x, y;

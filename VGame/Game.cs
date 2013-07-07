@@ -22,7 +22,7 @@ namespace VGame {
 		}
 
 		public Game() {
-			Renderer = new Renderer(this, 1280, 720, true);
+			Renderer = new Renderer(this, 1280, 720, false);
 			InputManager = new InputManager(this);
 			StateManager = new StateManager(this);
 			Initialize();

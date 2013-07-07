@@ -46,6 +46,17 @@ namespace VGame {
 			}
 		}
 
+		public string WindowCaption {
+			get {
+				string title, icon;
+				Sdl.SDL_WM_GetCaption(out title, out icon);
+				return title;
+			}
+			set {
+				Sdl.SDL_WM_SetCaption(value, null);
+			}
+		}
+
 		public Renderer(Game game, int width, int height, bool borderless) {
 			this.game = game;
 			this.width = width;
@@ -78,16 +89,15 @@ namespace VGame {
 			}
 		}
 
-		public void Antialias(Context g) {
-			g.Antialias = antialiasing ? Cairo.Antialias.Subpixel : Cairo.Antialias.None;
+		public void Antialias() {
+			context.Antialias = antialiasing ? Cairo.Antialias.Subpixel : Cairo.Antialias.None;
 		}
-		public void Clear(Context g) {
-			g.Color = new Cairo.Color(1, 0, 0);
-			g.Paint();
+		public void Clear() {
+			context.Color = new Cairo.Color(1, 0, 0);
+			context.Paint();
 		}
 		public void Draw() {
-
-			Clear(context);
+			Clear();
 			game.Draw(context);
 			resultFlip = Sdl.SDL_Flip(surfacePtr);
 		}
@@ -95,7 +105,8 @@ namespace VGame {
 			Dispose(true);
 		}
 
-		public void DrawText(Cairo.Context g, Vector2 position, string text, double scale, TextAlign hAlign, TextAlign vAlign, Cairo.Color? fillColor, Cairo.Color? strokeColor, Cairo.Color? backgroundColor, double angle, string font) {
+		public void DrawText(Vector2 position, string text, double scale, TextAlign hAlign, TextAlign vAlign, Cairo.Color? fillColor, Cairo.Color? strokeColor, Cairo.Color? backgroundColor, double angle, string font) {
+			Context g = context;
 			int TextBoxPadding = 4;
 			if (font == null)
 				font = "04b_19";
@@ -151,7 +162,7 @@ namespace VGame {
 				g.Stroke();
 				g.LineWidth = 2;
 			}
-			Antialias(g);
+			Antialias();
 		}
 
 		protected void Initialize() {

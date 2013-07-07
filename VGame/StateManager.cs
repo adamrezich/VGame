@@ -87,7 +87,7 @@ namespace VGame {
 		}
 		public void Draw(Context g) {
 			foreach (State state in states) {
-				state.Draw(Renderer, g);
+				state.Draw(g);
 			}
 		}
 	}
