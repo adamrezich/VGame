@@ -8,12 +8,20 @@ namespace VGame {
 				return keys;
 			}
 		}
+		public List<char> Unicode {
+			get {
+				return unicode;
+			}
+		}
+		List<char> unicode;
 		Dictionary<Keys, ButtonState> keys;
 		public KeyboardState() {
-			this.keys = new Dictionary<VGame.Keys, ButtonState>();
+			keys = new Dictionary<VGame.Keys, ButtonState>();
+			unicode = new List<char>();
 		}
-		public KeyboardState(Dictionary<Keys, ButtonState> keys) {
+		public KeyboardState(Dictionary<Keys, ButtonState> keys, List<char> unicode) {
 			this.keys = keys;
+			this.unicode = unicode;
 		}
 	}
 }

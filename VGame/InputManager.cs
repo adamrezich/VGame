@@ -13,6 +13,7 @@ namespace VGame {
 		KeyboardState lastKeyboardState;
 		Dictionary<MouseButton, bool> downMouseButtons = new Dictionary<MouseButton, bool>();
 		Dictionary<Keys, bool> downKeys = new Dictionary<Keys, bool>();
+		List<char> newUnicode = new List<char>();
 
 		public InputManager(Game game) {
 			this.game = game;
@@ -27,6 +28,7 @@ namespace VGame {
 			lastMouseState = new MouseState(0, 0, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up);
 			keyboardState = new KeyboardState();
 			lastKeyboardState = new KeyboardState();
+			Sdl.SDL_EnableUNICODE(Sdl.SDL_ENABLE);
 		}
 		public bool IsShiftKeyDown {
 			get {
@@ -101,14 +103,17 @@ namespace VGame {
 			                            NewButtonState(lastMouseState.RightButton, downMouseButtons[MouseButton.Right]),
 			                            NewButtonState(lastMouseState.XButton1, downMouseButtons[MouseButton.XButton1]),
 			                            NewButtonState(lastMouseState.XButton2, downMouseButtons[MouseButton.XButton2]));
-			keyboardState = new KeyboardState();
+			keyboardState = new KeyboardState(new Dictionary<Keys, ButtonState>(), newUnicode);
 			foreach (KeyValuePair<Keys, bool> kvp in downKeys) {
 				ButtonState oldState = ButtonState.Up;
 				if (lastKeyboardState.Keys.ContainsKey(kvp.Key))
 					oldState = lastKeyboardState.Keys[kvp.Key];
 				keyboardState.Keys.Add(kvp.Key, NewButtonState(oldState, kvp.Value));
 			}
+			foreach (char c in newUnicode)
+				Console.WriteLine(c);
 			downKeys.Clear();
+			newUnicode.Clear();
 		}
 		public void HandleEvent(Sdl.SDL_Event e) {
 			switch (e.type) {
@@ -169,6 +174,8 @@ namespace VGame {
 						else
 							downKeys.Add((Keys)e.key.keysym.sym, true);
 					}
+					if (IsValidUnicode((char)e.key.keysym.unicode))
+						newUnicode.Add((char)e.key.keysym.unicode);
 					break;
 				case Sdl.SDL_KEYUP:
 					if (((IList)Enum.GetValues(typeof(Keys))).Contains(e.key.keysym.sym)) {
@@ -179,6 +186,10 @@ namespace VGame {
 					}
 					break;
 			}
+		}
+		protected bool IsValidUnicode(char c) {
+			// hopefully this isn't bad
+			return (char.IsLetterOrDigit(c) || char.IsPunctuation(c) || char.IsWhiteSpace(c)) && !char.IsControl(c);
 		}
 		protected ButtonState NewButtonState(ButtonState state, bool down) {
 			switch (state) {
@@ -224,7 +235,8 @@ namespace VGame {
 		LeftAlt = Sdl.SDLK_LALT,
 		RightAlt = Sdl.SDLK_RALT,
 		LeftShift = Sdl.SDLK_LSHIFT,
-		RightShift = Sdl.SDLK_RSHIFT
+		RightShift = Sdl.SDLK_RSHIFT,
+		BackSpace = Sdl.SDLK_BACKSPACE
 	}
 	public enum KeyModifiers {
 		None = Sdl.KMOD_NONE,
