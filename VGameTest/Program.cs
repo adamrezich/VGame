@@ -17,6 +17,8 @@ namespace VGameTest {
 		}
 		public override void Update() {
 			playerPosition = InputManager.MousePosition;
+			if (InputManager.MouseButtonState(MouseButton.Left) != ButtonState.Up && InputManager.MouseButtonState(MouseButton.Left) != ButtonState.Down)
+				Console.WriteLine(InputManager.MouseButtonState(MouseButton.Left));
 		}
 		public override void Draw(Renderer r, Context g) {
 			r.DrawText(g, new Vector2(0, 0), "TEST", 24, TextAlign.Left, TextAlign.Top, new Color(1, 1, 1), new Color(0, 0, 0), null, 0, null);

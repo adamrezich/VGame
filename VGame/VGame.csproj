@@ -39,6 +39,9 @@
     </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="Lidgren.Network, Version=2011.3.12.0, Culture=neutral">
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -55,6 +58,7 @@
     <Compile Include="MonoGame\Vector3.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Util.cs" />
+    <Compile Include="MouseState.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

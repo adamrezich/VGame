@@ -57,11 +57,12 @@ namespace VGame {
 		protected void PollEvents() {
 			Sdl.SDL_Event e;
 			while (Sdl.SDL_PollEvent(out e) == 1) {
+				InputManager.HandleEvent(e);
 				switch (e.type) {
 					case Sdl.SDL_QUIT:
 						Exit();
 						break;
-						case Sdl.SDL_KEYDOWN:
+					case Sdl.SDL_KEYDOWN:
 						if (e.key.keysym.sym == Sdl.SDLK_ESCAPE) {
 							Exit();
 						}
