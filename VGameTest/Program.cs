@@ -34,6 +34,7 @@ namespace VGameTest {
 			Entries.Add(new MenuEntry(this, "test1"));
 			Entries.Last().Selected += delegate(object sender, EventArgs e) {
 				Console.WriteLine("test1 clicked!");
+				StateManager.AddState(new TestState());
 			};
 			Entries.Add(new MenuEntry(this, "test2"));
 			Entries.Last().Selected += delegate(object sender, EventArgs e) {

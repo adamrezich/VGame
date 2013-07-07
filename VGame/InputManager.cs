@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Tao.Sdl;
 
 namespace VGame {
@@ -7,7 +9,10 @@ namespace VGame {
 		Game game;
 		MouseState mouseState;
 		MouseState lastMouseState;
+		KeyboardState keyboardState;
+		KeyboardState lastKeyboardState;
 		Dictionary<MouseButton, bool> downMouseButtons = new Dictionary<MouseButton, bool>();
+		Dictionary<Keys, bool> downKeys = new Dictionary<Keys, bool>();
 
 		public InputManager(Game game) {
 			this.game = game;
@@ -20,6 +25,8 @@ namespace VGame {
 			downMouseButtons.Add(MouseButton.XButton2, false);
 			mouseState = new MouseState(0, 0, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up);
 			lastMouseState = new MouseState(0, 0, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up);
+			keyboardState = new KeyboardState();
+			lastKeyboardState = new KeyboardState();
 		}
 		public bool IsShiftKeyDown {
 			get {
@@ -37,7 +44,11 @@ namespace VGame {
 			}
 		}
 		public ButtonState KeyState(Keys key) {
-			return ButtonState.Up;
+			if (keyboardState.Keys.ContainsKey(key)) {
+				return keyboardState.Keys[key];
+			}
+			else
+				return ButtonState.Up;
 		}
 		public bool KeyDown(Keys key) {
 			ButtonState state = KeyState(key);
@@ -79,6 +90,7 @@ namespace VGame {
 		}
 		public void Tick() {
 			lastMouseState = mouseState;
+			lastKeyboardState = keyboardState;
 			int x, y;
 			Sdl.SDL_GetMouseState(out x, out y);
 			mouseState = new MouseState(x, y,
@@ -89,6 +101,14 @@ namespace VGame {
 			                            NewButtonState(lastMouseState.RightButton, downMouseButtons[MouseButton.Right]),
 			                            NewButtonState(lastMouseState.XButton1, downMouseButtons[MouseButton.XButton1]),
 			                            NewButtonState(lastMouseState.XButton2, downMouseButtons[MouseButton.XButton2]));
+			keyboardState = new KeyboardState();
+			foreach (KeyValuePair<Keys, bool> kvp in downKeys) {
+				ButtonState oldState = ButtonState.Up;
+				if (lastKeyboardState.Keys.ContainsKey(kvp.Key))
+					oldState = lastKeyboardState.Keys[kvp.Key];
+				keyboardState.Keys.Add(kvp.Key, NewButtonState(oldState, kvp.Value));
+			}
+			downKeys.Clear();
 		}
 		public void HandleEvent(Sdl.SDL_Event e) {
 			switch (e.type) {
@@ -140,6 +160,22 @@ namespace VGame {
 						case Sdl.SDL_BUTTON_X2:
 							downMouseButtons[MouseButton.XButton2] = false;
 							break;
+					}
+					break;
+				case Sdl.SDL_KEYDOWN:
+					if (((IList)Enum.GetValues(typeof(Keys))).Contains((Keys)e.key.keysym.sym)) {
+						if (downKeys.ContainsKey((Keys)e.key.keysym.sym))
+							downKeys[(Keys)e.key.keysym.sym] = true;
+						else
+							downKeys.Add((Keys)e.key.keysym.sym, true);
+					}
+					break;
+				case Sdl.SDL_KEYUP:
+					if (((IList)Enum.GetValues(typeof(Keys))).Contains(e.key.keysym.sym)) {
+						if (downKeys.ContainsKey((Keys)e.key.keysym.sym))
+							downKeys[(Keys)e.key.keysym.sym] = false;
+						else
+							downKeys.Add((Keys)e.key.keysym.sym, false); // how did this happen?
 					}
 					break;
 			}

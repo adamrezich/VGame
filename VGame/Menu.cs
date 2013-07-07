@@ -36,11 +36,13 @@ namespace VGame {
 				mousing = false;
 				if (selectedIndex == null)
 					selectedIndex = 0;
-				do {
-					selectedIndex++;
-					if (selectedIndex >= entries.Count)
-						selectedIndex -= entries.Count;
-				} while (!entries[(int)selectedIndex].Enabled);
+				else {
+					do {
+						selectedIndex++;
+						if (selectedIndex >= entries.Count)
+							selectedIndex -= entries.Count;
+					} while (!entries[(int)selectedIndex].Enabled);
+				}
 			}
 			if ((InputManager.KeyState(Keys.Up) == ButtonState.Pressed || (InputManager.KeyState(Keys.Tab) == ButtonState.Pressed && InputManager.IsShiftKeyDown)) && !InputManager.MouseMoved) {
 				mousing = false;
@@ -57,7 +59,7 @@ namespace VGame {
 				if (selectedIndex.HasValue && entries[(int)selectedIndex].Enabled)
 					OnSelectEntry((int)selectedIndex);
 			}
-			if (InputManager.KeyState(Keys.Space) == ButtonState.Pressed || InputManager.KeyState(Keys.Space) == ButtonState.Pressed) {
+			if (InputManager.KeyState(Keys.Space) == ButtonState.Pressed || InputManager.KeyState(Keys.Enter) == ButtonState.Pressed) {
 				mousing = false;
 				if (selectedIndex.HasValue && entries[(int)selectedIndex].Enabled)
 					OnSelectEntry((int)selectedIndex);
