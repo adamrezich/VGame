@@ -32,9 +32,11 @@ namespace VGame {
 			}
 		}
 
-		public Game() {
-			Renderer = new Renderer(this, 1280, 720, false, false);
-			//Renderer = new Renderer(this, 1920, 1080, true);
+		public Game() : this(true) {
+		}
+		public Game(bool initializeRenderer) {
+			if (initializeRenderer)
+				Renderer = new Renderer(this, 1280, 720, false, false);
 			InputManager = new InputManager(this);
 			StateManager = new StateManager(this);
 			Initialize();

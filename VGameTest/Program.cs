@@ -6,7 +6,7 @@ using VGame;
 
 namespace VGameTest {
 	class TestGame : Game {
-		public override void Initialize() {
+		protected override void Initialize() {
 			CursorVisible = false;
 			ConstrainMouse = true;
 			StateManager.AddState(new TestMenu());
@@ -15,14 +15,14 @@ namespace VGameTest {
 	class TestState : State {
 		VGame.Shapes.Cursor cursor = new VGame.Shapes.Cursor();
 		VGame.Point playerPosition = new VGame.Point();
-		public override void Update() {
+		public override void Update(GameTime gameTime) {
 			playerPosition = InputManager.MousePosition;
 			if (InputManager.MouseButtonState(MouseButton.Left) == ButtonState.Pressed)
 				Game.ConstrainMouse = !Game.ConstrainMouse;
 			if (InputManager.MouseButtonState(MouseButton.Right) == ButtonState.Pressed)
 				Game.CursorVisible = !Game.CursorVisible;
 		}
-		public override void Draw() {
+		public override void Draw(GameTime gameTime) {
 			Context g = Renderer.Context;
 			Renderer.Clear(ColorPresets.LightSteelBlue);
 			Renderer.DrawText(new Vector2(Renderer.Width / 2, Renderer.Height / 2), "LEFT CLICK TO UNLOCK THE MOUSE FROM THE SCREEN, RIGHT CLICK TO TOGGLE THE CURSOR", 24, TextAlign.Center, TextAlign.Middle, new Color(1, 1, 1), new Color(0, 0, 0), null, 0, null);
