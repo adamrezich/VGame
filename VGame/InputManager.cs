@@ -28,7 +28,6 @@ namespace VGame {
 			lastMouseState = new MouseState(0, 0, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up);
 			keyboardState = new KeyboardState();
 			lastKeyboardState = new KeyboardState();
-			Sdl.SDL_EnableUNICODE(Sdl.SDL_ENABLE);
 		}
 		public bool IsShiftKeyDown {
 			get {

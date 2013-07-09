@@ -7,7 +7,7 @@ using Cairo;
 
 namespace VGame {
 	public class Game {
-		public Renderer Renderer;
+		public Renderer Renderer = null;
 		public InputManager InputManager;
 		public StateManager StateManager;
 		private TimeSpan _targetElapsedTime = TimeSpan.FromTicks((long)10000000 / (long)60f);
@@ -36,7 +36,7 @@ namespace VGame {
 		}
 		public Game(bool initializeRenderer) {
 			if (initializeRenderer)
-				Renderer = new Renderer(this, 1280, 720, false, false);
+				ChangeResolution(new Rectangle(0, 0, 1280, 720), false, false);
 			InputManager = new InputManager(this);
 			StateManager = new StateManager(this);
 			Initialize();
@@ -155,8 +155,10 @@ namespace VGame {
 			bool cursorVisible = CursorVisible;
 			bool constrainMouse = ConstrainMouse;
 			string windowCaption = WindowCaption;
-			Renderer.Dispose();
+			if (Renderer != null)
+				Renderer.Dispose();
 			Renderer = new Renderer(StateManager.Game, resolution.Width, resolution.Height, fullscreen, borderless);
+			Sdl.SDL_EnableUNICODE(Sdl.SDL_ENABLE);
 			CursorVisible = cursorVisible;
 			ConstrainMouse = constrainMouse;
 			WindowCaption = windowCaption;
