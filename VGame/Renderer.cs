@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Tao.Sdl;
 using Cairo;
 
 namespace VGame {
 	public class Renderer : IDisposable {
+		public static Renderer Current = null;
 		Game game;
 		IntPtr sdlBuffer;
 		IntPtr surfacePtr;
@@ -12,14 +14,17 @@ namespace VGame {
 		int width = 1280;
 		int height = 720;
 		int resultFlip;
+		int flags = 0;
 		ImageSurface imgSurface;
 		bool borderless = false;
+		bool fullscreen = false;
 		bool antialiasing = true;
 		Context context;
 		bool isDisposing = false;
 		int fps = 0;
 		int totalFrames = 0;
 		double elapsedTime = 0;
+		List<Rectangle> resolutions = new List<Rectangle>();
 		public int Width {
 			get {
 				return width;
@@ -33,6 +38,11 @@ namespace VGame {
 		public bool Borderless {
 			get {
 				return borderless;
+			}
+		}
+		public bool Fullscreen {
+			get {
+				return fullscreen;
 			}
 		}
 		public bool Antialiasing {
@@ -53,14 +63,28 @@ namespace VGame {
 				return fps;
 			}
 		}
+		public List<Rectangle> Resolutions {
+			get {
+				if (resolutions.Count == 0) {
+					Sdl.SDL_Surface surface = (Sdl.SDL_Surface)Marshal.PtrToStructure(surfacePtr, typeof(Sdl.SDL_Surface));
+					Sdl.SDL_Rect[] rects = Sdl.SDL_ListModes(surface.format, Sdl.SDL_HWSURFACE | Sdl.SDL_FULLSCREEN);
+					foreach (Sdl.SDL_Rect r in rects) {
+						resolutions.Add(new Rectangle(r.x, r.y, r.w, r.h));
+					}
+				}
+				return resolutions;
+			}
+		}
 
-		public Renderer(Game game, int width, int height, bool borderless) {
+		public Renderer(Game game, int width, int height, bool fullscreen, bool borderless) {
 			this.game = game;
 			this.width = width;
 			this.height = height;
+			this.fullscreen = fullscreen;
 			this.borderless = borderless;
 
 			Initialize();
+			Current = this;
 		}
 		~Renderer() {
 			Dispose(false);
@@ -97,6 +121,14 @@ namespace VGame {
 			context.Paint();
 		}
 		public void Draw(GameTime gameTime) {
+			Clear();
+			game.Draw(gameTime);
+			resultFlip = Sdl.SDL_Flip(surfacePtr);
+		}
+		public void Close() {
+			Dispose(true);
+		}
+		public void AddFrame(GameTime gameTime) {
 			elapsedTime += gameTime.ElapsedGameTime.TotalMilliseconds;
 			totalFrames++;
 			if (elapsedTime >= 1000) {
@@ -104,12 +136,6 @@ namespace VGame {
 				totalFrames = 0;
 				elapsedTime = 0;
 			}
-			Clear();
-			game.Draw(gameTime);
-			resultFlip = Sdl.SDL_Flip(surfacePtr);
-		}
-		public void Close() {
-			Dispose(true);
 		}
 
 		public void DrawText(Vector2 position, string text, double scale, TextAlign hAlign, TextAlign vAlign, Cairo.Color? fillColor, Cairo.Color? strokeColor, Cairo.Color? backgroundColor, double angle, string font) {
@@ -173,13 +199,11 @@ namespace VGame {
 		}
 
 		protected void Initialize() {
-			int init, flags;
+			int init;
 
 			Sdl.SDL_putenv("SDL_VIDEO_CENTERED=center");
 			init = Sdl.SDL_Init(Sdl.SDL_INIT_VIDEO);
-			flags = (Sdl.SDL_SWSURFACE | Sdl.SDL_DOUBLEBUF | Sdl.SDL_ANYFORMAT);
-			if (borderless)
-				flags = flags | Sdl.SDL_NOFRAME;
+			flags = Sdl.SDL_SWSURFACE | Sdl.SDL_DOUBLEBUF | Sdl.SDL_ANYFORMAT | (fullscreen ? Sdl.SDL_FULLSCREEN : 0) | (borderless ? Sdl.SDL_NOFRAME : 0);
 			surfacePtr = Sdl.SDL_SetVideoMode(width, height, bpp, flags);
 
 			Sdl.SDL_Surface surface = (Sdl.SDL_Surface)Marshal.PtrToStructure(surfacePtr, typeof(Sdl.SDL_Surface));

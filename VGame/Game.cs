@@ -33,7 +33,8 @@ namespace VGame {
 		}
 
 		public Game() {
-			Renderer = new Renderer(this, 1280, 720, false);
+			Renderer = new Renderer(this, 1280, 720, false, false);
+			//Renderer = new Renderer(this, 1920, 1080, true);
 			InputManager = new InputManager(this);
 			StateManager = new StateManager(this);
 			Initialize();
@@ -69,13 +70,18 @@ namespace VGame {
 			_gameTimer.Reset();
 			_gameTimer.Start();
 			if (_accumulatedElapsedTime < _targetElapsedTime) {
+				if (_accumulatedElapsedTime > _maxElapsedTime)
+					_accumulatedElapsedTime = _maxElapsedTime;
+				_gameTime.ElapsedGameTime = _targetElapsedTime;
+				Renderer.AddFrame(_gameTime);
 				var sleepTime = (int)(_targetElapsedTime - _accumulatedElapsedTime).TotalMilliseconds;
 				System.Threading.Thread.Sleep(sleepTime);
 				goto RetryTick;
 			}
-			if (_accumulatedElapsedTime > _maxElapsedTime)
+			/*if (_accumulatedElapsedTime > _maxElapsedTime)
 				_accumulatedElapsedTime = _maxElapsedTime;
 			_gameTime.ElapsedGameTime = _targetElapsedTime;
+			Renderer.AddFrame(_gameTime);*/
 			var stepCount = 0;
 			_gameTime.IsRunningSlowly = (_accumulatedElapsedTime > _targetElapsedTime);
 			while (_accumulatedElapsedTime >= _targetElapsedTime) {
@@ -85,8 +91,9 @@ namespace VGame {
 				PollEvents();
 				InputManager.Tick();
 				Update(_gameTime);
+				Renderer.Draw(_gameTime);
 			}
-			Renderer.Draw(_gameTime);
+			// Renderer.Draw(_gameTime);
 		}
 
 		public void ResetElapsedTime() {
@@ -140,6 +147,18 @@ namespace VGame {
 						break;
 				}
 			}
+		}
+
+		public bool ChangeResolution(Rectangle resolution, bool fullscreen, bool borderless) {
+			bool cursorVisible = CursorVisible;
+			bool constrainMouse = ConstrainMouse;
+			string windowCaption = WindowCaption;
+			Renderer.Dispose();
+			Renderer = new Renderer(StateManager.Game, resolution.Width, resolution.Height, fullscreen, borderless);
+			CursorVisible = cursorVisible;
+			ConstrainMouse = constrainMouse;
+			WindowCaption = windowCaption;
+			return true;
 		}
 	}
 }
