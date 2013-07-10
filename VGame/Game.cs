@@ -10,6 +10,7 @@ namespace VGame {
 		public Renderer Renderer = null;
 		public InputManager InputManager;
 		public StateManager StateManager;
+		public CommandManager CommandManager;
 		private TimeSpan _targetElapsedTime = TimeSpan.FromTicks((long)10000000 / (long)60f);
 		private TimeSpan _inactiveSleepTime = TimeSpan.FromSeconds(1);
 		private readonly TimeSpan _maxElapsedTime = TimeSpan.FromMilliseconds(500);
@@ -39,6 +40,7 @@ namespace VGame {
 				ChangeResolution(new Rectangle(0, 0, 1280, 720), false, false);
 			InputManager = new InputManager(this);
 			StateManager = new StateManager(this);
+			CommandManager = new CommandManager(this);
 			Initialize();
 		}
 

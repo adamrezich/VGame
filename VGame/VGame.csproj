@@ -65,11 +65,14 @@
     <Compile Include="StateSystem\Menu.cs" />
     <Compile Include="StateSystem\MenuEntry.cs" />
     <Compile Include="MonoGame\GameTime.cs" />
-    <Compile Include="Command.cs" />
+    <Compile Include="CommandSystem\Command.cs" />
+    <Compile Include="CommandSystem\Commands.cs" />
+    <Compile Include="CommandSystem\CommandManager.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="MonoGame\" />
     <Folder Include="StateSystem\" />
+    <Folder Include="CommandSystem\" />
   </ItemGroup>
 </Project>

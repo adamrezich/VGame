@@ -6,6 +6,7 @@ namespace VGame {
 	public abstract class Command {
 		public string Name;
 		public List<Parameter> Parameters = new List<Parameter>();
+		public abstract void Run(CommandManager commandManager);
 		public static Command Parse(string cmd) {
 			List<string> split = cmd.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
 			if (split.Count == 0)
@@ -13,7 +14,6 @@ namespace VGame {
 			string name = split[0];
 			split.RemoveAt(0);
 			if (CommandDefinition.List.ContainsKey(name)) {
-				Console.WriteLine("found command!");
 				CommandDefinition def = (CommandDefinition)Activator.CreateInstance(CommandDefinition.List[name]);
 				//Command c = new Command<def>(new object[] { });
 				if (split.Count != def.Parameters.Count) {
@@ -55,15 +55,17 @@ namespace VGame {
 		}
 	}
 	public class Command<TDefinition> : Command where TDefinition : CommandDefinition, new() {
-		public TDefinition Definition;
-
+		private TDefinition def;
 		public Command(params object[] args) {
-			TDefinition def = new TDefinition();
+			def = new TDefinition();
 			Name = def.Name;
-
+			if (args.Length < def.Parameters.Count) {
+				throw new Exception("Too few arguments.");
+			}
+			if (args.Length > def.Parameters.Count) {
+				throw new Exception("Too many arguments.");
+			}
 			for (int i = 0; i < args.Length; i++) {
-				if (i >= def.Parameters.Count)
-					throw new Exception("Too many arguments.");
 				bool added = false;
 				if (args[i] is bool && def.Parameters[i] == ParameterType.Bool) {
 					Parameters.Add(new Parameter((bool)args[i]));
@@ -84,6 +86,10 @@ namespace VGame {
 				if (!added)
 					throw new Exception("Bad parameter type.");
 			}
+		}
+
+		public override void Run(CommandManager commandManager) {
+			def.Run(commandManager, this);
 		}
 
 		public override string ToString() {
@@ -110,16 +116,28 @@ namespace VGame {
 	}
 	public abstract class CommandDefinition {
 		public static Dictionary<string, Type> List = new Dictionary<string, Type>();
-		public string Name;
+		public string Name {
+			get {
+				return List.FirstOrDefault(x => x.Value == this.GetType()).Key;
+			}
+		}
 		public List<ParameterType> Parameters;
 
-		public CommandDefinition(string name, params ParameterType[] args) : this(name, args.ToList()) {
+		public CommandDefinition() : this(new List<ParameterType>()) {
 		}
-		public CommandDefinition(string name, List<ParameterType> parameters) {
-			Name = name;
+		public CommandDefinition(params ParameterType[] args) : this(args.ToList()) {
+		}
+		public CommandDefinition(List<ParameterType> parameters) {
 			Parameters = parameters;
-			if (!List.ContainsKey(Name))
-				List.Add(Name, this.GetType());
+		}
+
+		public abstract void Run(CommandManager commandManager, Command cmd);
+
+		public static void Add(string name, Type type) {
+			if (!List.ContainsKey(name))
+				List.Add(name, type);
+			else
+				throw new Exception("Attempted to override existing command");
 		}
 	}
 	public struct Parameter {
