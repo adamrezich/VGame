@@ -173,6 +173,15 @@ namespace VGame {
 							downKeys[(Keys)e.key.keysym.sym] = true;
 						else
 							downKeys.Add((Keys)e.key.keysym.sym, true);
+						/*if (e.key.keysym.mod & KeyModifiers.LeftShift == KeyModifiers.LeftShift) {
+							if (downKeys.ContainsKey(Keys.LeftShift))
+								downKeys[Keys.LeftShift] = true;
+							else
+								downKeys.Add(Keys.LeftShift, true);
+						}
+						else {
+
+						}*/
 					}
 					if (IsValidUnicode((char)e.key.keysym.unicode))
 						newUnicode.Add((char)e.key.keysym.unicode);

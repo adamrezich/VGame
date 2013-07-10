@@ -65,6 +65,7 @@
     <Compile Include="StateSystem\Menu.cs" />
     <Compile Include="StateSystem\MenuEntry.cs" />
     <Compile Include="MonoGame\GameTime.cs" />
+    <Compile Include="Command.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
