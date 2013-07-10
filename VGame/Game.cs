@@ -65,6 +65,7 @@ namespace VGame {
 		}
 
 		public void Exit() {
+			StateManager.ClearStates();
 			exiting = true;
 		}
 
@@ -142,12 +143,7 @@ namespace VGame {
 				InputManager.HandleEvent(e);
 				switch (e.type) {
 					case Sdl.SDL_QUIT:
-						Exit();
-						break;
-					case Sdl.SDL_KEYDOWN:
-						if (e.key.keysym.sym == Sdl.SDLK_ESCAPE) {
-							Exit();
-						}
+						Exit(); // Needed?
 						break;
 				}
 			}
