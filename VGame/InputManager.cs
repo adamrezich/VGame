@@ -31,17 +31,17 @@ namespace VGame {
 		}
 		public bool IsShiftKeyDown {
 			get {
-				return false;
+				return KeyDown(Keys.LeftShift) || KeyDown(Keys.RightShift);
 			}
 		}
 		public bool IsControlKeyDown {
 			get {
-				return false;
+				return KeyDown(Keys.LeftControl) || KeyDown(Keys.RightControl);
 			}
 		}
 		public bool IsAltKeyDown {
 			get {
-				return false;
+				return KeyDown(Keys.LeftAlt) || KeyDown(Keys.RightAlt);
 			}
 		}
 		public ButtonState KeyState(Keys key) {
@@ -94,7 +94,7 @@ namespace VGame {
 		}
 		public void Tick() {
 			lastMouseState = mouseState;
-			lastKeyboardState = keyboardState;
+			lastKeyboardState.Keys = new Dictionary<Keys, ButtonState>(keyboardState.Keys);
 			int x, y;
 			Sdl.SDL_GetMouseState(out x, out y);
 			mouseState = new MouseState(x, y,
@@ -105,13 +105,19 @@ namespace VGame {
 			                            NewButtonState(lastMouseState.RightButton, downMouseButtons[MouseButton.Right]),
 			                            NewButtonState(lastMouseState.XButton1, downMouseButtons[MouseButton.XButton1]),
 			                            NewButtonState(lastMouseState.XButton2, downMouseButtons[MouseButton.XButton2]));
-			keyboardState = new KeyboardState(new Dictionary<Keys, ButtonState>(), new List<char>(newUnicode));
+
+			keyboardState.Keys.Clear();
+			keyboardState.Unicode = new List<char>(newUnicode);
 			foreach (KeyValuePair<Keys, bool> kvp in downKeys) {
-				ButtonState oldState = ButtonState.Up;
 				if (lastKeyboardState.Keys.ContainsKey(kvp.Key))
-					oldState = lastKeyboardState.Keys[kvp.Key];
-				keyboardState.Keys.Add(kvp.Key, NewButtonState(oldState, kvp.Value));
+					keyboardState.Keys.Add(kvp.Key, NewButtonState(lastKeyboardState.Keys[kvp.Key], kvp.Value));
+				else
+					keyboardState.Keys.Add(kvp.Key, ButtonState.Pressed);
 			}
+			foreach (KeyValuePair<Keys, ButtonState> kvp in lastKeyboardState.Keys)
+				if (!keyboardState.Keys.ContainsKey(kvp.Key) && kvp.Value != ButtonState.Up)
+					keyboardState.Keys.Add(kvp.Key, kvp.Value == ButtonState.Pressed ? ButtonState.Down : kvp.Value == ButtonState.Released ? ButtonState.Up : kvp.Value);
+
 			downKeys.Clear();
 			newUnicode.Clear();
 		}
@@ -173,21 +179,12 @@ namespace VGame {
 							downKeys[(Keys)e.key.keysym.sym] = true;
 						else
 							downKeys.Add((Keys)e.key.keysym.sym, true);
-						/*if (e.key.keysym.mod & KeyModifiers.LeftShift == KeyModifiers.LeftShift) {
-							if (downKeys.ContainsKey(Keys.LeftShift))
-								downKeys[Keys.LeftShift] = true;
-							else
-								downKeys.Add(Keys.LeftShift, true);
-						}
-						else {
-
-						}*/
 					}
 					if (IsValidUnicode((char)e.key.keysym.unicode))
 						newUnicode.Add((char)e.key.keysym.unicode);
 					break;
 				case Sdl.SDL_KEYUP:
-					if (((IList)Enum.GetValues(typeof(Keys))).Contains(e.key.keysym.sym)) {
+					if (((IList)Enum.GetValues(typeof(Keys))).Contains((Keys)e.key.keysym.sym)) {
 						if (downKeys.ContainsKey((Keys)e.key.keysym.sym))
 							downKeys[(Keys)e.key.keysym.sym] = false;
 						else

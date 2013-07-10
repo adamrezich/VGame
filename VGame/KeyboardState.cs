@@ -7,10 +7,16 @@ namespace VGame {
 			get {
 				return keys;
 			}
+			internal set {
+				keys = value;
+			}
 		}
 		public List<char> Unicode {
 			get {
 				return unicode;
+			}
+			internal set {
+				unicode = value;
 			}
 		}
 		List<char> unicode;

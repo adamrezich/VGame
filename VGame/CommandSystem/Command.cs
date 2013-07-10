@@ -1,21 +1,23 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace VGame {
 	public abstract class Command {
 		public string Name;
 		public List<Parameter> Parameters = new List<Parameter>();
 		public abstract void Run(CommandManager commandManager);
+
+		public static Regex ParseRegex = new Regex(@"/[^\s""']+|""([^""]*)""|'([^']*)'/");
 		public static Command Parse(string cmd) {
-			List<string> split = cmd.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+			List<string> split = ParseRegex.Split(cmd).ToList();
 			if (split.Count == 0)
 				throw new Exception("Parse string empty.");
 			string name = split[0];
 			split.RemoveAt(0);
 			if (CommandDefinition.List.ContainsKey(name)) {
 				CommandDefinition def = (CommandDefinition)Activator.CreateInstance(CommandDefinition.List[name]);
-				//Command c = new Command<def>(new object[] { });
 				if (split.Count != def.Parameters.Count) {
 					throw new Exception("Incorrect parameter count.");
 				}
@@ -131,7 +133,7 @@ namespace VGame {
 			Parameters = parameters;
 		}
 
-		public abstract void Run(CommandManager commandManager, Command cmd);
+		public abstract void Run(CommandManager cmdMan, Command cmd);
 
 		public static void Add(string name, Type type) {
 			if (!List.ContainsKey(name))

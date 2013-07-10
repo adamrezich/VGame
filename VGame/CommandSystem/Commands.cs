@@ -8,8 +8,8 @@ namespace VGame {
 
 		public class Quit : CommandDefinition {
 			public Quit() : base() { }
-			public override void Run(CommandManager commandManager, Command cmd) {
-				commandManager.Game.Exit();
+			public override void Run(CommandManager cmdMan, Command cmd) {
+				cmdMan.Game.Exit();
 			}
 		}
 	}
