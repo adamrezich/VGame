@@ -88,7 +88,8 @@ namespace VGame {
 				statesToUpdate.RemoveAt(statesToUpdate.Count - 1);
 				state.Update(gameTime);
 				if (!lastStateInputHandled) {
-					state.HandleInput(gameTime);
+					if (!Game.SuppressInput)
+						state.HandleInput(gameTime);
 					lastStateInputHandled = true;
 				}
 			}

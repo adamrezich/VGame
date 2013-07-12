@@ -1,19 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace VGame {
 	public abstract class Command {
 		public string Name;
 		public List<Parameter> Parameters = new List<Parameter>();
 		public abstract void Run(CommandManager commandManager);
-
-		public static Regex ParseRegex = new Regex(@"/[^\s""']+|""([^""]*)""|'([^']*)'/");
+		
 		public static Command Parse(string cmd) {
-			List<string> split = ParseRegex.Split(cmd).ToList();
-			if (split.Count == 0)
-				throw new Exception("Parse string empty.");
+			cmd = cmd.Trim();
+			if (cmd.Length == 0)
+				throw new Exception("Empty string.");
+			List<string> split = cmd.Split('"').Select((element, index) => index % 2 == 0 ? element.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries) : new string[] { element }).SelectMany(element => element).ToList();
 			string name = split[0];
 			split.RemoveAt(0);
 			if (CommandDefinition.List.ContainsKey(name)) {
@@ -168,7 +167,7 @@ namespace VGame {
 		public int IntData {
 			get {
 				if (intData.HasValue)
-					return (int)IntData;
+					return (int)intData;
 				else
 					throw new Exception("Trying to read int data from parameter when there was none.");
 			}

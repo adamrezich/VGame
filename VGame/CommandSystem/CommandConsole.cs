@@ -8,6 +8,9 @@ namespace VGame {
 		public int LinesToShow = 10;
 		private CommandManager commandManager;
 		public List<ConsoleMessage> History = new List<ConsoleMessage>();
+		public string Buffer = "";
+		public bool IsActive = false;
+		public bool IsVisible = true;
 
 		public CommandConsole(CommandManager commandManager) {
 			this.commandManager = commandManager;
@@ -20,14 +23,41 @@ namespace VGame {
 			History.Add(new ConsoleMessage(str, type));
 		}
 
+		public void HandleInput() {
+			if (commandManager.Game.InputManager.KeyState(Keys.Backquote) == ButtonState.Pressed)
+				IsActive = !IsActive;
+			if (IsActive) {
+				List<char> ascii = commandManager.Game.InputManager.GetTextInput();
+				if (commandManager.Game.InputManager.KeyState(Keys.Backspace) == ButtonState.Pressed && Buffer.Length > 0) {
+					Buffer = Buffer.Substring(0, Buffer.Length - 1);
+				}
+				if (commandManager.Game.InputManager.KeyState(Keys.Enter) == ButtonState.Pressed) {
+					if (Buffer.Length > 0) {
+						commandManager.Run(Buffer);
+						Buffer = "";
+					}
+					IsActive = false;
+				}
+				if (commandManager.Game.InputManager.KeyState(Keys.Escape) == ButtonState.Pressed)
+					IsActive = false;
+				foreach (char c in ascii)
+					if (c != '`')
+						Buffer += c;
+			}
+		}
+
 		public void Draw(GameTime gameTime) {
+			if (!IsVisible)
+				return;
 			Context g = commandManager.Game.Renderer.Context;
 
-			LinesToShow = Math.Min(LinesToShow, History.Count);
+			int linesToShow = Math.Min(LinesToShow, History.Count);
 			Vector2 offset = Vector2.Zero;
-			for (int i = 0; i < LinesToShow; i++) {
-				offset.Y += commandManager.Game.Renderer.DrawText(Position + offset, History[History.Count - LinesToShow + i].ToString(), 12, TextAlign.Left, TextAlign.Top, ColorPresets.White, null, new Cairo.Color(0, 0, 0, 0.6), 0, "ProFontWindows", 0).Height;
+			for (int i = 0; i < linesToShow; i++) {
+				offset.Y += commandManager.Game.Renderer.DrawText(Position + offset, History[History.Count - linesToShow + i].ToString(), 12, TextAlign.Left, TextAlign.Top, ColorPresets.White, null, new Cairo.Color(0, 0, 0, 0.6), 0, "ProFontWindows", 0).Height;
 			}
+			if (IsActive)
+				commandManager.Game.Renderer.DrawText(Position + offset, string.Format("> {0}", Buffer), 12, TextAlign.Left, TextAlign.Top, ColorPresets.White, null, new Cairo.Color(0, 0, 0, 0.8), 0, "ProFontWindows", 0);
 		}
 	}
 

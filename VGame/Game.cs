@@ -17,6 +17,7 @@ namespace VGame {
 		private TimeSpan _accumulatedElapsedTime;
 		private readonly GameTime _gameTime = new GameTime();
 		private Stopwatch _gameTimer = Stopwatch.StartNew();
+		public bool SuppressInput = false;
 
 		public bool IsExiting {
 			get {
@@ -42,6 +43,7 @@ namespace VGame {
 			StateManager = new StateManager(this);
 			Cmd = new CommandManager(this);
 			Cmd.Console.WriteLine("Command console test");
+			Cmd.Console.WriteLine("--------------------");
 			Initialize();
 		}
 
@@ -49,6 +51,9 @@ namespace VGame {
 		}
 
 		protected virtual void HandleInput() {
+			bool wasActive = Cmd.Console.IsActive;
+			Cmd.Console.HandleInput();
+			SuppressInput = wasActive;
 		}
 
 		protected virtual void Update(GameTime gameTime) {
@@ -97,6 +102,7 @@ namespace VGame {
 				++stepCount;
 				PollEvents();
 				InputManager.Tick();
+				HandleInput();
 				Update(_gameTime);
 				Renderer.Draw(_gameTime);
 			}

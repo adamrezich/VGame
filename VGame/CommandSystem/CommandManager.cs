@@ -17,7 +17,7 @@ namespace VGame {
 				cmd = Command.Parse(command);
 			}
 			catch (Exception e) {
-				Console.WriteLine("ERROR PARSING COMMAND: " + e.Message);
+				Console.WriteLine("ERROR: " + e.Message);
 				return;
 			}
 			Run(cmd);
@@ -27,7 +27,7 @@ namespace VGame {
 				cmd.Run(this);
 			}
 			catch (Exception e) {
-				Console.WriteLine("ERROR RUNNING COMMAND: " + e.Message);
+				Console.WriteLine("ERROR: " + e.Message);
 			}
 		}
 	}

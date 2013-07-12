@@ -195,7 +195,7 @@ namespace VGame {
 		}
 		protected bool IsValidUnicode(char c) {
 			// hopefully this isn't bad
-			return (char.IsLetterOrDigit(c) || char.IsPunctuation(c) || char.IsWhiteSpace(c)) && !char.IsControl(c);
+			return (char.IsLetterOrDigit(c) || char.IsPunctuation(c) || char.IsWhiteSpace(c) || Char.IsSymbol(c)) && !char.IsControl(c);
 		}
 		protected ButtonState NewButtonState(ButtonState state, bool down) {
 			switch (state) {
