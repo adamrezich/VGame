@@ -42,9 +42,10 @@ namespace VGame {
 			InputManager = new InputManager(this);
 			StateManager = new StateManager(this);
 			Cmd = new CommandManager(this);
+			Initialize();
+			Binding.BindKey(Keys.Escape, "escape");
 			Cmd.Console.WriteLine("Command console test");
 			Cmd.Console.WriteLine("--------------------");
-			Initialize();
 		}
 
 		protected virtual void Initialize() {
@@ -54,6 +55,11 @@ namespace VGame {
 			bool wasActive = Cmd.Console.IsActive;
 			Cmd.Console.HandleInput();
 			SuppressInput = wasActive;
+			if (!SuppressInput) {
+				foreach (Binding b in Binding.List)
+					if (InputManager.KeyState(b.Key) == ButtonState.Pressed)
+						Cmd.Run(b.Command);
+			}
 		}
 
 		protected virtual void Update(GameTime gameTime) {
