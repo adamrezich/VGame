@@ -11,6 +11,7 @@ namespace VGame {
 		public string Buffer = "";
 		public bool IsActive = false;
 		public bool IsVisible = true;
+		static readonly string cmdLineFormat = "> {0}";
 
 		public CommandConsole(CommandManager commandManager) {
 			this.commandManager = commandManager;
@@ -32,6 +33,8 @@ namespace VGame {
 					Buffer = Buffer.Substring(0, Buffer.Length - 1);
 				}
 				if (commandManager.Game.InputManager.KeyState(Keys.Enter) == ButtonState.Pressed) {
+					Buffer = Buffer.Trim();
+					WriteLine(string.Format(cmdLineFormat, Buffer), ConsoleMessageType.Input);
 					if (Buffer.Length > 0) {
 						commandManager.Run(Buffer);
 						Buffer = "";
@@ -54,10 +57,18 @@ namespace VGame {
 			int linesToShow = Math.Min(LinesToShow, History.Count);
 			Vector2 offset = Vector2.Zero;
 			for (int i = 0; i < linesToShow; i++) {
-				offset.Y += commandManager.Game.Renderer.DrawText(Position + offset, History[History.Count - linesToShow + i].ToString(), 12, TextAlign.Left, TextAlign.Top, ColorPresets.White, null, new Cairo.Color(0, 0, 0, 0.6), 0, "ProFontWindows", 0).Height;
+				ConsoleMessage msg = History[History.Count - linesToShow + i];
+				Color col = ColorPresets.White;
+				if (msg.HasType(ConsoleMessageType.Input))
+					col = ColorPresets.Gray75;
+				if (msg.HasType(ConsoleMessageType.Warning))
+					col = ColorPresets.Yellow;
+				if (msg.HasType(ConsoleMessageType.Error))
+					col = ColorPresets.Red;
+				offset.Y += commandManager.Game.Renderer.DrawText(Position + offset, msg.ToString(), 12, TextAlign.Left, TextAlign.Top, col, null, new Cairo.Color(0, 0, 0, 0.6), 0, "ProFontWindows", 0).Height;
 			}
 			if (IsActive)
-				commandManager.Game.Renderer.DrawText(Position + offset, string.Format("> {0}", Buffer), 12, TextAlign.Left, TextAlign.Top, ColorPresets.White, null, new Cairo.Color(0, 0, 0, 0.8), 0, "ProFontWindows", 0);
+				commandManager.Game.Renderer.DrawText(Position + offset, string.Format(cmdLineFormat, Buffer), 12, TextAlign.Left, TextAlign.Top, ColorPresets.White, null, new Cairo.Color(0, 0, 0, 0.8), 0, "ProFontWindows", 0);
 		}
 	}
 
@@ -70,6 +81,11 @@ namespace VGame {
 			Contents = contents;
 			Type = type;
 		}
+
+		public bool HasType(ConsoleMessageType type) {
+			return (Type & type) == type;
+		}
+
 		public override string ToString() {
 			string t = (Type & ConsoleMessageType.Client) == ConsoleMessageType.Client ? "[C] " : (Type & ConsoleMessageType.Server) == ConsoleMessageType.Server ? "[S] " : "";
 			return string.Format("{0}{1}", t, Contents);
@@ -78,10 +94,12 @@ namespace VGame {
 
 	[Flags]
 	public enum ConsoleMessageType {
-		Normal = 0x0,
-		Client = 0x1,
-		Server = 0x2,
-		Error = 0x4
+		Normal = 0,
+		Client = 1,
+		Server = 2,
+		Error = 4,
+		Warning = 8,
+		Input = 16
 	}
 }
 

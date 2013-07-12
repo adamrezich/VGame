@@ -71,21 +71,6 @@ namespace VGame {
 				if (selectedIndex.HasValue && entries[(int)selectedIndex].Enabled)
 					OnSwipeRightEntry((int)selectedIndex);
 			}
-			if (InputManager.KeyState(Keys.Escape) == ButtonState.Pressed) {
-				if (Cancelable) {
-					if (selectedIndex.HasValue && entries[(int)selectedIndex].IsCancel)
-						OnCancel();
-					else {
-						foreach (MenuEntry e in entries) {
-							if (e.IsCancel) {
-								mousing = false;
-								selectedIndex = entries.IndexOf(e);
-								UpdateSelected();
-							}
-						}
-					}
-				}
-			}
 			List<char> unicode = InputManager.GetTextInput();
 			if (unicode.Count > 0 || InputManager.KeyState(Keys.Backspace) == ButtonState.Pressed) {
 				mousing = false;
@@ -180,6 +165,22 @@ namespace VGame {
 		}
 		protected void OnCancel(object sender, EventArgs e) {
 			OnCancel();
+		}
+
+		public override void OnEscape() {
+			if (Cancelable) {
+				if (selectedIndex.HasValue && entries[(int)selectedIndex].IsCancel)
+					OnCancel();
+				else {
+					foreach (MenuEntry e in entries) {
+						if (e.IsCancel) {
+							mousing = false;
+							selectedIndex = entries.IndexOf(e);
+							UpdateSelected();
+						}
+					}
+				}
+			}
 		}
 	}
 }
