@@ -68,6 +68,7 @@
     <Compile Include="CommandSystem\Command.cs" />
     <Compile Include="CommandSystem\Commands.cs" />
     <Compile Include="CommandSystem\CommandManager.cs" />
+    <Compile Include="CommandSystem\CommandConsole.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -138,8 +138,9 @@ namespace VGame {
 			}
 		}
 
-		public void DrawText(Vector2 position, string text, double scale, TextAlign hAlign, TextAlign vAlign, Cairo.Color? fillColor, Cairo.Color? strokeColor, Cairo.Color? backgroundColor, double angle, string font) {
+		public Rectangle DrawText(Vector2 position, string text, double scale, TextAlign hAlign, TextAlign vAlign, Cairo.Color? fillColor, Cairo.Color? strokeColor, Cairo.Color? backgroundColor, double angle, string font) {
 			Context g = context;
+			Rectangle r = new Rectangle();
 			int TextBoxPadding = 4;
 			if (font == null)
 				font = "04b_19";
@@ -168,8 +169,9 @@ namespace VGame {
 					offset.Y = -(float)(ext2.Height);
 					break;
 			}
-			Vector2 textPos = position - new Vector2((float)(ext.XBearing), (float)(ext2.YBearing)) + offset;
-			Vector2 boxOffset = new Vector2((float)(ext.XBearing), (float)(-ext2.Height));
+			Vector2 textPos = position - new Vector2((float)(ext.XBearing), (float)(ext.YBearing)) + offset;
+			Vector2 boxOffset = new Vector2((float)(ext.XBearing), (float)(-ext.Height));
+			//r = new Rectangle((int)(textPos
 			if (backgroundColor.HasValue) {
 				g.MoveTo((textPos + boxOffset + new Vector2(-TextBoxPadding, -TextBoxPadding)).ToPointD());
 				g.LineTo((textPos + boxOffset + new Vector2((float)ext.Width, 0) + new Vector2(TextBoxPadding, -TextBoxPadding)).ToPointD());
@@ -196,6 +198,7 @@ namespace VGame {
 				g.LineWidth = 2;
 			}
 			Antialias();
+			return r;
 		}
 
 		protected void Initialize() {

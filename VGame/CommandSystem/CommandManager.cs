@@ -3,9 +3,11 @@ using System;
 namespace VGame {
 	public class CommandManager {
 		public Game Game;
+		public CommandConsole Console;
 
 		public CommandManager(Game game) {
 			Game = game;
+			Console = new CommandConsole(this);
 			VGame.Commands.Load();
 		}
 
