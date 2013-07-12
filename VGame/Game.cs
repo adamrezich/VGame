@@ -41,7 +41,7 @@ namespace VGame {
 			InputManager = new InputManager(this);
 			StateManager = new StateManager(this);
 			Cmd = new CommandManager(this);
-			Cmd.Console.WriteLine("TESTgggqqqWZ");
+			Cmd.Console.WriteLine("Command console test");
 			Initialize();
 		}
 
@@ -57,7 +57,7 @@ namespace VGame {
 
 		public virtual void Draw(GameTime gameTime) {
 			StateManager.Draw(gameTime);
-			Cmd.Console.Draw(gameTime, new Vector2(8, 8), 10);
+			Cmd.Console.Draw(gameTime);
 		}
 
 		public void Run() {

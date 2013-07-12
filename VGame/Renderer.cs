@@ -137,17 +137,16 @@ namespace VGame {
 				elapsedTime = 0;
 			}
 		}
-
 		public Rectangle DrawText(Vector2 position, string text, double scale, TextAlign hAlign, TextAlign vAlign, Cairo.Color? fillColor, Cairo.Color? strokeColor, Cairo.Color? backgroundColor, double angle, string font) {
+			return DrawText(position, text, scale, hAlign, vAlign, fillColor, strokeColor, backgroundColor, angle, font, 2);
+		}
+		public Rectangle DrawText(Vector2 position, string text, double scale, TextAlign hAlign, TextAlign vAlign, Cairo.Color? fillColor, Cairo.Color? strokeColor, Cairo.Color? backgroundColor, double angle, string font, int padding) {
 			Context g = context;
-			Rectangle r = new Rectangle();
-			int TextBoxPadding = 4;
 			if (font == null)
 				font = "04b_19";
 			g.SelectFontFace(font, FontSlant.Normal, FontWeight.Normal);
 			g.SetFontSize(scale);
 			TextExtents ext = g.TextExtents(text);
-			TextExtents ext2 = g.TextExtents("|");
 			Vector2 offset = new Vector2(0, 0);
 			switch (hAlign) {
 				case TextAlign.Left:
@@ -163,20 +162,20 @@ namespace VGame {
 				case TextAlign.Top:
 					break;
 					case TextAlign.Middle:
-					offset.Y = -(float)(ext2.Height / 2);
+					offset.Y = -(float)(g.FontExtents.Height / 2);
 					break;
 					case TextAlign.Bottom:
-					offset.Y = -(float)(ext2.Height);
+					offset.Y = -(float)(g.FontExtents.Height);
 					break;
 			}
-			Vector2 textPos = position - new Vector2((float)(ext.XBearing), (float)(ext.YBearing)) + offset;
-			Vector2 boxOffset = new Vector2((float)(ext.XBearing), (float)(-ext.Height));
-			//r = new Rectangle((int)(textPos
+			Vector2 baseline = position + new Vector2(0, (float)g.FontExtents.Ascent);
+			Vector2 textPos = baseline + offset;
+			Rectangle r = new Rectangle((int)(position.X - padding + offset.X), (int)(position.Y - padding + offset.Y), (int)(ext.Width + padding * 2), (int)(g.FontExtents.Height + padding * 2));
 			if (backgroundColor.HasValue) {
-				g.MoveTo((textPos + boxOffset + new Vector2(-TextBoxPadding, -TextBoxPadding)).ToPointD());
-				g.LineTo((textPos + boxOffset + new Vector2((float)ext.Width, 0) + new Vector2(TextBoxPadding, -TextBoxPadding)).ToPointD());
-				g.LineTo((textPos + boxOffset + new Vector2((float)ext.Width, (float)ext.Height) + new Vector2(TextBoxPadding, TextBoxPadding)).ToPointD());
-				g.LineTo((textPos + boxOffset + new Vector2(0, (float)ext.Height) + new Vector2(-TextBoxPadding, TextBoxPadding)).ToPointD());
+				g.MoveTo(r.Left, r.Top);
+				g.LineTo(r.Right, r.Top);
+				g.LineTo(r.Right, r.Bottom);
+				g.LineTo(r.Left, r.Bottom);
 				g.ClosePath();
 				g.Color = (Cairo.Color)backgroundColor;
 				g.Fill();

@@ -34,19 +34,17 @@ namespace VGame {
 			if ((InputManager.KeyState(Keys.Down) == ButtonState.Pressed || (InputManager.KeyState(Keys.Tab) == ButtonState.Pressed && !InputManager.IsShiftKeyDown)) && !InputManager.MouseMoved) {
 				mousing = false;
 				if (selectedIndex == null)
-					selectedIndex = 0;
-				else {
-					do {
-						selectedIndex++;
-						if (selectedIndex >= entries.Count)
-							selectedIndex -= entries.Count;
-					} while (!entries[(int)selectedIndex].Enabled);
-				}
+					selectedIndex = -1;
+				do {
+					selectedIndex++;
+					if (selectedIndex >= entries.Count)
+						selectedIndex -= entries.Count;
+				} while (!entries[(int)selectedIndex].Enabled);
 			}
 			if ((InputManager.KeyState(Keys.Up) == ButtonState.Pressed || (InputManager.KeyState(Keys.Tab) == ButtonState.Pressed && InputManager.IsShiftKeyDown)) && !InputManager.MouseMoved) {
 				mousing = false;
 				if (selectedIndex == null)
-					selectedIndex = 0;
+					selectedIndex = entries.Count;
 				do {
 					selectedIndex--;
 					if (selectedIndex < 0)
