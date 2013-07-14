@@ -70,6 +70,7 @@
     <Compile Include="CommandSystem\CommandManager.cs" />
     <Compile Include="CommandSystem\CommandConsole.cs" />
     <Compile Include="CommandSystem\Binding.cs" />
+    <Compile Include="CommandSystem\InputCombination.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -50,7 +50,7 @@ namespace VGame {
 					if (test.Name == "bind")
 						throw new Exception("Can't bind a key to a bind command.");
 					else
-						Binding.BindKey(key, newCmd);
+						Binding.Bind(new KeyCombination(key, false, false, false), newCmd);
 				}
 				else
 					throw new Exception(string.Format("Invalid key '{0}'.", cmd.Parameters[0].StringData));

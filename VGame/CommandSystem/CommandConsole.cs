@@ -44,7 +44,7 @@ namespace VGame {
 				if (commandManager.Game.InputManager.KeyState(Keys.Escape) == ButtonState.Pressed)
 					IsActive = false;
 				foreach (char c in ascii)
-					if (c != '`')
+					if (c != '`' && c != '~')
 						Buffer += c;
 			}
 		}

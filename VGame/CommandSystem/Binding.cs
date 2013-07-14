@@ -6,21 +6,21 @@ namespace VGame {
 	public class Binding {
 		public static List<Binding> List = new List<VGame.Binding>();
 
-		public Keys Key;
+		public InputCombination Combination;
 		public string Command;
 
-		private Binding(Keys key, string command) {
-			Key = key;
+		private Binding(InputCombination combination, string command) {
+			Combination = combination;
 			Command = command;
 		}
 
-		public static void BindKey(Keys key, string command) {
-			if (List.Exists(x => x.Key == key && x.Command == command))
+		public static void Bind(InputCombination combination, string command) {
+			if (List.Exists(x => x.Combination == combination && x.Command == command))
 				return;
-			List.Add(new Binding(key, command));
+			List.Add(new Binding(combination, command));
 		}
-		public static void UnbindKey(Keys key) {
-			List.RemoveAll(x => x.Key == key);
+		public static void Unbind(InputCombination combination) {
+			List.RemoveAll(x => x.Combination == combination);
 		}
 	}
 }

@@ -43,7 +43,8 @@ namespace VGame {
 			StateManager = new StateManager(this);
 			Cmd = new CommandManager(this);
 			Initialize();
-			Binding.BindKey(Keys.Escape, "escape");
+			Binding.Bind(InputCombination.Create(Keys.Escape, false, false, false), "escape");
+			Binding.Bind(InputCombination.Create(Keys.Escape, true, false, true), "quit");
 			Cmd.Console.WriteLine("Command console test");
 			Cmd.Console.WriteLine("--------------------");
 		}
@@ -57,7 +58,7 @@ namespace VGame {
 			SuppressInput = wasActive;
 			if (!SuppressInput) {
 				foreach (Binding b in Binding.List)
-					if (InputManager.KeyState(b.Key) == ButtonState.Pressed)
+					if (b.Combination.IsPressed(InputManager))
 						Cmd.Run(b.Command);
 			}
 		}
@@ -175,6 +176,10 @@ namespace VGame {
 			ConstrainMouse = constrainMouse;
 			WindowCaption = windowCaption;
 			return true;
+		}
+
+		public GameTime GetGameTime() {
+			return _gameTime;
 		}
 	}
 }

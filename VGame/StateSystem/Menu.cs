@@ -20,6 +20,16 @@ namespace VGame {
 			}
 		}
 
+		public int Height {
+			get {
+				int height = 24 + Margin * 2;
+				foreach (MenuEntry e in entries) {
+					height += e.Height;
+				}
+				return height;
+			}
+		}
+
 		public Menu(string title) {
 			Title = title;
 		}
@@ -119,7 +129,7 @@ namespace VGame {
 			g.Color = new Cairo.Color(0.5, 0.5, 0.5);
 			g.Fill();
 
-			Vector2 origin = new Vector2(Renderer.Width / 2, 8);
+			Vector2 origin = new Vector2(Renderer.Width / 2, Renderer.Height / 2 - Height / 2);
 			Vector2 offset = new Vector2();
 			if (Title != null) {
 				string titleFont = "04b20";
