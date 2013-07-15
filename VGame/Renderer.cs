@@ -8,7 +8,6 @@ namespace VGame {
 	public class Renderer : IDisposable {
 		public static Renderer Current = null;
 		Game game;
-		IntPtr sdlBuffer;
 		IntPtr surfacePtr;
 		int bpp = 32;
 		int width = 1280;
@@ -203,12 +202,14 @@ namespace VGame {
 		protected void Initialize() {
 			int init;
 
-			Sdl.SDL_putenv("SDL_VIDEO_CENTERED=center");
+			//Sdl.SDL_putenv("SDL_VIDEO_CENTERED=center");
 			init = Sdl.SDL_Init(Sdl.SDL_INIT_VIDEO);
 			flags = Sdl.SDL_SWSURFACE | Sdl.SDL_DOUBLEBUF | Sdl.SDL_ANYFORMAT | (fullscreen ? Sdl.SDL_FULLSCREEN : 0) | (borderless ? Sdl.SDL_NOFRAME : 0);
+			surfacePtr = IntPtr.Zero;
 			surfacePtr = Sdl.SDL_SetVideoMode(width, height, bpp, flags);
 
 			Sdl.SDL_Surface surface = (Sdl.SDL_Surface)Marshal.PtrToStructure(surfacePtr, typeof(Sdl.SDL_Surface));
+			IntPtr sdlBuffer = IntPtr.Zero;
 			sdlBuffer = surface.pixels;
 
 			imgSurface = new ImageSurface(sdlBuffer, Format.RGB24, width, height, width * 4);
