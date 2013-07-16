@@ -201,7 +201,7 @@ namespace VGame {
 
 		protected void Initialize() {
 
-			//Sdl.SDL_putenv("SDL_VIDEO_CENTERED=center");
+			Sdl.SDL_putenv("SDL_VIDEO_CENTERED=center");
 			if (Sdl.SDL_Init(Sdl.SDL_INIT_VIDEO) != 0) {
 				throw new Exception("Video failed to initialize!");
 			}

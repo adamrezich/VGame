@@ -128,6 +128,8 @@ namespace VGame {
 		}
 		public CommandDefinition(List<ParameterType> parameters, Action<CommandManager, Command> runAction) : this(parameters, typeof(State), runAction) {
 		}
+		public CommandDefinition(Type state, Action<CommandManager, Command> runAction) : this(new List<ParameterType>(), state, runAction) {
+		}
 		public CommandDefinition(List<ParameterType> parameters, Type state, Action<CommandManager, Command> runAction) {
 			Parameters = parameters;
 			State = state;

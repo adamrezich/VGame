@@ -43,7 +43,7 @@ namespace VGame {
 			StateManager = new StateManager(this);
 			Cmd = new CommandManager(this);
 			Initialize();
-			//Binding.Bind(InputCombination.Create(Keys.Escape, false, false, false), "escape");
+			Binding.Bind(InputCombination.Create(Keys.Escape, false, false, false), "escape");
 			Binding.Bind(InputCombination.Create(Keys.Escape, true, false, true), "quit");
 			Cmd.Console.WriteLine("Command console test");
 			Cmd.Console.WriteLine("--------------------");
