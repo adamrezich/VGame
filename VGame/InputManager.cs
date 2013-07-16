@@ -6,7 +6,6 @@ using Tao.Sdl;
 
 namespace VGame {
 	public class InputManager {
-		Game game;
 		MouseState mouseState;
 		MouseState lastMouseState;
 		KeyboardState keyboardState;
@@ -15,8 +14,7 @@ namespace VGame {
 		Dictionary<Keys, bool> downKeys = new Dictionary<Keys, bool>();
 		List<char> newUnicode = new List<char>();
 
-		public InputManager(Game game) {
-			this.game = game;
+		public InputManager() {
 			downMouseButtons.Add(MouseButton.Left, false);
 			downMouseButtons.Add(MouseButton.Middle, false);
 			downMouseButtons.Add(MouseButton.Right, false);

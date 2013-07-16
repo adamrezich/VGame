@@ -12,7 +12,7 @@ namespace VGame {
 		public StateManager StateManager;
 		public CommandManager Cmd;
 		private TimeSpan _targetElapsedTime = TimeSpan.FromTicks((long)10000000 / (long)60f);
-		private TimeSpan _inactiveSleepTime = TimeSpan.FromSeconds(1);
+		//private TimeSpan _inactiveSleepTime = TimeSpan.FromSeconds(1);
 		private readonly TimeSpan _maxElapsedTime = TimeSpan.FromMilliseconds(500);
 		private TimeSpan _accumulatedElapsedTime;
 		private readonly GameTime _gameTime = new GameTime();
@@ -39,11 +39,11 @@ namespace VGame {
 		public Game(bool initializeRenderer) {
 			if (initializeRenderer)
 				ChangeResolution(new Rectangle(0, 0, 1024, 768), false, false);
-			InputManager = new InputManager(this);
+			InputManager = new InputManager();
 			StateManager = new StateManager(this);
 			Cmd = new CommandManager(this);
 			Initialize();
-			Binding.Bind(InputCombination.Create(Keys.Escape, false, false, false), "escape");
+			//Binding.Bind(InputCombination.Create(Keys.Escape, false, false, false), "escape");
 			Binding.Bind(InputCombination.Create(Keys.Escape, true, false, true), "quit");
 			Cmd.Console.WriteLine("Command console test");
 			Cmd.Console.WriteLine("--------------------");

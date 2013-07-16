@@ -3,10 +3,68 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace VGame {
-	public abstract class Command {
+	public class Command {
 		public string Name;
 		public List<Parameter> Parameters = new List<Parameter>();
-		public abstract void Run(CommandManager commandManager);
+		public CommandDefinition CommandDefinition;
+
+		public Command(CommandDefinition commandDefinition, params object[] args) {
+			CommandDefinition = commandDefinition;
+			Name = commandDefinition.Name;
+			if (args.Length < commandDefinition.Parameters.Count) {
+				throw new Exception("Too few arguments.");
+			}
+			if (args.Length > commandDefinition.Parameters.Count) {
+				throw new Exception("Too many arguments.");
+			}
+			for (int i = 0; i < args.Length; i++) {
+				bool added = false;
+				if (args[i] is bool && commandDefinition.Parameters[i] == ParameterType.Bool) {
+					Parameters.Add(new Parameter((bool)args[i]));
+					added = true;
+				}
+				if (args[i] is int && commandDefinition.Parameters[i] == ParameterType.Int) {
+					Parameters.Add(new Parameter((int)args[i]));
+					added = true;
+				}
+				if ((args[i] is float || args[i] is double) && commandDefinition.Parameters[i] == ParameterType.Float) {
+					Parameters.Add(new Parameter((float)args[i]));
+					added = true;
+				}
+				if (args[i] is string && commandDefinition.Parameters[i] == ParameterType.String) {
+					Parameters.Add(new Parameter((string)args[i]));
+					added = true;
+				}
+				if (!added)
+					throw new Exception("Bad parameter type.");
+			}
+		}
+
+		public void Run(CommandManager commandManager) {
+			CommandDefinition.Run(commandManager, this);
+		}
+
+		public override string ToString() {
+			string str = Name;
+			foreach (Parameter p in Parameters) {
+				str += " ";
+				switch (p.DataType) {
+					case ParameterType.Bool:
+						str += p.BoolData ? "1" : "0";
+						break;
+						case ParameterType.Int:
+						str += p.IntData.ToString();
+						break;
+						case ParameterType.Float:
+						str += p.FloatData.ToString();
+						break;
+						case ParameterType.String:
+						str += p.StringData;
+						break;
+				}
+			}
+			return str;
+		}
 		
 		public static Command Parse(string cmd) {
 			cmd = cmd.Trim();
@@ -16,7 +74,7 @@ namespace VGame {
 			string name = split[0];
 			split.RemoveAt(0);
 			if (CommandDefinition.List.ContainsKey(name)) {
-				CommandDefinition def = (CommandDefinition)Activator.CreateInstance(CommandDefinition.List[name]);
+				CommandDefinition def = CommandDefinition.List[name];
 				if (split.Count != def.Parameters.Count) {
 					throw new Exception("Incorrect parameter count.");
 				}
@@ -49,94 +107,42 @@ namespace VGame {
 							break;
 					}
 				}
-				return (VGame.Command)Activator.CreateInstance(typeof(Command<>).MakeGenericType(CommandDefinition.List[name]), parameters.ToArray());
+				return (VGame.Command)Activator.CreateInstance(typeof(Command), def, parameters.ToArray());
 			}
 			else
 				throw new Exception("Command not found.");
 		}
 	}
-	public class Command<TDefinition> : Command where TDefinition : CommandDefinition, new() {
-		private TDefinition def;
-		public Command(params object[] args) {
-			def = new TDefinition();
-			Name = def.Name;
-			if (args.Length < def.Parameters.Count) {
-				throw new Exception("Too few arguments.");
-			}
-			if (args.Length > def.Parameters.Count) {
-				throw new Exception("Too many arguments.");
-			}
-			for (int i = 0; i < args.Length; i++) {
-				bool added = false;
-				if (args[i] is bool && def.Parameters[i] == ParameterType.Bool) {
-					Parameters.Add(new Parameter((bool)args[i]));
-					added = true;
-				}
-				if (args[i] is int && def.Parameters[i] == ParameterType.Int) {
-					Parameters.Add(new Parameter((int)args[i]));
-					added = true;
-				}
-				if ((args[i] is float || args[i] is double) && def.Parameters[i] == ParameterType.Float) {
-					Parameters.Add(new Parameter((float)args[i]));
-					added = true;
-				}
-				if (args[i] is string && def.Parameters[i] == ParameterType.String) {
-					Parameters.Add(new Parameter((string)args[i]));
-					added = true;
-				}
-				if (!added)
-					throw new Exception("Bad parameter type.");
-			}
-		}
-
-		public override void Run(CommandManager commandManager) {
-			def.Run(commandManager, this);
-		}
-
-		public override string ToString() {
-			string str = Name;
-			foreach (Parameter p in Parameters) {
-				str += " ";
-				switch (p.DataType) {
-					case ParameterType.Bool:
-						str += p.BoolData ? "1" : "0";
-						break;
-						case ParameterType.Int:
-						str += p.IntData.ToString();
-						break;
-						case ParameterType.Float:
-						str += p.FloatData.ToString();
-						break;
-						case ParameterType.String:
-						str += p.StringData;
-						break;
-				}
-			}
-			return str;
-		}
-	}
-	public abstract class CommandDefinition {
-		public static Dictionary<string, Type> List = new Dictionary<string, Type>();
+	public class CommandDefinition {
+		public static Dictionary<string, CommandDefinition> List = new Dictionary<string, CommandDefinition>();
 		public string Name {
 			get {
-				return List.FirstOrDefault(x => x.Value == this.GetType()).Key;
+				return List.FirstOrDefault(x => x.Value == this).Key;
 			}
 		}
 		public List<ParameterType> Parameters;
+		public Type State;
+		public Action<CommandManager, Command> RunAction;
 
-		public CommandDefinition() : this(new List<ParameterType>()) {
+		public CommandDefinition(Action<CommandManager, Command> runAction) : this(new List<ParameterType>(), typeof(State), runAction) {
 		}
-		public CommandDefinition(params ParameterType[] args) : this(args.ToList()) {
+		public CommandDefinition(List<ParameterType> parameters, Action<CommandManager, Command> runAction) : this(parameters, typeof(State), runAction) {
 		}
-		public CommandDefinition(List<ParameterType> parameters) {
+		public CommandDefinition(List<ParameterType> parameters, Type state, Action<CommandManager, Command> runAction) {
 			Parameters = parameters;
+			State = state;
+			RunAction = runAction;
 		}
 
-		public abstract void Run(CommandManager cmdMan, Command cmd);
+		public void Run(CommandManager cmdManager, Command cmd) {
+			Type t = cmdManager.Game.StateManager.LastActiveState.GetType();
+			if (t.IsSubclassOf(State) || t == State)
+				RunAction.Invoke(cmdManager, cmd);
+		}
 
-		public static void Add(string name, Type type) {
+		public static void Add(string name, CommandDefinition commandDefinition) {
 			if (!List.ContainsKey(name))
-				List.Add(name, type);
+				List.Add(name, commandDefinition);
 			else
 				throw new Exception("Attempted to override existing command");
 		}
@@ -152,7 +158,7 @@ namespace VGame {
 					return ParameterType.Float;
 				if (stringData != null)
 					return ParameterType.String;
-				throw new Exception("Something went horribly wrong and a paramter lost it's data or something.");
+				throw new Exception("Something went horribly wrong and a paramter lost its data or something.");
 			}
 		}
 		public bool BoolData {

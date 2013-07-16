@@ -12,7 +12,6 @@ namespace VGame {
 		int bpp = 32;
 		int width = 1280;
 		int height = 720;
-		int resultFlip;
 		int flags = 0;
 		ImageSurface imgSurface;
 		bool borderless = false;
@@ -96,7 +95,7 @@ namespace VGame {
 		protected virtual void Dispose(bool disposing) {
 			if (!this.isDisposing) {
 				if (disposing) {
-					if (surfacePtr != IntPtr.Zero && surfacePtr != null)
+					if (surfacePtr != IntPtr.Zero)
 					    Sdl.SDL_FreeSurface(surfacePtr);
 					surfacePtr = IntPtr.Zero;
 					Sdl.SDL_Quit();
@@ -122,7 +121,8 @@ namespace VGame {
 		public void Draw(GameTime gameTime) {
 			Clear();
 			game.Draw(gameTime);
-			resultFlip = Sdl.SDL_Flip(surfacePtr);
+			if (Sdl.SDL_Flip(surfacePtr) != 0)
+				throw new Exception("Failed to swap buffers!");
 		}
 		public void Close() {
 			Dispose(true);
@@ -200,21 +200,22 @@ namespace VGame {
 		}
 
 		protected void Initialize() {
-			int init;
 
 			//Sdl.SDL_putenv("SDL_VIDEO_CENTERED=center");
-			init = Sdl.SDL_Init(Sdl.SDL_INIT_VIDEO);
+			if (Sdl.SDL_Init(Sdl.SDL_INIT_VIDEO) != 0) {
+				throw new Exception("Video failed to initialize!");
+			}
 			flags = Sdl.SDL_SWSURFACE | Sdl.SDL_DOUBLEBUF | Sdl.SDL_ANYFORMAT | (fullscreen ? Sdl.SDL_FULLSCREEN : 0) | (borderless ? Sdl.SDL_NOFRAME : 0);
 			surfacePtr = IntPtr.Zero;
 			surfacePtr = Sdl.SDL_SetVideoMode(width, height, bpp, flags);
 			if (surfacePtr == IntPtr.Zero)
-				Console.WriteLine("!!! Failed to set the surface pointer to point to the surface video mode thing!");
+				throw new Exception("Failed to set the surface pointer to point to the surface video mode thing!");
 
 			Sdl.SDL_Surface surface = (Sdl.SDL_Surface)Marshal.PtrToStructure(surfacePtr, typeof(Sdl.SDL_Surface));
 			IntPtr sdlBuffer = IntPtr.Zero;
 			sdlBuffer = surface.pixels;
 			if (sdlBuffer == IntPtr.Zero)
-				Console.WriteLine("!!! Failed to set the surface buffer pointer to point to the surface!");
+				throw new Exception("Failed to set the surface buffer pointer to point to the surface!");
 
 			imgSurface = new ImageSurface(sdlBuffer, Format.Argb32, width, height, width * 4);
 			context = new Context(imgSurface);
