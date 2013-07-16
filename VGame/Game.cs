@@ -45,6 +45,13 @@ namespace VGame {
 			Initialize();
 			Binding.Bind(InputCombination.Create(Keys.Escape, false, false, false), "escape");
 			Binding.Bind(InputCombination.Create(Keys.Escape, true, false, true), "quit");
+			Binding.Bind(InputCombination.Create(Keys.Up, false, false, false), "menu_up");
+			Binding.Bind(InputCombination.Create(Keys.Down, false, false, false), "menu_down");
+			Binding.Bind(InputCombination.Create(Keys.Tab, false, false, false), "menu_down");
+			Binding.Bind(InputCombination.Create(Keys.Tab, false, true, false), "menu_up");
+			Binding.Bind(InputCombination.Create(Keys.Space, false, false, false), "menu_select");
+			Binding.Bind(InputCombination.Create(Keys.Enter, false, false, false), "menu_select");
+			Binding.Bind(InputCombination.Create(Keys.Backquote, false, false, false), "console_toggle");
 			Cmd.Console.WriteLine("Command console test");
 			Cmd.Console.WriteLine("--------------------");
 		}
@@ -56,11 +63,9 @@ namespace VGame {
 			bool wasActive = Cmd.Console.IsActive;
 			Cmd.Console.HandleInput();
 			SuppressInput = wasActive;
-			if (!SuppressInput) {
-				foreach (Binding b in Binding.List)
-					if (b.Combination.IsPressed(InputManager))
-						Cmd.Run(b.Command);
-			}
+			foreach (Binding b in Binding.List)
+				if (b.Combination.IsPressed(InputManager) && (!SuppressInput || b.Command == "console_toggle"))
+					Cmd.Run(b.Command);
 		}
 
 		protected virtual void Update(GameTime gameTime) {

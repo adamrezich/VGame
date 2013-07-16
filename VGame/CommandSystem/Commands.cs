@@ -38,10 +38,28 @@ namespace VGame {
 			Add("clear", new CommandDefinition(delegate(CommandManager cmdMan, Command cmd) {
 				cmdMan.Console.History.Clear();
 			}));
+			Add("menu_up", new CommandDefinition(typeof(Menu), delegate(CommandManager cmdMan, Command cmd) {
+				if (!cmdMan.Game.InputManager.MouseMoved)
+					((Menu)cmdMan.Game.StateManager.LastActiveState).OnMoveUp();
+			}));
+			Add("menu_down", new CommandDefinition(typeof(Menu), delegate(CommandManager cmdMan, Command cmd) {
+				if (!cmdMan.Game.InputManager.MouseMoved)
+					((Menu)cmdMan.Game.StateManager.LastActiveState).OnMoveDown();
+			}));
+			Add("menu_select", new CommandDefinition(typeof(Menu), delegate(CommandManager cmdMan, Command cmd) {
+				if (!cmdMan.Game.InputManager.MouseMoved)
+					((Menu)cmdMan.Game.StateManager.LastActiveState).OnSelect();
+			}));
+			Add("console_toggle", new CommandDefinition(delegate(CommandManager cmdMan, Command cmd) {
+				cmdMan.Console.IsActive = !cmdMan.Console.IsActive;
+				cmdMan.Console.IsVisible = cmdMan.Console.IsActive;
+				if (!cmdMan.Console.IsActive)
+					cmdMan.Console.Buffer = "";
+			}));
 		}
 		public static void Add(string name, CommandDefinition commandDefinition) {
 			CommandDefinition.Add(name, commandDefinition);
-		}		
+		}
 	}
 }
 

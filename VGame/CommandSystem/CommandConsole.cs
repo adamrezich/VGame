@@ -9,8 +9,9 @@ namespace VGame {
 		private CommandManager commandManager;
 		public List<ConsoleMessage> History = new List<ConsoleMessage>();
 		public string Buffer = "";
+		private bool lastIsActive = false;
 		public bool IsActive = false;
-		public bool IsVisible = true;
+		public bool IsVisible = false;
 		static readonly string cmdLineFormat = "> {0}";
 
 		public CommandConsole(CommandManager commandManager) {
@@ -25,8 +26,6 @@ namespace VGame {
 		}
 
 		public void HandleInput() {
-			if (commandManager.Game.InputManager.KeyState(Keys.Backquote) == ButtonState.Pressed)
-				IsActive = !IsActive;
 			if (IsActive) {
 				List<char> ascii = commandManager.Game.InputManager.GetTextInput();
 				if (commandManager.Game.InputManager.KeyState(Keys.Backspace) == ButtonState.Pressed && Buffer.Length > 0) {
@@ -39,14 +38,17 @@ namespace VGame {
 						commandManager.Run(Buffer);
 						Buffer = "";
 					}
-					IsActive = false;
+					//IsActive = false;
 				}
 				if (commandManager.Game.InputManager.KeyState(Keys.Escape) == ButtonState.Pressed)
 					IsActive = false;
-				foreach (char c in ascii)
-					if (c != '`' && c != '~')
-						Buffer += c;
+				if (lastIsActive)
+					foreach (char c in ascii)
+						// TODO: MAKE THIS RELEVANT TO THE BOUND CONSOLE KEY
+						//if (c != '`' && c != '~')
+							Buffer += c;
 			}
+			lastIsActive = IsActive;
 		}
 
 		public void Draw(GameTime gameTime) {

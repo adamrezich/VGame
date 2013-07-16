@@ -41,33 +41,8 @@ namespace VGame {
 		public override void HandleInput(GameTime gameTime) {
 			if (InputManager.MouseMoved)
 				mousing = true;
-			if ((InputManager.KeyState(Keys.Down) == ButtonState.Pressed || (InputManager.KeyState(Keys.Tab) == ButtonState.Pressed && !InputManager.IsShiftKeyDown)) && !InputManager.MouseMoved) {
-				mousing = false;
-				if (selectedIndex == null)
-					selectedIndex = -1;
-				do {
-					selectedIndex++;
-					if (selectedIndex >= entries.Count)
-						selectedIndex -= entries.Count;
-				} while (!entries[(int)selectedIndex].Enabled);
-			}
-			if ((InputManager.KeyState(Keys.Up) == ButtonState.Pressed || (InputManager.KeyState(Keys.Tab) == ButtonState.Pressed && InputManager.IsShiftKeyDown)) && !InputManager.MouseMoved) {
-				mousing = false;
-				if (selectedIndex == null)
-					selectedIndex = entries.Count;
-				do {
-					selectedIndex--;
-					if (selectedIndex < 0)
-						selectedIndex += entries.Count;
-				} while (!entries[(int)selectedIndex].Enabled);
-			}
 			if (InputManager.MouseButtonState(MouseButton.Left) == ButtonState.Pressed) {
 				UpdateSelected();
-				if (selectedIndex.HasValue && entries[(int)selectedIndex].Enabled)
-					OnSelectEntry((int)selectedIndex);
-			}
-			if (InputManager.KeyState(Keys.Space) == ButtonState.Pressed || InputManager.KeyState(Keys.Enter) == ButtonState.Pressed) {
-				mousing = false;
 				if (selectedIndex.HasValue && entries[(int)selectedIndex].Enabled)
 					OnSelectEntry((int)selectedIndex);
 			}
@@ -191,6 +166,31 @@ namespace VGame {
 					}
 				}
 			}
+		}
+		public void OnMoveUp() {
+			mousing = false;
+			if (selectedIndex == null)
+				selectedIndex = entries.Count;
+			do {
+				selectedIndex--;
+				if (selectedIndex < 0)
+					selectedIndex += entries.Count;
+			} while (!entries[(int)selectedIndex].Enabled);
+		}
+		public void OnMoveDown() {
+			mousing = false;
+			if (selectedIndex == null)
+				selectedIndex = -1;
+			do {
+				selectedIndex++;
+				if (selectedIndex >= entries.Count)
+					selectedIndex -= entries.Count;
+			} while (!entries[(int)selectedIndex].Enabled);
+		}
+		public void OnSelect() {
+			mousing = false;
+			if (selectedIndex.HasValue && entries[(int)selectedIndex].Enabled)
+				OnSelectEntry((int)selectedIndex);
 		}
 	}
 }
