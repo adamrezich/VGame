@@ -26,7 +26,7 @@ namespace VGame {
 		//public abstract bool IsReleased { get; }
 
 		protected bool IsModifierDown(InputManager inputManager) {
-			return !(control ^ inputManager.IsControlKeyDown) && !(alt ^ inputManager.IsAltKeyDown) && !(shift ^ inputManager.IsShiftKeyDown);
+			return (control == inputManager.IsControlKeyDown) && (alt == inputManager.IsAltKeyDown) && (shift == inputManager.IsShiftKeyDown);
 		}
 
 		public static InputCombination Create(object o, bool control, bool shift, bool alt) {

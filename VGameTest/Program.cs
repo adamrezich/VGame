@@ -5,14 +5,14 @@ using Cairo;
 using VGame;
 
 namespace VGameTest {
-	class TestGame : Game {
+	public class TestGame : Game {
 		protected override void Initialize() {
 			CursorVisible = false;
 			ConstrainMouse = true;
 			StateManager.AddState(new TestMenu());
 		}
 	}
-	class TestState : State {
+	public class TestState : State {
 		VGame.Shapes.Cursor cursor = new VGame.Shapes.Cursor();
 		VGame.Point playerPosition = new VGame.Point();
 		public override void Update(GameTime gameTime) {
@@ -29,7 +29,7 @@ namespace VGameTest {
 			cursor.Draw(g, new Vector2(playerPosition.X, playerPosition.Y), 0, ColorPresets.White, ColorPresets.Black, 24);
 		}
 	}
-	class TestMenu : Menu {
+	public class TestMenu : Menu {
 		public TestMenu() : base("test menu") {
 			Entries.Add(new MenuEntry(this, "test1"));
 			Entries.Last().Selected += delegate(object sender, EventArgs e) {
@@ -59,9 +59,9 @@ namespace VGameTest {
 			Game.Exit();
 		}
 	}
-	class Program {
-		public static void Main(string[] args) {
-			Game game = new TestGame();
+	static class Program {
+		static void Main(string[] args) {
+			TestGame game = new TestGame();
 			game.Run();
 		}
 	}

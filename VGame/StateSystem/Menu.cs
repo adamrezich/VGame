@@ -135,13 +135,13 @@ namespace VGame {
 				string titleFont = "04b20";
 				int titleTextSize = 16;
 				int titleHeight = 24;
-				Cairo.Color titleBackgroundColor = new Cairo.Color(0.25, 0.25, 0.25);
+				/*Cairo.Color titleBackgroundColor = new Cairo.Color(0.25, 0.25, 0.25);
 				g.MoveTo((origin + offset + new Vector2(-(Width / 2), -8)).ToPointD());
 				g.LineTo((origin + offset + new Vector2(Width / 2, -8)).ToPointD());
 				g.LineTo((origin + offset + new Vector2(Width / 2, titleHeight)).ToPointD());
 				g.LineTo((origin + offset + new Vector2(-(Width / 2), titleHeight)).ToPointD());
 				g.ClosePath();
-				Util.StrokeAndFill(g, titleBackgroundColor, null);
+				Util.StrokeAndFill(g, titleBackgroundColor, null);*/
 				Renderer.DrawText(origin + offset, Title, titleTextSize, TextAlign.Center, TextAlign.Top, new Cairo.Color(0.75, 0.75, 0.75), new Cairo.Color(0, 0, 0), null, 0, titleFont);
 				offset.Y += titleHeight;
 			}

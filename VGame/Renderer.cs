@@ -207,14 +207,17 @@ namespace VGame {
 			flags = Sdl.SDL_SWSURFACE | Sdl.SDL_DOUBLEBUF | Sdl.SDL_ANYFORMAT | (fullscreen ? Sdl.SDL_FULLSCREEN : 0) | (borderless ? Sdl.SDL_NOFRAME : 0);
 			surfacePtr = IntPtr.Zero;
 			surfacePtr = Sdl.SDL_SetVideoMode(width, height, bpp, flags);
+			if (surfacePtr == IntPtr.Zero)
+				Console.WriteLine("!!! Failed to set the surface pointer to point to the surface video mode thing!");
 
 			Sdl.SDL_Surface surface = (Sdl.SDL_Surface)Marshal.PtrToStructure(surfacePtr, typeof(Sdl.SDL_Surface));
 			IntPtr sdlBuffer = IntPtr.Zero;
 			sdlBuffer = surface.pixels;
+			if (sdlBuffer == IntPtr.Zero)
+				Console.WriteLine("!!! Failed to set the surface buffer pointer to point to the surface!");
 
-			imgSurface = new ImageSurface(sdlBuffer, Format.RGB24, width, height, width * 4);
+			imgSurface = new ImageSurface(sdlBuffer, Format.Argb32, width, height, width * 4);
 			context = new Context(imgSurface);
 		}
 	}
 }
-

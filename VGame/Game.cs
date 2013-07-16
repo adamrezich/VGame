@@ -38,7 +38,7 @@ namespace VGame {
 		}
 		public Game(bool initializeRenderer) {
 			if (initializeRenderer)
-				ChangeResolution(new Rectangle(0, 0, 1280, 720), false, false);
+				ChangeResolution(new Rectangle(0, 0, 1024, 768), false, false);
 			InputManager = new InputManager(this);
 			StateManager = new StateManager(this);
 			Cmd = new CommandManager(this);
@@ -170,7 +170,7 @@ namespace VGame {
 			string windowCaption = WindowCaption;
 			if (Renderer != null)
 				Renderer.Dispose();
-			Renderer = new Renderer(StateManager.Game, resolution.Width, resolution.Height, fullscreen, borderless);
+			Renderer = new Renderer(this, resolution.Width, resolution.Height, fullscreen, borderless);
 			Sdl.SDL_EnableUNICODE(Sdl.SDL_ENABLE);
 			CursorVisible = cursorVisible;
 			ConstrainMouse = constrainMouse;
