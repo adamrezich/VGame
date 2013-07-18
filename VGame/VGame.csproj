@@ -34,14 +34,12 @@
     <Reference Include="Tao.Sdl, Version=1.2.13.0, Culture=neutral, PublicKeyToken=9c7a200e36c0094e">
       <Private>False</Private>
     </Reference>
-    <Reference Include="Mono.Cairo, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="Lidgren.Network, Version=2011.3.12.0, Culture=neutral">
       <Private>False</Private>
     </Reference>
+    <Reference Include="Mono.Cairo" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -71,6 +69,8 @@
     <Compile Include="CommandSystem\CommandConsole.cs" />
     <Compile Include="CommandSystem\Binding.cs" />
     <Compile Include="CommandSystem\InputCombination.cs" />
+    <Compile Include="CommandSystem\Variables.cs" />
+    <Compile Include="CommandSystem\Variable.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -197,6 +197,12 @@ namespace VGame {
 		int? intData;
 		float? floatData;
 		string stringData;
+		public Parameter(ParameterType type) {
+			this.boolData = (type == ParameterType.Bool ? (bool?)false : (bool?)null);
+			this.intData = (type == ParameterType.Int ? (int?)0 : (int?)null);
+			this.floatData = (type == ParameterType.Float ? (float?)0 : (float?)null);
+			this.stringData = (type == ParameterType.String ? "" : null);
+		}
 		public Parameter(bool boolData) {
 			this.boolData = boolData;
 			this.intData = null;
@@ -220,6 +226,20 @@ namespace VGame {
 			this.intData = null;
 			this.floatData = null;
 			this.stringData = stringData;
+		}
+
+		public override string ToString() {
+			switch (DataType) {
+				case ParameterType.Bool:
+					return boolData.ToString();
+				case ParameterType.Int:
+					return intData.ToString();
+				case ParameterType.Float:
+					return floatData.ToString();
+				case ParameterType.String:
+					return stringData;
+			}
+			throw new Exception("Somehow a variable didn't have a value.");
 		}
 	}
 	public enum ParameterType {

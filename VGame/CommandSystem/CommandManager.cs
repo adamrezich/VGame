@@ -1,14 +1,17 @@
 using System;
+using System.Collections.Generic;
 
 namespace VGame {
 	public class CommandManager {
 		public Game Game;
 		public CommandConsole Console;
+		public Dictionary<string, Variable> Variables = new Dictionary<string, Variable>();
 
 		public CommandManager(Game game) {
 			Game = game;
 			Console = new CommandConsole(this);
 			VGame.Commands.Load();
+			VGame.Variables.Load(this);
 		}
 
 		public void Run(string command) {
@@ -17,7 +20,7 @@ namespace VGame {
 				cmd = Command.Parse(command);
 			}
 			catch (Exception e) {
-				Console.WriteLine("ERROR: " + e.Message);
+				Console.WriteLine("ERROR: " + e.Message, ConsoleMessageType.Error);
 				return;
 			}
 			Run(cmd);
@@ -27,7 +30,7 @@ namespace VGame {
 				cmd.Run(this);
 			}
 			catch (Exception e) {
-				Console.WriteLine("ERROR: " + e.Message);
+				Console.WriteLine("ERROR: " + e.Message, ConsoleMessageType.Error);
 			}
 		}
 	}

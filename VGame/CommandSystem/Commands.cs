@@ -56,6 +56,9 @@ namespace VGame {
 				if (!cmdMan.Console.IsActive)
 					cmdMan.Console.Buffer = "";
 			}));
+			Add("get", new CommandDefinition(new List<ParameterType>() { ParameterType.String }, delegate(CommandManager cmdMan, Command cmd) {
+				cmdMan.Console.WriteLine(cmdMan.Variables[cmd.Parameters[0].StringData].Value.ToString());
+			}));
 		}
 		public static void Add(string name, CommandDefinition commandDefinition) {
 			CommandDefinition.Add(name, commandDefinition);
