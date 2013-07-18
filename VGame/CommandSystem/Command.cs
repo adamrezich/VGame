@@ -85,8 +85,17 @@ namespace VGame {
 							bool b;
 							if (bool.TryParse(split[i], out b))
 								parameters.Add(b);
-							else
-								throw new Exception("Expected bool, got something else.");
+							else {
+								int n;
+								if (int.TryParse(split[i], out n)) {
+									if (n == 0 || n == 1)
+										parameters.Add(n == 1);
+									else
+										throw new Exception("Expected bool, got something else.");
+								}
+								else
+									throw new Exception("Expected bool, got something else.");
+							}
 							break;
 						case ParameterType.Int:
 							int _i;

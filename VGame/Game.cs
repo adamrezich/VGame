@@ -88,6 +88,14 @@ namespace VGame {
 			exiting = true;
 		}
 
+		public virtual bool IsClient() {
+			return true;
+		}
+
+		public virtual bool IsServer() {
+			return false;
+		}
+
 		public void Tick() {
 		RetryTick:
 			_accumulatedElapsedTime += _gameTimer.Elapsed;

@@ -59,6 +59,65 @@ namespace VGame {
 			Add("get", new CommandDefinition(new List<ParameterType>() { ParameterType.String }, delegate(CommandManager cmdMan, Command cmd) {
 				cmdMan.Console.WriteLine(cmdMan.Variables[cmd.Parameters[0].StringData].Value.ToString());
 			}));
+			Add("set", new CommandDefinition(new List<ParameterType>() { ParameterType.String, ParameterType.String }, delegate(CommandManager cmdMan, Command cmd) {
+				//cmdMan.Console.WriteLine(cmdMan.Variables[cmd.Parameters[0].StringData].Value.ToString());
+				if (!VariableDefinition.List.ContainsKey(cmd.Parameters[0].StringData))
+					throw new Exception(string.Format("Variable \"{0}\" not found.", cmd.Parameters[0].StringData));
+				Parameter param = new Parameter();
+				VariableDefinition def = cmdMan.Variables[cmd.Parameters[0].StringData].Definition;
+				switch (def.Type) {
+					case ParameterType.Bool:
+						bool b;
+						if (bool.TryParse(cmd.Parameters[1].StringData, out b))
+							param = new Parameter(b);
+						else {
+							int n;
+							if (int.TryParse(cmd.Parameters[1].StringData, out n)) {
+								if (n == 0 || n == 1)
+									param = new Parameter(n == 1);
+								else
+									throw new Exception("Expected bool, got something else.");
+							}
+							else
+								throw new Exception("Expected bool, got something else.");
+						}
+						break;
+					case ParameterType.Int:
+						int i;
+						if (int.TryParse(cmd.Parameters[1].StringData, out i))
+							param = new Parameter(i);
+						else
+							throw new Exception("Expected int, got something else.");
+						break;
+					case ParameterType.Float:
+						float f;
+						if (float.TryParse(cmd.Parameters[1].StringData, out f))
+							param = new Parameter(f);
+						else
+							throw new Exception("Expected float, got something else.");
+						break;
+					case ParameterType.String:
+						param = new Parameter(cmd.Parameters[1].StringData);
+						break;
+				}
+				if (cmdMan.Game.IsClient() && !def.Flags.HasFlag(VariableFlags.Client)) {
+					if (def.Flags.HasFlag(VariableFlags.Server))
+						throw new Exception("You're not a server!");
+					else
+						throw new Exception("Internal variable, access denied.");
+				}
+				if (cmdMan.Game.IsServer() && !def.Flags.HasFlag(VariableFlags.Server)) {
+					if (def.Flags.HasFlag(VariableFlags.Client))
+						throw new Exception("You're not a client!");
+					else
+						throw new Exception("Internal variable, access denied.");
+				}
+				if (!cmdMan.Game.IsClient() && def.Flags.HasFlag(VariableFlags.Client))
+					throw new Exception("You're not a client!");
+				if (!cmdMan.Game.IsServer() && def.Flags.HasFlag(VariableFlags.Server))
+					throw new Exception("You're not a server!");
+				cmdMan.Variables[cmd.Parameters[0].StringData].Value = param;
+			}));
 		}
 		public static void Add(string name, CommandDefinition commandDefinition) {
 			CommandDefinition.Add(name, commandDefinition);
