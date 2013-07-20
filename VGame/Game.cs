@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Reflection;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using Tao.Sdl;
 using Cairo;
 
@@ -18,6 +21,11 @@ namespace VGame {
 		private readonly GameTime _gameTime = new GameTime();
 		private Stopwatch _gameTimer = Stopwatch.StartNew();
 		public bool SuppressInput = false;
+		private bool readyToUpdate = true;
+		private bool drawingComplete = false;
+		private object lockMe = new object();
+		private Thread drawThread;
+
 
 		public bool IsExiting {
 			get {
@@ -78,9 +86,16 @@ namespace VGame {
 		}
 
 		public void Run() {
-			while (!IsExiting)
+			Run(true);
+		}
+		public void Run(bool drawing) {
+			if (drawing)
+				BeginDrawLoop();
+			while (!IsExiting) {
 				Tick();
-			Renderer.Close();
+			}
+			if (drawing)
+				Renderer.Close();
 		}
 
 		public void Exit() {
@@ -96,6 +111,32 @@ namespace VGame {
 			return false;
 		}
 
+		private void BeginDrawLoop() {
+			drawThread = new Thread(DrawLoop);
+			drawThread.IsBackground = true;
+			drawThread.Start();
+		}
+		public void DrawLoop() {
+			while (!IsExiting) {
+				if (!readyToUpdate) {
+					lock (lockMe) {
+						DrawTick();
+					}
+				}
+				else {
+					drawingComplete = true;
+				}
+			}
+		}
+
+		public void DrawTick() {
+			if (Renderer != null && Renderer.IsReady) {
+				Draw(_gameTime);
+				Renderer.Draw(_gameTime);
+				Renderer.AddFrame(_gameTime);
+			}
+		}
+
 		public void Tick() {
 		RetryTick:
 			_accumulatedElapsedTime += _gameTimer.Elapsed;
@@ -105,9 +146,13 @@ namespace VGame {
 				if (_accumulatedElapsedTime > _maxElapsedTime)
 					_accumulatedElapsedTime = _maxElapsedTime;
 				_gameTime.ElapsedGameTime = _targetElapsedTime;
-				Renderer.AddFrame(_gameTime);
 				var sleepTime = (int)(_targetElapsedTime - _accumulatedElapsedTime).TotalMilliseconds;
-				System.Threading.Thread.Sleep(sleepTime);
+				Thread.Sleep(sleepTime);
+				goto RetryTick;
+			}
+			readyToUpdate = true;
+			if (!drawingComplete) {
+				Thread.Sleep(1);
 				goto RetryTick;
 			}
 			/*if (_accumulatedElapsedTime > _maxElapsedTime)
@@ -117,6 +162,7 @@ namespace VGame {
 			var stepCount = 0;
 			_gameTime.IsRunningSlowly = (_accumulatedElapsedTime > _targetElapsedTime);
 			while (_accumulatedElapsedTime >= _targetElapsedTime) {
+				lock (lockMe) {
 				_gameTime.TotalGameTime += _targetElapsedTime;
 				_accumulatedElapsedTime -= _targetElapsedTime;
 				++stepCount;
@@ -124,9 +170,10 @@ namespace VGame {
 				InputManager.Tick();
 				HandleInput();
 				Update(_gameTime);
-				Renderer.Draw(_gameTime);
+				}
 			}
-			// Renderer.Draw(_gameTime);
+			drawingComplete = false;
+			readyToUpdate = false;
 		}
 
 		public void ResetElapsedTime() {
@@ -171,7 +218,7 @@ namespace VGame {
 				InputManager.HandleEvent(e);
 				switch (e.type) {
 					case Sdl.SDL_QUIT:
-						Exit(); // Needed?
+						Exit();
 						break;
 				}
 			}

@@ -61,6 +61,12 @@ namespace VGame {
 				return fps;
 			}
 		}
+		public bool IsReady {
+			get {
+				return ready;
+			}
+		}
+		private bool ready = false;
 		public List<Rectangle> Resolutions {
 			get {
 				if (resolutions.Count == 0) {
@@ -129,12 +135,13 @@ namespace VGame {
 		}
 		public void AddFrame(GameTime gameTime) {
 			elapsedTime += gameTime.ElapsedGameTime.TotalMilliseconds;
-			totalFrames++;
 			if (elapsedTime >= 1000) {
 				fps = totalFrames;
 				totalFrames = 0;
 				elapsedTime = 0;
 			}
+			else
+				totalFrames++;
 		}
 		public Rectangle DrawText(Vector2 position, string text, double scale, TextAlign hAlign, TextAlign vAlign, Cairo.Color? fillColor, Cairo.Color? strokeColor, Cairo.Color? backgroundColor, double angle, string font) {
 			return DrawText(position, text, scale, hAlign, vAlign, fillColor, strokeColor, backgroundColor, angle, font, 2);
@@ -219,6 +226,7 @@ namespace VGame {
 
 			imgSurface = new ImageSurface(sdlBuffer, Format.Argb32, width, height, width * 4);
 			context = new Context(imgSurface);
+			ready = true;
 		}
 	}
 }
