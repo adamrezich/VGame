@@ -127,7 +127,7 @@ namespace VGame {
 			return false;
 		}
 
-		public virtual void LoadFonts() {
+		protected virtual void LoadFonts() {
 			Renderer.LoadFont("console", "ProFontWindows.ttf", true);
 			Renderer.LoadFont("chunky", "ProFontWindows.ttf", true);
 			Renderer.LoadFont("pixel", "ProFontWindows.ttf");
