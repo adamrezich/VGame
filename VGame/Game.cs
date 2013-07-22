@@ -9,7 +9,7 @@ using Tao.Sdl;
 using Cairo;
 
 namespace VGame {
-	public class Game {
+	public class Game : IDisposable {
 		public Renderer Renderer = null;
 		public InputManager InputManager;
 		public StateManager StateManager;
@@ -23,6 +23,12 @@ namespace VGame {
 		public bool SuppressInput = false;
 		private bool readyToUpdate = true;
 		private bool drawingComplete = false;
+		private int drawnFrames = 0;
+		public bool ReadyToUpdate {
+			get {
+				return readyToUpdate && drawnFrames >= 1;
+			}
+		}
 		private object lockMe = new object();
 		private Thread drawThread;
 
@@ -64,6 +70,13 @@ namespace VGame {
 			Cmd.Console.WriteLine("--------------------");
 		}
 
+		public void Dispose() {
+			if (drawThread != null)
+				drawThread.Join();
+			if (Renderer != null)
+				Renderer.Dispose();
+		}
+
 		protected virtual void Initialize() {
 		}
 
@@ -83,6 +96,8 @@ namespace VGame {
 		public virtual void Draw(GameTime gameTime) {
 			StateManager.Draw(gameTime);
 			Cmd.Console.Draw(gameTime);
+			if (Cmd.Variables["cl_showfps"].Value.BoolData)
+				Renderer.DrawText(new Vector2(Renderer.Width - 8, 8), Renderer.FPS.ToString(), 28, TextAlign.Right, TextAlign.Top, Renderer.FPS >= 60 ? ColorPresets.White : Renderer.FPS > 45 ? ColorPresets.Yellow : ColorPresets.Red, ColorPresets.Black, null, 0, null);
 		}
 
 		public void Run() {
@@ -94,8 +109,7 @@ namespace VGame {
 			while (!IsExiting) {
 				Tick();
 			}
-			if (drawing)
-				Renderer.Close();
+			Dispose();
 		}
 
 		public void Exit() {
@@ -119,9 +133,7 @@ namespace VGame {
 		public void DrawLoop() {
 			while (!IsExiting) {
 				if (!readyToUpdate) {
-					lock (lockMe) {
-						DrawTick();
-					}
+					DrawTick();
 				}
 				else {
 					drawingComplete = true;
@@ -130,10 +142,11 @@ namespace VGame {
 		}
 
 		public void DrawTick() {
-			if (Renderer != null && Renderer.IsReady) {
+			if (Renderer != null && Renderer.IsReady && drawnFrames < 1) {
 				Draw(_gameTime);
 				Renderer.Draw(_gameTime);
 				Renderer.AddFrame(_gameTime);
+				drawnFrames++;
 			}
 		}
 
@@ -151,18 +164,15 @@ namespace VGame {
 				goto RetryTick;
 			}
 			readyToUpdate = true;
+
 			if (!drawingComplete) {
+
 				Thread.Sleep(1);
 				goto RetryTick;
 			}
-			/*if (_accumulatedElapsedTime > _maxElapsedTime)
-				_accumulatedElapsedTime = _maxElapsedTime;
-			_gameTime.ElapsedGameTime = _targetElapsedTime;
-			Renderer.AddFrame(_gameTime);*/
 			var stepCount = 0;
 			_gameTime.IsRunningSlowly = (_accumulatedElapsedTime > _targetElapsedTime);
 			while (_accumulatedElapsedTime >= _targetElapsedTime) {
-				lock (lockMe) {
 				_gameTime.TotalGameTime += _targetElapsedTime;
 				_accumulatedElapsedTime -= _targetElapsedTime;
 				++stepCount;
@@ -170,10 +180,10 @@ namespace VGame {
 				InputManager.Tick();
 				HandleInput();
 				Update(_gameTime);
-				}
 			}
 			drawingComplete = false;
 			readyToUpdate = false;
+			drawnFrames = 0;
 		}
 
 		public void ResetElapsedTime() {

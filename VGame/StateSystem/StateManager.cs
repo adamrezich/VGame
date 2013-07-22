@@ -7,6 +7,8 @@ namespace VGame {
 	public class StateManager {
 		List<State> states = new List<State>();
 		List<State> statesToUpdate = new List<State>();
+		List<State> statesToDraw = new List<State>();
+
 		public Game Game;
 		public State LastActiveState {
 			get {
@@ -95,9 +97,25 @@ namespace VGame {
 			}
 		}
 		public void Draw(GameTime gameTime) {
-			foreach (State state in states) {
+			if (GameUpdateReady())
+				return;
+			foreach (State state in states)
+				statesToDraw.Add(state);
+			foreach (State state in statesToDraw) {
+				if (GameUpdateReady())
+					return;
 				state.Draw(gameTime);
+				if (GameUpdateReady())
+					return;
 			}
+			statesToDraw.Clear();
+		}
+		private bool GameUpdateReady() {
+			if (Game.ReadyToUpdate) {
+				statesToDraw.Clear();
+				return true;
+			}
+			return false;
 		}
 	}
 }

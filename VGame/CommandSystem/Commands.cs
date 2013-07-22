@@ -101,15 +101,15 @@ namespace VGame {
 						break;
 				}
 				if (cmdMan.Game.IsClient() && !def.Flags.HasFlag(VariableFlags.Client)) {
-					if (def.Flags.HasFlag(VariableFlags.Server))
+					if (def.Flags.HasFlag(VariableFlags.Server) && !cmdMan.Game.IsServer())
 						throw new Exception("You're not a server!");
-					else
+					else if (!cmdMan.Game.IsServer())
 						throw new Exception("Internal variable, access denied.");
 				}
 				if (cmdMan.Game.IsServer() && !def.Flags.HasFlag(VariableFlags.Server)) {
-					if (def.Flags.HasFlag(VariableFlags.Client))
+					if (def.Flags.HasFlag(VariableFlags.Client) && !cmdMan.Game.IsClient())
 						throw new Exception("You're not a client!");
-					else
+					else if (!cmdMan.Game.IsClient())
 						throw new Exception("Internal variable, access denied.");
 				}
 				if (!cmdMan.Game.IsClient() && def.Flags.HasFlag(VariableFlags.Client))

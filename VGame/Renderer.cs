@@ -130,9 +130,6 @@ namespace VGame {
 			if (Sdl.SDL_Flip(surfacePtr) != 0)
 				throw new Exception("Failed to swap buffers!");
 		}
-		public void Close() {
-			Dispose(true);
-		}
 		public void AddFrame(GameTime gameTime) {
 			elapsedTime += gameTime.ElapsedGameTime.TotalMilliseconds;
 			if (elapsedTime >= 1000) {

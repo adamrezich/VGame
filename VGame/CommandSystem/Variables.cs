@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace VGame {
 	public class Variables {
 		public static void Load(CommandManager cmdMan) {
-			Add(new VariableDefinition("cl_showfps", ParameterType.Bool, VariableFlags.Client));
+			Add(new VariableDefinition("cl_showfps", ParameterType.Bool, VariableFlags.Client, new Parameter(true)));
 			Add(new VariableDefinition("sv_cheats", ParameterType.Bool, VariableFlags.Server));
 
 			foreach (KeyValuePair<string, VariableDefinition> kvp in VariableDefinition.List) {

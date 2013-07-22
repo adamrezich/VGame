@@ -18,9 +18,9 @@ namespace VGame {
 		public Parameter DefaultValue;
 		public VariableFlags Flags;
 
-		public VariableDefinition(string name, ParameterType type, VariableFlags flags) : this(name, type, new Parameter(type), flags) {
+		public VariableDefinition(string name, ParameterType type, VariableFlags flags) : this(name, type, flags, new Parameter(type)) {
 		}
-		public VariableDefinition(string name, ParameterType type, Parameter defaultValue, VariableFlags flags) {
+		public VariableDefinition(string name, ParameterType type, VariableFlags flags, Parameter defaultValue) {
 			Name = name;
 			Type = type;
 			DefaultValue = defaultValue;
