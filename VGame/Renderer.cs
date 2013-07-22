@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Linq;
 using Tao.Sdl;
 using Cairo;
 
@@ -80,7 +81,7 @@ namespace VGame {
 				return resolutions;
 			}
 		}
-		private Dictionary<string, Font> fonts = new Dictionary<string, Font>();
+		public Dictionary<string, Font> Fonts = new Dictionary<string, Font>();
 
 		public Renderer(Game game, int width, int height, bool fullscreen, bool borderless) {
 			this.game = game;
@@ -110,11 +111,16 @@ namespace VGame {
 					imgSurface.Dispose();
 					/*if (context.Target != null)
 						((IDisposable)context.Target).Dispose();*/
-					if (context.GetTarget() != null) {
+					if (imgSurface != null) {
 						imgSurface.Dispose();
 					}
 					if (context != null)
 						((IDisposable)context).Dispose();
+					while (Fonts.Count > 0) {
+						KeyValuePair<string, Font> kvp = Fonts.Last();
+						kvp.Value.Dispose();
+						Fonts.Remove(kvp.Key);
+					}
 					FreeTypeFontFace.Cleanup();
 				}
 				this.isDisposing = true;
@@ -201,7 +207,7 @@ namespace VGame {
 				g.ShowText(text);
 			}
 			if (strokeColor.HasValue) {
-				if (fonts[font].Antialiased)
+				if (Fonts[font].Antialiased)
 					Antialias();
 				else
 					g.Antialias = Cairo.Antialias.None;
@@ -229,12 +235,12 @@ namespace VGame {
 				opt.Antialias = Cairo.Antialias.None;
 			opt.HintStyle = HintStyle.Slight;
 			FreeTypeFontFace fon = FreeTypeFontFace.Create(filename, 0, 32);
-			fonts.Add(name, new Font(new ScaledFont(fon, new Matrix(), Context.Matrix, opt), antialiased));
+			Fonts.Add(name, new Font(new ScaledFont(fon, new Matrix(), Context.Matrix, opt), antialiased));
 			fon.Dispose();
 			opt.Dispose();
 		}
 		public void SetFont(string font) {
-			cairo_set_scaled_font(Context.Handle, fonts[font].ScaledFont.Handle);
+			cairo_set_scaled_font(Context.Handle, Fonts[font].ScaledFont.Handle);
 		}
 
 		protected void Initialize() {

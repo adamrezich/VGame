@@ -41,6 +41,7 @@ namespace VGame {
 		}
 
 		protected bool exiting = false;
+		protected bool rendering = true;
 
 		public bool IsActive {
 			get {
@@ -58,7 +59,6 @@ namespace VGame {
 			StateManager = new StateManager(this);
 			Cmd = new CommandManager(this);
 			Initialize();
-			LoadFonts();
 			Binding.Bind(InputCombination.Create(Keys.Escape, false, false, false), "escape");
 			Binding.Bind(InputCombination.Create(Keys.Escape, true, false, true), "quit");
 			Binding.Bind(InputCombination.Create(Keys.Up, false, false, false), "menu_up");
@@ -106,8 +106,8 @@ namespace VGame {
 			Run(true);
 		}
 		public void Run(bool drawing) {
-			if (drawing)
-				BeginDrawLoop();
+			/*if (drawing)
+				BeginDrawLoop();*/
 			while (!IsExiting) {
 				Tick();
 			}
@@ -117,6 +117,7 @@ namespace VGame {
 		public void Exit() {
 			StateManager.ClearStates();
 			exiting = true;
+			rendering = false;
 		}
 
 		public virtual bool IsClient() {
@@ -135,12 +136,13 @@ namespace VGame {
 		}
 
 		private void BeginDrawLoop() {
+			rendering = true;
 			drawThread = new Thread(DrawLoop);
 			drawThread.IsBackground = true;
 			drawThread.Start();
 		}
 		public void DrawLoop() {
-			while (!IsExiting) {
+			while (rendering) {
 				if (!readyToUpdate) {
 					DrawTick();
 				}
@@ -244,16 +246,24 @@ namespace VGame {
 		}
 
 		public bool ChangeResolution(Rectangle resolution, bool fullscreen, bool borderless) {
+			if (drawThread != null) {
+				rendering = false;
+				drawThread.Join();
+			}
+
 			bool cursorVisible = CursorVisible;
 			bool constrainMouse = ConstrainMouse;
 			string windowCaption = WindowCaption;
-			if (Renderer != null)
+			if (Renderer != null) {
 				Renderer.Dispose();
+			}
 			Renderer = new Renderer(this, resolution.Width, resolution.Height, fullscreen, borderless);
+			LoadFonts();
 			Sdl.SDL_EnableUNICODE(Sdl.SDL_ENABLE);
 			CursorVisible = cursorVisible;
 			ConstrainMouse = constrainMouse;
 			WindowCaption = windowCaption;
+			BeginDrawLoop();
 			return true;
 		}
 
