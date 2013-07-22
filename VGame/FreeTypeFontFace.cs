@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Cairo;
 
@@ -20,18 +21,23 @@ namespace VGame {
 	}
 
 	public class FreeTypeFontFace : FontFace {
+		private static Stack<IntPtr> fonts = new Stack<IntPtr>();
 		private static bool initialized = false;
 		private static IntPtr ft_lib;
 		private IntPtr ft_face;
 
-		private FreeTypeFontFace(IntPtr handler, IntPtr ft_face):base(handler) {
+		private FreeTypeFontFace(IntPtr handler, IntPtr ft_face) : base(handler, true) {
 			this.ft_face = ft_face;
 		}
 
-		public new void Dispose() {
-			cairo_font_face_destroy(Handle);
-			FT_Done_Face(ft_face);
-			((IDisposable)this).Dispose();
+		protected override void Dispose(bool disposing) {
+			fonts.Push(ft_face);
+			base.Dispose(disposing);
+		}
+
+		public static void Cleanup() {
+			while (fonts.Count > 0)
+				FT_Done_Face(fonts.Pop());
 		}
 
 		public static FreeTypeFontFace Create(string filename, int faceindex, int loadoptions) {
@@ -69,8 +75,5 @@ namespace VGame {
 
 		[DllImport ("libcairo-2.dll")]
 		private static extern int cairo_font_face_status(IntPtr cr_face);
-
-		[DllImport ("libcairo-2.dll")]
-		private static extern int cairo_font_face_destroy(IntPtr cr_face);
 	}
 }

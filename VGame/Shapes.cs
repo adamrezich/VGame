@@ -11,7 +11,7 @@ namespace VGame {
 		public bool LoopAnimation = true;
 		public bool AnimationBackwards = false;
 
-		public abstract void Draw(Context g, Vector2 position, double direction, Color? fillColor, Color? strokeColor, double scale);
+		public abstract void Draw(Renderer renderer, Vector2 position, double direction, Color? fillColor, Color? strokeColor, double scale);
 		public void Update(GameTime gameTime) {
 			switch (AnimationType) {
 				case AnimationType.Linear:
@@ -44,7 +44,8 @@ namespace VGame.Shapes {
 			AnimationType = AnimationType.Bounce;
 			AnimationSpeed = 0;
 		}
-		public override void Draw(Context g, Vector2 position, double direction, Color? fillColor, Color? strokeColor, double scale) {
+		public override void Draw(Renderer renderer, Vector2 position, double direction, Color? fillColor, Color? strokeColor, double scale) {
+			Context g = renderer.Context;
 			g.MoveTo(position.ToPointD());
 			g.LineTo(position.AddLengthDir(scale, MathHelper.PiOver2 + (MathHelper.PiOver4 / 2 * AnimationProgress)).ToPointD());
 			g.LineTo(position.AddLengthDir(scale, MathHelper.PiOver4 * 9 + (MathHelper.PiOver4 / 2 * AnimationProgress)).ToPointD());

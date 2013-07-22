@@ -26,6 +26,9 @@ namespace VGame {
 		public static readonly Color Gray25 = new Color(0.25, 0.25, 0.25);
 		public static readonly Color Gray50 = new Color(0.5, 0.5, 0.5);
 		public static readonly Color Gray75 = new Color(0.75, 0.75, 0.75);
+		public static readonly Color Gray80 = new Color(0.8, 0.8, 0.8);
+		public static readonly Color Gray83 = new Color(0.82, 0.82, 0.82);
+		public static readonly Color Gray85 = new Color(0.85, 0.85, 0.85);
 	}
 }
 

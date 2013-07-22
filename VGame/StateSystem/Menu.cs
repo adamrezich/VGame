@@ -101,7 +101,7 @@ namespace VGame {
 			g.LineTo((midTop + new Vector2(Width / 2, Renderer.Height)).ToPointD());
 			g.LineTo((midTop + new Vector2(-(Width / 2), Renderer.Height)).ToPointD());
 			g.ClosePath();
-			g.Color = new Cairo.Color(0.5, 0.5, 0.5);
+			Renderer.SetColor(ColorPresets.Gray50);
 			g.Fill();
 
 			Vector2 origin = new Vector2(Renderer.Width / 2, Renderer.Height / 2 - Height / 2);
@@ -126,7 +126,7 @@ namespace VGame {
 				offset.Y += e.Height;
 			}
 			if (IsLastActiveState) {
-				cursor.Draw(g, new Vector2(InputManager.MousePosition.X, InputManager.MousePosition.Y), 0, ColorPresets.White, ColorPresets.Black, 24);
+				cursor.Draw(Renderer, new Vector2(InputManager.MousePosition.X, InputManager.MousePosition.Y), 0, ColorPresets.White, ColorPresets.Black, 24);
 			}
 		}
 

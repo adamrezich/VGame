@@ -6,9 +6,11 @@ namespace VGame {
 		public static PointD ToPointD(this Vector2 v) {
 			return new PointD(v.X, v.Y);
 		}
+
 		public static Vector2 AddLengthDir(this Vector2 v, double length, double dir) {
 			return v + new Vector2((float)(Math.Cos(dir) * length), (float)(Math.Sin(dir) * length));
 		}
+
 		public static double LerpAngle(this double from, double to, double step) {
 			// Ensure that 0 <= angle < 2pi for both "from" and "to" 
 			while (from < 0)
@@ -40,11 +42,40 @@ namespace VGame {
 				retVal -= MathHelper.TwoPi;
 			return retVal;
 		}
+
 		public static string MakeDecimal(this string str) {
 			if (str.Length < 2 || str.Substring(str.Length - 2, 1) != ".") {
 				str += ".0";
 			}
 			return str;
+		}
+
+		public static bool IntersectsLine(this Rectangle r, Point p1, Point p2) {
+			return LineIntersectsLine(p1, p2, new Point(r.X, r.Y), new Point(r.X + r.Width, r.Y)) ||
+				LineIntersectsLine(p1, p2, new Point(r.X + r.Width, r.Y), new Point(r.X + r.Width, r.Y + r.Height)) ||
+				LineIntersectsLine(p1, p2, new Point(r.X + r.Width, r.Y + r.Height), new Point(r.X, r.Y + r.Height)) ||
+				LineIntersectsLine(p1, p2, new Point(r.X, r.Y + r.Height), new Point(r.X, r.Y)) ||
+				(r.Contains(p1) && r.Contains(p2));
+		}
+
+		private static bool LineIntersectsLine(Point l1p1, Point l1p2, Point l2p1, Point l2p2) {
+			float q = (l1p1.Y - l2p1.Y) * (l2p2.X - l2p1.X) - (l1p1.X - l2p1.X) * (l2p2.Y - l2p1.Y);
+			float d = (l1p2.X - l1p1.X) * (l2p2.Y - l2p1.Y) - (l1p2.Y - l1p1.Y) * (l2p2.X - l2p1.X);
+
+			if (d == 0) {
+				return false;
+			}
+
+			float r = q / d;
+
+			q = (l1p1.Y - l2p1.Y) * (l1p2.X - l1p1.X) - (l1p1.X - l2p1.X) * (l1p2.Y - l1p1.Y);
+			float s = q / d;
+
+			if (r < 0 || r > 1 || s < 0 || s > 1) {
+				return false;
+			}
+
+			return true;
 		}
 	}
 }

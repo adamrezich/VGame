@@ -5,14 +5,14 @@ namespace VGame {
 	public static class Util {
 		public static void StrokeAndFill(Context g, Cairo.Color? fillColor, Cairo.Color? strokeColor) {
 			if (fillColor.HasValue && fillColor != null) {
-				g.Color = (Cairo.Color)fillColor;
+				g.SetSourceRGBA(((Cairo.Color)fillColor).R, ((Cairo.Color)fillColor).G, ((Cairo.Color)fillColor).B, ((Cairo.Color)fillColor).A);
 				if (strokeColor.HasValue && fillColor != null)
 					g.FillPreserve();
 				else
 					g.Fill();
 			}
 			if (strokeColor.HasValue && strokeColor != null) {
-				g.Color = (Cairo.Color)strokeColor;
+				g.SetSourceRGBA(((Cairo.Color)strokeColor).R, ((Cairo.Color)strokeColor).G, ((Cairo.Color)strokeColor).B, ((Cairo.Color)strokeColor).A);
 				g.Stroke();
 			}
 		}

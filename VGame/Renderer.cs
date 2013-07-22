@@ -14,6 +14,7 @@ namespace VGame {
 		int height = 720;
 		int flags = 0;
 		ImageSurface imgSurface;
+		Sdl.SDL_Surface surface;
 		bool borderless = false;
 		bool fullscreen = false;
 		bool antialiasing = true;
@@ -106,10 +107,15 @@ namespace VGame {
 					    Sdl.SDL_FreeSurface(surfacePtr);
 					surfacePtr = IntPtr.Zero;
 					Sdl.SDL_Quit();
-					if (context.Target != null)
-						((IDisposable)context.Target).Dispose();
+					imgSurface.Dispose();
+					/*if (context.Target != null)
+						((IDisposable)context.Target).Dispose();*/
+					if (context.GetTarget() != null) {
+						imgSurface.Dispose();
+					}
 					if (context != null)
 						((IDisposable)context).Dispose();
+					FreeTypeFontFace.Cleanup();
 				}
 				this.isDisposing = true;
 			}
@@ -122,7 +128,7 @@ namespace VGame {
 			Clear(ColorPresets.Black);
 		}
 		public void Clear(Color color) {
-			context.Color = color;
+			SetColor(color);
 			context.Paint();
 		}
 		public void Draw(GameTime gameTime) {
@@ -140,6 +146,9 @@ namespace VGame {
 			}
 			else
 				totalFrames++;
+		}
+		public void SetColor(Color color) {
+			Context.SetSourceRGBA(color.R, color.G, color.B, color.A);
 		}
 		public Rectangle DrawText(Vector2 position, string text, double scale, TextAlign hAlign, TextAlign vAlign, Cairo.Color? fillColor, Cairo.Color? strokeColor, Cairo.Color? backgroundColor, double angle, string font) {
 			return DrawText(position, text, scale, hAlign, vAlign, fillColor, strokeColor, backgroundColor, angle, font, 2);
@@ -182,12 +191,12 @@ namespace VGame {
 				g.LineTo(r.Right, r.Bottom);
 				g.LineTo(r.Left, r.Bottom);
 				g.ClosePath();
-				g.Color = (Cairo.Color)backgroundColor;
+				SetColor((Cairo.Color)backgroundColor);
 				g.Fill();
 			}
 			if (fillColor.HasValue) {
 				g.MoveTo(textPos.ToPointD());
-				g.Color = (Cairo.Color)fillColor;
+				SetColor((Cairo.Color)fillColor);
 				if (angle != 0) g.Rotate(angle);
 				g.ShowText(text);
 			}
@@ -197,7 +206,7 @@ namespace VGame {
 				else
 					g.Antialias = Cairo.Antialias.None;
 				g.MoveTo(textPos.ToPointD());
-				g.Color = (Cairo.Color)strokeColor;
+				SetColor((Cairo.Color)strokeColor);
 				g.LineWidth = 1;
 				g.TextPath(text);
 				if (angle != 0) g.Rotate(angle);
@@ -219,7 +228,10 @@ namespace VGame {
 			else
 				opt.Antialias = Cairo.Antialias.None;
 			opt.HintStyle = HintStyle.Slight;
-			fonts.Add(name, new Font(new ScaledFont(FreeTypeFontFace.Create(filename, 0, 2), new Matrix(), Context.Matrix, opt), antialiased));
+			FreeTypeFontFace fon = FreeTypeFontFace.Create(filename, 0, 32);
+			fonts.Add(name, new Font(new ScaledFont(fon, new Matrix(), Context.Matrix, opt), antialiased));
+			fon.Dispose();
+			opt.Dispose();
 		}
 		public void SetFont(string font) {
 			cairo_set_scaled_font(Context.Handle, fonts[font].ScaledFont.Handle);
@@ -236,7 +248,7 @@ namespace VGame {
 			if (surfacePtr == IntPtr.Zero)
 				throw new Exception("Failed to set the surface pointer to point to the surface video mode thing!");
 
-			Sdl.SDL_Surface surface = (Sdl.SDL_Surface)Marshal.PtrToStructure(surfacePtr, typeof(Sdl.SDL_Surface));
+			surface = (Sdl.SDL_Surface)Marshal.PtrToStructure(surfacePtr, typeof(Sdl.SDL_Surface));
 			IntPtr sdlBuffer = IntPtr.Zero;
 			sdlBuffer = surface.pixels;
 			if (sdlBuffer == IntPtr.Zero)
