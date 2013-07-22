@@ -10,9 +10,7 @@ namespace VGameTest {
 		protected override void Initialize() {
 			CursorVisible = false;
 			ConstrainMouse = true;
-			StateManager.AddState(new TestMenu());
-				Font = FreeTypeFontFace.Create("ProFontWindows.ttf", 0, 0);
-			Font.S
+			StateManager.AddState(new TestState());
 		}
 	}
 	public class TestState : State {
@@ -21,20 +19,12 @@ namespace VGameTest {
 		public override void Update(GameTime gameTime) {
 			playerPosition = InputManager.MousePosition;
 			if (InputManager.MouseButtonState(MouseButton.Left) == ButtonState.Pressed)
-				Game.ConstrainMouse = !Game.ConstrainMouse;
-			if (InputManager.MouseButtonState(MouseButton.Right) == ButtonState.Pressed)
-				Game.CursorVisible = !Game.CursorVisible;
+				Game.Exit();
 		}
 		public override void Draw(GameTime gameTime) {
 			Context g = Renderer.Context;
 			Renderer.Clear(ColorPresets.LightSteelBlue);
-			//Renderer.DrawText(new Vector2(Renderer.Width / 2, Renderer.Height / 2), "LEFT CLICK TO UNLOCK THE MOUSE FROM THE SCREEN, RIGHT CLICK TO TOGGLE THE CURSOR", 24, TextAlign.Center, TextAlign.Middle, new Color(1, 1, 1), new Color(0, 0, 0), null, 0, null);
-			Renderer.Context.ContextFontFace = ((TestGame)Game).Font;
-			Renderer.Context.LineWidth = 1;
-			Renderer.Context.MoveTo(100, 100);
-			Renderer.Context.TextPath("hello world");
-			Renderer.Context.Color = ColorPresets.Black;
-			Renderer.Context.Stroke();
+			Renderer.DrawText(new Vector2(Renderer.Width / 2, Renderer.Height / 2), "CLICK TO QUIT", 24, TextAlign.Center, TextAlign.Middle, new Color(1, 1, 1), new Color(0, 0, 0), null, 0, "pixel");
 			cursor.Draw(g, new Vector2(playerPosition.X, playerPosition.Y), 0, ColorPresets.White, ColorPresets.Black, 24);
 		}
 	}

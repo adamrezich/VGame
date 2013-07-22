@@ -38,8 +38,8 @@ namespace VGame {
 		protected bool selectable = true;
 
 		public int Height = 22;
-		public string Font = "04b_19";
-		public string Font2 = "04b_19";
+		public string Font = "chunky";
+		public string Font2 = "chunky";
 		public int TextSize = 20;
 		public int TextSize2 = 20;
 		public Vector2 TextOffset = Vector2.Zero;
@@ -109,7 +109,7 @@ namespace VGame {
 		public TextInputEntry(Menu menu, string text, string editableText) : base(menu, text) {
 			Text2 = editableText;
 			Text2Last = Text2;
-			Font2 = "04b25";
+			Font2 = "pixel";
 			TextSize2 = 24;
 			TextOffset2 = new Vector2(0, 0);
 		}
@@ -225,7 +225,7 @@ namespace VGame {
 		public static Cairo.Color HeadingColor = new Cairo.Color(0.65, 0.65, 0.65);
 		public HeadingEntry(Menu menu, string text) : base(menu, text) {
 			selectable = false;
-			Font = "04b25";
+			Font = "pixel";
 			TextSize = 18;
 			Height = 20;
 		}

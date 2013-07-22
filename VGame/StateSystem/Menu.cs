@@ -107,7 +107,7 @@ namespace VGame {
 			Vector2 origin = new Vector2(Renderer.Width / 2, Renderer.Height / 2 - Height / 2);
 			Vector2 offset = new Vector2();
 			if (Title != null) {
-				string titleFont = "04b20";
+				string titleFont = "wide";
 				int titleTextSize = 16;
 				int titleHeight = 24;
 				/*Cairo.Color titleBackgroundColor = new Cairo.Color(0.25, 0.25, 0.25);

@@ -79,6 +79,7 @@ namespace VGame {
 				return resolutions;
 			}
 		}
+		private Dictionary<string, Font> fonts = new Dictionary<string, Font>();
 
 		public Renderer(Game game, int width, int height, bool fullscreen, bool borderless) {
 			this.game = game;
@@ -146,8 +147,9 @@ namespace VGame {
 		public Rectangle DrawText(Vector2 position, string text, double scale, TextAlign hAlign, TextAlign vAlign, Cairo.Color? fillColor, Cairo.Color? strokeColor, Cairo.Color? backgroundColor, double angle, string font, int padding) {
 			Context g = context;
 			if (font == null)
-				font = "04b_19";
-			g.SelectFontFace(font, FontSlant.Normal, FontWeight.Normal);
+				font = "console";
+			//g.SelectFontFace(font, FontSlant.Normal, FontWeight.Normal);
+			SetFont(font);
 			g.SetFontSize(scale);
 			TextExtents ext = g.TextExtents(text);
 			Vector2 offset = new Vector2(0, 0);
@@ -190,7 +192,10 @@ namespace VGame {
 				g.ShowText(text);
 			}
 			if (strokeColor.HasValue) {
-				g.Antialias = Cairo.Antialias.None;
+				if (fonts[font].Antialiased)
+					Antialias();
+				else
+					g.Antialias = Cairo.Antialias.None;
 				g.MoveTo(textPos.ToPointD());
 				g.Color = (Cairo.Color)strokeColor;
 				g.LineWidth = 1;
@@ -202,9 +207,25 @@ namespace VGame {
 			Antialias();
 			return r;
 		}
+		public void LoadFont(string name, string filename) {
+			LoadFont(name, filename, false);
+		}
+		public void LoadFont(string name, string filename, bool antialiased) {
+			if (!System.IO.File.Exists(filename))
+				throw new Exception(string.Format("Font file \"{0}\" is missing!", filename));
+			FontOptions opt = new FontOptions();
+			if (antialiased)
+				opt.Antialias = Cairo.Antialias.Subpixel;
+			else
+				opt.Antialias = Cairo.Antialias.None;
+			opt.HintStyle = HintStyle.Slight;
+			fonts.Add(name, new Font(new ScaledFont(FreeTypeFontFace.Create(filename, 0, 2), new Matrix(), Context.Matrix, opt), antialiased));
+		}
+		public void SetFont(string font) {
+			cairo_set_scaled_font(Context.Handle, fonts[font].ScaledFont.Handle);
+		}
 
 		protected void Initialize() {
-
 			Sdl.SDL_putenv("SDL_VIDEO_CENTERED=center");
 			if (Sdl.SDL_Init(Sdl.SDL_INIT_VIDEO) != 0) {
 				throw new Exception("Video failed to initialize!");
@@ -225,5 +246,8 @@ namespace VGame {
 			context = new Context(imgSurface);
 			ready = true;
 		}
+
+		[DllImport ("libcairo-2.dll")]
+		private static extern int cairo_set_scaled_font(IntPtr cr, IntPtr cr_scaled_font);
 	}
 }

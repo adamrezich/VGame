@@ -67,10 +67,10 @@ namespace VGame {
 					col = ColorPresets.Yellow;
 				if (msg.HasType(ConsoleMessageType.Error))
 					col = ColorPresets.Red;
-				offset.Y += commandManager.Game.Renderer.DrawText(Position + offset, msg.ToString(), 12, TextAlign.Left, TextAlign.Top, col, null, new Cairo.Color(0, 0, 0, 0.6), 0, "ProFontWindows", 0).Height;
+				offset.Y += commandManager.Game.Renderer.DrawText(Position + offset, msg.ToString(), 12, TextAlign.Left, TextAlign.Top, col, null, new Cairo.Color(0, 0, 0, 0.6), 0, "console", 0).Height;
 			}
 			if (IsActive)
-				commandManager.Game.Renderer.DrawText(Position + offset, string.Format(cmdLineFormat, Buffer), 12, TextAlign.Left, TextAlign.Top, ColorPresets.White, null, new Cairo.Color(0, 0, 0, 0.8), 0, "ProFontWindows", 0);
+				commandManager.Game.Renderer.DrawText(Position + offset, string.Format(cmdLineFormat, Buffer), 12, TextAlign.Left, TextAlign.Top, ColorPresets.White, null, new Cairo.Color(0, 0, 0, 0.8), 0, "console", 0);
 		}
 	}
 

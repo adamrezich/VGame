@@ -58,6 +58,7 @@ namespace VGame {
 			StateManager = new StateManager(this);
 			Cmd = new CommandManager(this);
 			Initialize();
+			LoadFonts();
 			Binding.Bind(InputCombination.Create(Keys.Escape, false, false, false), "escape");
 			Binding.Bind(InputCombination.Create(Keys.Escape, true, false, true), "quit");
 			Binding.Bind(InputCombination.Create(Keys.Up, false, false, false), "menu_up");
@@ -124,6 +125,13 @@ namespace VGame {
 
 		public virtual bool IsServer() {
 			return false;
+		}
+
+		public virtual void LoadFonts() {
+			Renderer.LoadFont("console", "ProFontWindows.ttf", true);
+			Renderer.LoadFont("chunky", "ProFontWindows.ttf", true);
+			Renderer.LoadFont("pixel", "ProFontWindows.ttf");
+			Renderer.LoadFont("wide", "ProFontWindows.ttf", true);
 		}
 
 		private void BeginDrawLoop() {
