@@ -71,6 +71,7 @@
     <Compile Include="CommandSystem\InputCombination.cs" />
     <Compile Include="CommandSystem\Variables.cs" />
     <Compile Include="CommandSystem\Variable.cs" />
+    <Compile Include="FreeTypeFontFace.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

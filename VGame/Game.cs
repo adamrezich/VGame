@@ -31,6 +31,7 @@ namespace VGame {
 		}
 		private object lockMe = new object();
 		private Thread drawThread;
+		private List<string> FontsToLoad = new List<string>();
 
 
 		public bool IsExiting {
