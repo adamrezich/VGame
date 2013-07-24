@@ -73,6 +73,9 @@
     <Compile Include="CommandSystem\Variable.cs" />
     <Compile Include="FreeTypeFontFace.cs" />
     <Compile Include="Font.cs" />
+    <Compile Include="Line.cs" />
+    <Compile Include="Entity.cs" />
+    <Compile Include="IPrimitive.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

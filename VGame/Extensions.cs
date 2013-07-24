@@ -50,7 +50,10 @@ namespace VGame {
 			return str;
 		}
 
-		public static bool IntersectsLine(this Rectangle r, Point p1, Point p2) {
+		public static bool IntersectsLine(this VGame.Rectangle r, Vector2 p1, Vector2 p2) {
+			return IntersectsLine(r, new Point((int)p1.X, (int)p1.Y), new Point((int)p2.X, (int)p2.Y));
+		}
+		public static bool IntersectsLine(this VGame.Rectangle r, Point p1, Point p2) {
 			return LineIntersectsLine(p1, p2, new Point(r.X, r.Y), new Point(r.X + r.Width, r.Y)) ||
 				LineIntersectsLine(p1, p2, new Point(r.X + r.Width, r.Y), new Point(r.X + r.Width, r.Y + r.Height)) ||
 				LineIntersectsLine(p1, p2, new Point(r.X + r.Width, r.Y + r.Height), new Point(r.X, r.Y + r.Height)) ||

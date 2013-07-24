@@ -92,7 +92,7 @@ namespace VGame {
 				g.LineTo((origin + new Vector2(width / 2, Height)).ToPointD());
 				g.LineTo((origin + new Vector2(-(width / 2), Height)).ToPointD());
 				g.ClosePath();
-				Util.StrokeAndFill(g, null, BackgroundColor);
+				Menu.Renderer.StrokeAndFill(null, BackgroundColor);
 			}
 			if (Text2 != null) {
 				Menu.Renderer.DrawText(origin + new Vector2(-4, Height / 2) + TextOffset, Text, TextSize, TextAlign.Right, TextAlign.Middle, FillColor, TextStroke, null, 0, Font);

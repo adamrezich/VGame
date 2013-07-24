@@ -29,10 +29,28 @@ namespace VGame {
 				return readyToUpdate && drawnFrames >= 1;
 			}
 		}
-		private object lockMe = new object();
 		private Thread drawThread;
-		private List<string> FontsToLoad = new List<string>();
 
+		public double Zoom {
+			get {
+				return zoom;
+			}
+			set {
+				zoom = value;
+				if (Renderer != null)
+					Renderer.Zoom = value;
+			}
+		}
+		public double BaseSize {
+			get {
+				return baseSize;
+			}
+			set {
+				baseSize = value;
+				if (Renderer != null)
+					Renderer.BaseSize = value;
+			}
+		}
 
 		public bool IsExiting {
 			get {
@@ -42,6 +60,8 @@ namespace VGame {
 
 		protected bool exiting = false;
 		protected bool rendering = true;
+		private double zoom;
+		private double baseSize;
 
 		public bool IsActive {
 			get {
@@ -53,6 +73,8 @@ namespace VGame {
 		public Game() : this(true) {
 		}
 		public Game(bool initializeRenderer) {
+			Zoom = 1;
+			BaseSize = 1;
 			if (initializeRenderer)
 				ChangeResolution(new Rectangle(0, 0, 1024, 768), false, false);
 			InputManager = new InputManager();
@@ -258,6 +280,8 @@ namespace VGame {
 				Renderer.Dispose();
 			}
 			Renderer = new Renderer(this, resolution.Width, resolution.Height, fullscreen, borderless);
+			Renderer.Zoom = Zoom;
+			Renderer.BaseSize = BaseSize;
 			LoadFonts();
 			Sdl.SDL_EnableUNICODE(Sdl.SDL_ENABLE);
 			CursorVisible = cursorVisible;

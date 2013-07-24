@@ -50,7 +50,7 @@ namespace VGame.Shapes {
 			g.LineTo(position.AddLengthDir(scale, MathHelper.PiOver2 + (MathHelper.PiOver4 / 2 * AnimationProgress)).ToPointD());
 			g.LineTo(position.AddLengthDir(scale, MathHelper.PiOver4 * 9 + (MathHelper.PiOver4 / 2 * AnimationProgress)).ToPointD());
 			g.ClosePath();
-			Util.StrokeAndFill(g, fillColor, strokeColor);
+			renderer.StrokeAndFill(fillColor, strokeColor);
 		}
 	}
 }

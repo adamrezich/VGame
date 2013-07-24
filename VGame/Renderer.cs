@@ -83,6 +83,9 @@ namespace VGame {
 		}
 		public Dictionary<string, Font> Fonts = new Dictionary<string, Font>();
 
+		public double Zoom { get; set; }
+		public double BaseSize { get; set; }
+
 		public Renderer(Game game, int width, int height, bool fullscreen, bool borderless) {
 			this.game = game;
 			this.width = width;
@@ -241,6 +244,25 @@ namespace VGame {
 		}
 		public void SetFont(string font) {
 			cairo_set_scaled_font(Context.Handle, Fonts[font].ScaledFont.Handle);
+		}
+		public void StrokeAndFill(Cairo.Color? fillColor, Cairo.Color? strokeColor) {
+			if (fillColor.HasValue && fillColor != null) {
+				Context.SetSourceRGBA(((Cairo.Color)fillColor).R, ((Cairo.Color)fillColor).G, ((Cairo.Color)fillColor).B, ((Cairo.Color)fillColor).A);
+				if (strokeColor.HasValue && fillColor != null)
+					Context.FillPreserve();
+				else
+					Context.Fill();
+			}
+			if (strokeColor.HasValue && strokeColor != null) {
+				Context.SetSourceRGBA(((Cairo.Color)strokeColor).R, ((Cairo.Color)strokeColor).G, ((Cairo.Color)strokeColor).B, ((Cairo.Color)strokeColor).A);
+				Context.Stroke();
+			}
+		}
+		public double GetUnitSize() {
+			return GetUnitSize(1);
+		}
+		public double GetUnitSize(double size) {
+			return size * BaseSize * Zoom;
 		}
 
 		protected void Initialize() {
