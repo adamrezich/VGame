@@ -29,7 +29,8 @@ namespace VGame {
 				return readyToUpdate && drawnFrames >= 1;
 			}
 		}
-		private Thread drawThread;
+		private Thread drawThread = null;
+		private bool useSeparateDrawThread = false;
 
 		public double Zoom {
 			get {
@@ -76,7 +77,7 @@ namespace VGame {
 			Zoom = 1;
 			BaseSize = 1;
 			if (initializeRenderer)
-				ChangeResolution(new Rectangle(0, 0, 1024, 768), false, false);
+				ChangeResolution(new Rectangle(0, 0, 1024, 768), false, false, false);
 			InputManager = new InputManager();
 			StateManager = new StateManager(this);
 			Cmd = new CommandManager(this);
@@ -175,7 +176,7 @@ namespace VGame {
 		}
 
 		public void DrawTick() {
-			if (Renderer != null && Renderer.IsReady && drawnFrames < 1) {
+			if ((Renderer != null && Renderer.IsReady && drawnFrames < 1) || !useSeparateDrawThread) {
 				Draw(_gameTime);
 				Renderer.Draw(_gameTime);
 				Renderer.AddFrame(_gameTime);
@@ -198,7 +199,7 @@ namespace VGame {
 			}
 			readyToUpdate = true;
 
-			if (!drawingComplete) {
+			if (!drawingComplete && useSeparateDrawThread) {
 
 				Thread.Sleep(1);
 				goto RetryTick;
@@ -213,6 +214,9 @@ namespace VGame {
 				InputManager.Tick();
 				HandleInput();
 				Update(_gameTime);
+			}
+			if (!useSeparateDrawThread) {
+				DrawTick();
 			}
 			drawingComplete = false;
 			readyToUpdate = false;
@@ -267,8 +271,8 @@ namespace VGame {
 			}
 		}
 
-		public bool ChangeResolution(Rectangle resolution, bool fullscreen, bool borderless) {
-			if (drawThread != null) {
+		public bool ChangeResolution(Rectangle resolution, bool fullscreen, bool borderless, bool doubleBuffered) {
+			if (drawThread != null && useSeparateDrawThread) {
 				rendering = false;
 				drawThread.Join();
 			}
@@ -279,7 +283,7 @@ namespace VGame {
 			if (Renderer != null) {
 				Renderer.Dispose();
 			}
-			Renderer = new Renderer(this, resolution.Width, resolution.Height, fullscreen, borderless);
+			Renderer = new Renderer(this, resolution.Width, resolution.Height, fullscreen, borderless, doubleBuffered);
 			Renderer.Zoom = Zoom;
 			Renderer.BaseSize = BaseSize;
 			LoadFonts();
@@ -287,7 +291,8 @@ namespace VGame {
 			CursorVisible = cursorVisible;
 			ConstrainMouse = constrainMouse;
 			WindowCaption = windowCaption;
-			BeginDrawLoop();
+			if (useSeparateDrawThread)
+				BeginDrawLoop();
 			return true;
 		}
 

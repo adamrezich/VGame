@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Linq;
 using Tao.Sdl;
+using Tao.OpenGl;
+using Tao.FreeGlut;
 using Cairo;
 
 namespace VGame {
@@ -19,6 +21,7 @@ namespace VGame {
 		bool borderless = false;
 		bool fullscreen = false;
 		bool antialiasing = true;
+		bool doubleBuffered = false;
 		Context context;
 		bool isDisposing = false;
 		int fps = 0;
@@ -43,6 +46,11 @@ namespace VGame {
 		public bool Fullscreen {
 			get {
 				return fullscreen;
+			}
+		}
+		public bool DoubleBuffered {
+			get {
+				return doubleBuffered;
 			}
 		}
 		public bool Antialiasing {
@@ -86,12 +94,13 @@ namespace VGame {
 		public double Zoom { get; set; }
 		public double BaseSize { get; set; }
 
-		public Renderer(Game game, int width, int height, bool fullscreen, bool borderless) {
+		public Renderer(Game game, int width, int height, bool fullscreen, bool borderless, bool doubleBuffered) {
 			this.game = game;
 			this.width = width;
 			this.height = height;
 			this.fullscreen = fullscreen;
 			this.borderless = borderless;
+			this.doubleBuffered = doubleBuffered;
 
 			Initialize();
 			Current = this;
@@ -270,7 +279,7 @@ namespace VGame {
 			if (Sdl.SDL_Init(Sdl.SDL_INIT_VIDEO) != 0) {
 				throw new Exception("Video failed to initialize!");
 			}
-			flags = Sdl.SDL_SWSURFACE | Sdl.SDL_DOUBLEBUF | Sdl.SDL_ANYFORMAT | (fullscreen ? Sdl.SDL_FULLSCREEN : 0) | (borderless ? Sdl.SDL_NOFRAME : 0);
+			flags = Sdl.SDL_SWSURFACE | Sdl.SDL_HWACCEL | Sdl.SDL_PREALLOC | (doubleBuffered ? Sdl.SDL_DOUBLEBUF : 0) | Sdl.SDL_ASYNCBLIT | Sdl.SDL_ANYFORMAT | (fullscreen ? Sdl.SDL_FULLSCREEN : 0) | (borderless ? Sdl.SDL_NOFRAME : 0);
 			surfacePtr = IntPtr.Zero;
 			surfacePtr = Sdl.SDL_SetVideoMode(width, height, bpp, flags);
 			if (surfacePtr == IntPtr.Zero)

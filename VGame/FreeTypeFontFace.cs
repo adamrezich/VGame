@@ -26,7 +26,7 @@ namespace VGame {
 		private static IntPtr ft_lib;
 		private IntPtr ft_face;
 
-		private FreeTypeFontFace(IntPtr handler, IntPtr ft_face) : base(handler, true) {
+		private FreeTypeFontFace(IntPtr handler, IntPtr ft_face) : base(handler) {
 			this.ft_face = ft_face;
 		}
 
