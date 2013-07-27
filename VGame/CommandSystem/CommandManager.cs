@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace VGame {
+namespace VGame.CommandSystem {
 	public class CommandManager {
 		public Game Game;
 		public CommandConsole Console;
@@ -10,8 +10,8 @@ namespace VGame {
 		public CommandManager(Game game) {
 			Game = game;
 			Console = new CommandConsole(this);
-			VGame.Commands.Load();
-			VGame.Variables.Load(this);
+			Commands.Load();
+			VGame.CommandSystem.Variables.Load(this);
 		}
 
 		public void Run(string command) {

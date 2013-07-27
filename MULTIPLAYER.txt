@@ -1,0 +1,49 @@
+GameState is an object that contains everything that the server knows that the
+client needs to know. Ideally, a GameState would be sent to each client, every
+tick (66.66 times per second).
+
+Since that would be crazy, instead we only send any variables that have changed
+since the last time we sent stuff to that client... meaning,
+
+
+cl_updaterate 20
+	Rate set by the client to get GameState snapshot updates from the server.
+	Clamped to sv_minupaterate and sv_maxupdaterate.
+rate 12000
+	Rate, in bytes per second, a client can receive data. Client will be kicked
+	from the server if their rate is less than sv_minrate, and it will be
+	clamped to sv_maxrate.
+cl_cmdrate 30
+	Rate set by the client to send input data to the server.
+cl_lerp 0.1
+	
+
+
+sv_minrate
+sv_maxrate
+sv_minupdaterate
+sv_maxupdaterate
+
+
+
+int		tick
+byte	type of object
+byte	number of objects of this type to update
+
+[entity]
+short	id of this entity
+byte	number of properties to update
+string	name of property to update
+*		value of property to update
+
+
+
+int		tick
+byte	number of inputs
+
+
+special properties:
+__class
+	Entity class name, used only when making a new entity.
+__remove
+	Signals that this entity should be destroyed.

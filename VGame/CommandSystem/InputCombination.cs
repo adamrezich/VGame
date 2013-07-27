@@ -1,6 +1,6 @@
 using System;
 
-namespace VGame {
+namespace VGame.CommandSystem {
 	public abstract class InputCombination {
 		public bool Control {
 			get {

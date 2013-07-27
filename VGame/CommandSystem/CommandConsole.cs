@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Cairo;
 
-namespace VGame {
+namespace VGame.CommandSystem {
 	public class CommandConsole {
 		public Vector2 Position = new Vector2();
 		public int LinesToShow = 10;

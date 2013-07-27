@@ -8,7 +8,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1A80EE3B-EE5D-41BA-B9D4-71399900215E}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
+		MULTIPLAYER.txt = MULTIPLAYER.txt
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VGameServerTest", "VGameServerTest\VGameServerTest.csproj", "{9146A012-E9C6-4099-A983-E0FCD84B2C66}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,6 +23,10 @@ Global
 		{56AF2697-89DC-4732-A0E9-8BB904BC2811}.Debug|x86.Build.0 = Debug|x86
 		{56AF2697-89DC-4732-A0E9-8BB904BC2811}.Release|x86.ActiveCfg = Release|x86
 		{56AF2697-89DC-4732-A0E9-8BB904BC2811}.Release|x86.Build.0 = Release|x86
+		{9146A012-E9C6-4099-A983-E0FCD84B2C66}.Debug|x86.ActiveCfg = Debug|x86
+		{9146A012-E9C6-4099-A983-E0FCD84B2C66}.Debug|x86.Build.0 = Debug|x86
+		{9146A012-E9C6-4099-A983-E0FCD84B2C66}.Release|x86.ActiveCfg = Release|x86
+		{9146A012-E9C6-4099-A983-E0FCD84B2C66}.Release|x86.Build.0 = Release|x86
 		{BE7ED58D-6D29-4E37-B160-35DA06F97516}.Debug|x86.ActiveCfg = Debug|x86
 		{BE7ED58D-6D29-4E37-B160-35DA06F97516}.Debug|x86.Build.0 = Debug|x86
 		{BE7ED58D-6D29-4E37-B160-35DA06F97516}.Release|x86.ActiveCfg = Release|x86

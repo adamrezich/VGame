@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Tao.Sdl;
 using Cairo;
 
+using VGame.CommandSystem;
+
 namespace VGame {
 	public class Game : IDisposable {
 		public Renderer Renderer = null;
@@ -129,8 +131,6 @@ namespace VGame {
 			Run(true);
 		}
 		public void Run(bool drawing) {
-			/*if (drawing)
-				BeginDrawLoop();*/
 			while (!IsExiting) {
 				Tick();
 			}
@@ -176,7 +176,7 @@ namespace VGame {
 		}
 
 		public void DrawTick() {
-			if ((Renderer != null && Renderer.IsReady && drawnFrames < 1) || !useSeparateDrawThread) {
+			if (Renderer != null && ((Renderer.IsReady && drawnFrames < 1) || !useSeparateDrawThread)) {
 				Draw(_gameTime);
 				Renderer.Draw(_gameTime);
 				Renderer.AddFrame(_gameTime);
@@ -294,6 +294,15 @@ namespace VGame {
 			if (useSeparateDrawThread)
 				BeginDrawLoop();
 			return true;
+		}
+
+		public void ErrorMessage(string message) {
+			if (Cmd != null)
+				Cmd.Console.WriteLine(message, ConsoleMessageType.Error);
+		}
+		public void WarningMessage(string message) {
+			if (Cmd != null)
+				Cmd.Console.WriteLine(message, ConsoleMessageType.Error);
 		}
 
 		public GameTime GetGameTime() {

@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace VGame {
+namespace VGame.CommandSystem {
 	public class Binding {
-		public static List<Binding> List = new List<VGame.Binding>();
+		public static List<Binding> List = new List<Binding>();
 
 		public InputCombination Combination;
 		public string Command;

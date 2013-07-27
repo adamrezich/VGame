@@ -25,7 +25,7 @@ namespace VGameTest {
 			Context g = Renderer.Context;
 			Renderer.Clear(ColorPresets.LightSteelBlue);
 			Renderer.DrawText(new Vector2(Renderer.Width / 2, Renderer.Height / 2), "CLICK TO QUIT", 24, TextAlign.Center, TextAlign.Middle, new Color(1, 1, 1), new Color(0, 0, 0), null, 0, "pixel");
-			cursor.Draw(g, new Vector2(playerPosition.X, playerPosition.Y), 0, ColorPresets.White, ColorPresets.Black, 24);
+			cursor.Draw(Renderer, new Vector2(playerPosition.X, playerPosition.Y), 0, ColorPresets.White, ColorPresets.Black, 24);
 		}
 	}
 	public class TestMenu : Menu {

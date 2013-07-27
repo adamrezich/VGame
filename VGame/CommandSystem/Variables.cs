@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace VGame {
+namespace VGame.CommandSystem {
 	public class Variables {
 		public static void Load(CommandManager cmdMan) {
 			Add(new VariableDefinition("cl_showfps", ParameterType.Bool, VariableFlags.Client, new Parameter(true)));

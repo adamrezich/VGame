@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace VGame {
+namespace VGame.CommandSystem {
 	public class Variable {
 		public VariableDefinition Definition;
 		public Parameter Value;

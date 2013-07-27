@@ -56,7 +56,7 @@ namespace VGame {
 		public virtual void OnFocus() {
 		}
 		public virtual void OnEscape() {
-			Game.Cmd.Console.WriteLine(string.Format("Warning: empty escape event for {0}.", this.GetType().Name), ConsoleMessageType.Warning);
+			Game.Cmd.Console.WriteLine(string.Format("Warning: empty escape event for {0}.", this.GetType().Name), VGame.CommandSystem.ConsoleMessageType.Warning);
 		}
 		public void Exit() {
 			isExiting = true;

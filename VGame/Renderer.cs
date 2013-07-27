@@ -274,6 +274,18 @@ namespace VGame {
 			return size * BaseSize * Zoom;
 		}
 
+		protected void GL_Initialize() {
+			Gl.glMatrixMode(Gl.GL_PROJECTION);
+			Gl.glLoadIdentity();
+			Gl.glOrtho(0, width, height, 0, 0, 1);
+			Gl.glMatrixMode(Gl.GL_MODELVIEW);
+			Gl.glDisable(Gl.GL_DEPTH_TEST);
+		}
+		protected void GL_Draw(GameTime gameTime) {
+			Clear();
+			game.Draw(gameTime);
+		}
+
 		protected void Initialize() {
 			Sdl.SDL_putenv("SDL_VIDEO_CENTERED=center");
 			if (Sdl.SDL_Init(Sdl.SDL_INIT_VIDEO) != 0) {

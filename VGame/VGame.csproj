@@ -80,13 +80,23 @@
     <Compile Include="FreeTypeFontFace.cs" />
     <Compile Include="Font.cs" />
     <Compile Include="Line.cs" />
-    <Compile Include="Entity.cs" />
     <Compile Include="IPrimitive.cs" />
+    <Compile Include="Networking\Server.cs" />
+    <Compile Include="Networking\Client.cs" />
+    <Compile Include="Networking\RemoteClient.cs" />
+    <Compile Include="CommandSystem\Parameter.cs" />
+    <Compile Include="GameStateSystem\Entity.cs" />
+    <Compile Include="GameStateSystem\EntityClass.cs" />
+    <Compile Include="GameStateSystem\GameStateManager.cs" />
+    <Compile Include="GameStateSystem\Player.cs" />
+    <Compile Include="GameStateSystem\GameState.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="MonoGame\" />
     <Folder Include="StateSystem\" />
     <Folder Include="CommandSystem\" />
+    <Folder Include="Networking\" />
+    <Folder Include="GameStateSystem\" />
   </ItemGroup>
 </Project>

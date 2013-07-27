@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace VGame {
+namespace VGame.CommandSystem {
 	public class Commands {
 		public static void Load() {
 			Add("quit", new CommandDefinition(delegate(CommandManager cmdMan, Command cmd) {

@@ -197,6 +197,16 @@ namespace VGame {
 		}
 	}
 	public class SelectManyEntry : MenuEntry {
+		public override Cairo.Color FillColor {
+			get {
+				return Enabled ? LabelFillColor : DisabledFillColor;
+			}
+		}
+		public override Cairo.Color FillColor2 {
+			get {
+				return base.FillColor;
+			}
+		}
 		public List<string> Options;
 		public int SelectedIndex = 0;
 		public SelectManyEntry(Menu menu, string text, List<string> options) : base(menu, text) {
