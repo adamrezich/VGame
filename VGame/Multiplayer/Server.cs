@@ -26,7 +26,7 @@ namespace VGame.Multiplayer {
 			}
 		}
 		public bool IsLocalServer { get; internal set; }
-		protected List<int> ClientsToRemove { get; set; }
+		protected List<Tuple<int, string>> ClientsToRemove { get; set; }
 		public abstract string Identifier { get; }
 		protected int MinRate {
 			get {
@@ -61,13 +61,14 @@ namespace VGame.Multiplayer {
 		internal NetServer server;
 		protected NetPeerConfiguration config;
 		protected NetIncomingMessage incoming;
+		private Stopwatch tickStopwatch;
 
 		// Constructor
 		public Server(Game game, bool isLocalServer, int port) {
 			Game = game;
 			GameStateManager = new GameStateManager();
 			RemoteClients = new SortedDictionary<int, RemoteClient>();
-			ClientsToRemove = new List<int>();
+			ClientsToRemove = new List<Tuple<int, string>>();
 			IsLocalServer = isLocalServer;
 			if (!IsLocalServer) {
 				config = new NetPeerConfiguration(Identifier);
@@ -90,7 +91,7 @@ namespace VGame.Multiplayer {
 				server.Start();
 			}
 			Started = true;
-			Thread = new Thread(MainLoop);
+			Thread = new Thread(Loop);
 			Thread.IsBackground = true;
 			Thread.Start();
 		}
@@ -104,28 +105,29 @@ namespace VGame.Multiplayer {
 				CheckIncomingMessages();
 			}
 		}
-		public int AddPlayer(NetConnection connection, int updateRate) {
+		public int AddPlayer(NetConnection connection, string name, int updateRate) {
 			GameState currentGameState = GameStateManager.CurrentGameState;
 			int newClientID = 0;
 			if (RemoteClients.Count > 0)
 				newClientID = RemoteClients.Last().Key + 1;
 			RemoteClients.Add(newClientID, new RemoteClient(newClientID, connection, updateRate));
 			int entID = currentGameState.AddEntity();
-			currentGameState.Players.Add(newClientID, new Player(entID));
+			currentGameState.Players.Add(newClientID, new Player(name, entID));
 			if (IsLocalServer) {
 				OnConnect(RemoteClients[newClientID]);
 			}
 			return newClientID;
 		}
-		public void RemovePlayer(int id) {
+		public void RemovePlayer(int id, string message) {
 			GameState currentGameState = GameStateManager.CurrentGameState;
 			RemoteClient rc = RemoteClients[id];
+			OnDisconnect(rc);
 			if (rc.Connection != null) {
-				//rc.Connection.Disconnect("");
+				rc.Connection.Disconnect(message);
 			}
 			currentGameState.Entities.Remove(currentGameState.Players[id].EntityID);
 			currentGameState.Players.Remove(id);
-			//RemoteClients.Remove(id);
+			RemoteClients.Remove(id);
 		}
 
 		// Protected methods
@@ -138,9 +140,17 @@ namespace VGame.Multiplayer {
 		}
 		
 		// Private methods
-		private void MainLoop() {
+		private void Loop() {
+			tickStopwatch = Stopwatch.StartNew();
 			while (!isExiting) {
+				Step();
+			}
+		}
+		private void Step() {
+			if (tickStopwatch.ElapsedMilliseconds >= TickRate) {
 				Tick();
+				tickStopwatch.Reset();
+				tickStopwatch.Start();
 			}
 		}
 		private void CheckIncomingMessages() {
@@ -159,7 +169,7 @@ namespace VGame.Multiplayer {
 							else {
 								incoming.SenderConnection.Approve();
 
-								int newClientID = AddPlayer(incoming.SenderConnection, incoming.ReadInt16());
+								int newClientID = AddPlayer(incoming.SenderConnection, incoming.ReadString(), incoming.ReadInt16());
 								ReadConnectMessage(ref incoming, RemoteClients[newClientID]);
 								OnConnect(RemoteClients[newClientID]);
 							}
@@ -169,8 +179,9 @@ namespace VGame.Multiplayer {
 					case NetIncomingMessageType.StatusChanged:
 						if (incoming.SenderConnection.Status == NetConnectionStatus.Disconnected) {
 							RemoteClient disconnectedClient = GetRemoteClientByConnection(incoming.SenderConnection);
-							ClientsToRemove.Add(disconnectedClient.PlayerID);
-							OnDisconnect(disconnectedClient);
+							if (disconnectedClient != null) {
+								ClientsToRemove.Add(new Tuple<int, string>(disconnectedClient.PlayerID, ""));
+							}
 						}
 						break;
 
@@ -180,18 +191,21 @@ namespace VGame.Multiplayer {
 				}
 				server.Recycle(incoming);
 			}
-			foreach (int i in ClientsToRemove) {
-				RemovePlayer(i);
+			foreach (Tuple<int, string> t in ClientsToRemove) {
+				RemovePlayer(t.Item1, t.Item2);
 			}
 			ClientsToRemove.Clear();
 		}
 
 		// Virtual methods
 		protected virtual void OnConnect(RemoteClient client) {
-			DebugMessage("Player connected!");
+			DebugMessage(string.Format("Player {0} connected.", GameStateManager.CurrentGameState.Players[client.PlayerID].Name));
+			System.Threading.Thread.Sleep(1000);
+			DebugMessage(" -- Testing kick functionality --");
+			RemovePlayer(client.PlayerID, "KICKED");
 		}
 		protected virtual void OnDisconnect(RemoteClient client) {
-			DebugMessage("Player disconnected!");
+			DebugMessage(string.Format("Player {0} disconnected.", GameStateManager.CurrentGameState.Players[client.PlayerID].Name));
 		}
 		protected virtual void OnData(NetIncomingMessage msg) {
 		}

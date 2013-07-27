@@ -34,15 +34,15 @@ namespace VGameServerTest {
 	}
 	public class TestState : State {
 		public override void Initialize() {
-			Console.WriteLine("VGame singleplayer test");
-			Console.WriteLine("-----------------------");
+			Console.WriteLine("VGame multiplayer test");
+			Console.WriteLine("----------------------");
 			new TestServer(Game, false); // true = is local server (single player)
 			new TestClient(Game, false); // true = is local server (single player)
 			Server.Local.Start();
 			System.Threading.Thread.Sleep(1000);
 			TestClient.Local.Connect("localhost", 1337);
 			System.Threading.Thread.Sleep(3000);
-			TestClient.Local.Disconnect();
+			//TestClient.Local.Disconnect();
 		}
 	}
 	class MainClass {

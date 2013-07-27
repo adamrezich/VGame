@@ -13,6 +13,7 @@ namespace VGame.CommandSystem {
 			Add(new VariableDefinition("cl_cmdrate", ParameterType.Int, VariableFlags.Client | VariableFlags.Archive | VariableFlags.UserInfo, new Parameter(30), "Max number of command packets sent to server per second"));
 			Add(new VariableDefinition("cl_updaterate", ParameterType.Int, VariableFlags.Client | VariableFlags.Archive | VariableFlags.UserInfo, new Parameter(30), "Number of packets per second of updates you are requesting from the server"));
 			Add(new VariableDefinition("rate", ParameterType.Int, VariableFlags.Archive | VariableFlags.UserInfo, new Parameter(12000), "Max bytes/sec the host can receive data"));
+			Add(new VariableDefinition("name", ParameterType.String, VariableFlags.Archive | VariableFlags.UserInfo, new Parameter("unnamed"), "Current user name"));
 
 			foreach (KeyValuePair<string, VariableDefinition> kvp in VariableDefinition.List) {
 				cmdMan.Variables.Add(kvp.Key, new Variable(kvp.Value, kvp.Value.DefaultValue));
