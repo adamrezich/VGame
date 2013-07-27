@@ -133,9 +133,9 @@ namespace VGame.CommandSystem {
 		public Type State;
 		public Action<CommandManager, Command> RunAction;
 
-		public CommandDefinition(Action<CommandManager, Command> runAction) : this(new List<ParameterType>(), typeof(State), runAction) {
+		public CommandDefinition(Action<CommandManager, Command> runAction) : this(new List<ParameterType>(), typeof(StateSystem.State), runAction) {
 		}
-		public CommandDefinition(List<ParameterType> parameters, Action<CommandManager, Command> runAction) : this(parameters, typeof(State), runAction) {
+		public CommandDefinition(List<ParameterType> parameters, Action<CommandManager, Command> runAction) : this(parameters, typeof(StateSystem.State), runAction) {
 		}
 		public CommandDefinition(Type state, Action<CommandManager, Command> runAction) : this(new List<ParameterType>(), state, runAction) {
 		}

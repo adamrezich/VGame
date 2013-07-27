@@ -22,6 +22,7 @@ namespace VGame.GameStateSystem {
 		public GameStateManager() {
 			States = new Queue<GameState>();
 			StatesToKeep = 10;
+			Add(new GameState());
 		}
 
 		// Public methods

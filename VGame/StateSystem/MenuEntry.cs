@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Cairo;
 
-namespace VGame {
+namespace VGame.StateSystem {
 	public class MenuEntry {
 		public Menu Menu;
 		public string Text;

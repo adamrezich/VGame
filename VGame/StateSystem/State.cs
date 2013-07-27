@@ -1,7 +1,7 @@
 using System;
 using Cairo;
 
-namespace VGame {
+namespace VGame.StateSystem {
 	public abstract class State {
 		public StateManager StateManager {
 			get {

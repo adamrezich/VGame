@@ -3,7 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Cairo;
 
-namespace VGame {
+namespace VGame.StateSystem {
 	public class StateManager {
 		List<State> states = new List<State>();
 		List<State> statesToUpdate = new List<State>();

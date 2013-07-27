@@ -1,6 +1,6 @@
 using System;
 
-namespace VGame {
+namespace VGame.StateSystem {
 	public class StateProxy : State {
 		public State Now;
 		public State After;

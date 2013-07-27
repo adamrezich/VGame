@@ -4,6 +4,8 @@ using Tao.Sdl;
 using Cairo;
 using VGame;
 
+using VGame.StateSystem;
+
 namespace VGameTest {
 	public class TestGame : Game {
 		public FreeTypeFontFace Font;

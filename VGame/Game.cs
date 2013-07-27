@@ -9,6 +9,7 @@ using Tao.Sdl;
 using Cairo;
 
 using VGame.CommandSystem;
+using VGame.StateSystem;
 
 namespace VGame {
 	public class Game : IDisposable {

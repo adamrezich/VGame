@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Cairo;
 
-namespace VGame {
+namespace VGame.StateSystem {
 	public class Menu : State {
 		public string Title;
 		public string Description;

@@ -35,6 +35,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = VGameTest\VGameTest.csproj
+		StartupItem = VGameServerTest\VGameServerTest.csproj
 	EndGlobalSection
 EndGlobal

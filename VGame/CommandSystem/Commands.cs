@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 
+using VGame.StateSystem;
+
 namespace VGame.CommandSystem {
 	public class Commands {
 		public static void Load() {

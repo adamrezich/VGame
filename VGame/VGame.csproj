@@ -36,9 +36,7 @@
     </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="Lidgren.Network, Version=2011.3.12.0, Culture=neutral">
-      <Private>False</Private>
-    </Reference>
+    <Reference Include="Lidgren.Network, Version=2011.3.12.0, Culture=neutral" />
     <Reference Include="Mono.Cairo" />
     <Reference Include="Tao.OpenGl, Version=2.1.0.12, Culture=neutral, PublicKeyToken=1ca010269a4501ef">
       <Private>False</Private>
@@ -81,22 +79,22 @@
     <Compile Include="Font.cs" />
     <Compile Include="Line.cs" />
     <Compile Include="IPrimitive.cs" />
-    <Compile Include="Networking\Server.cs" />
-    <Compile Include="Networking\Client.cs" />
-    <Compile Include="Networking\RemoteClient.cs" />
     <Compile Include="CommandSystem\Parameter.cs" />
     <Compile Include="GameStateSystem\Entity.cs" />
     <Compile Include="GameStateSystem\EntityClass.cs" />
     <Compile Include="GameStateSystem\GameStateManager.cs" />
     <Compile Include="GameStateSystem\Player.cs" />
     <Compile Include="GameStateSystem\GameState.cs" />
+    <Compile Include="Multiplayer\Server.cs" />
+    <Compile Include="Multiplayer\Client.cs" />
+    <Compile Include="Multiplayer\RemoteClient.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="MonoGame\" />
     <Folder Include="StateSystem\" />
     <Folder Include="CommandSystem\" />
-    <Folder Include="Networking\" />
     <Folder Include="GameStateSystem\" />
+    <Folder Include="Multiplayer\" />
   </ItemGroup>
 </Project>

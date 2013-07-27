@@ -21,6 +21,15 @@ namespace VGame.GameStateSystem {
 			Entities.Add(id, new Entity());
 			return id;
 		}
+		public void RemoveEntity(int id) {
+			if (Entities.ContainsKey(id))
+				Entities.Remove(id);
+		}
+		public void AddPlayer(int id) {
+
+		}
+		public void RemovePlayer(int id) {
+		}
 
 		// Static methods
 		public static GameState GetDelta(GameState state1, GameState state2) {

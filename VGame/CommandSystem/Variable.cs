@@ -13,18 +13,23 @@ namespace VGame.CommandSystem {
 
 	public class VariableDefinition {
 		public static Dictionary<string, VariableDefinition> List = new Dictionary<string, VariableDefinition>();
-		public string Name;
-		public ParameterType Type;
-		public Parameter DefaultValue;
-		public VariableFlags Flags;
 
-		public VariableDefinition(string name, ParameterType type, VariableFlags flags) : this(name, type, flags, new Parameter(type)) {
+		public string Name { get; internal set; }
+		public ParameterType Type { get; internal set; }
+		public Parameter DefaultValue { get; internal set; }
+		public VariableFlags Flags { get; internal set; }
+		public string Description { get; internal set; }
+
+		public VariableDefinition(string name, ParameterType type, VariableFlags flags) : this(name, type, flags, new Parameter(type), "") {
 		}
-		public VariableDefinition(string name, ParameterType type, VariableFlags flags, Parameter defaultValue) {
+		public VariableDefinition(string name, ParameterType type, VariableFlags flags, Parameter defaultValue) : this(name, type, flags, defaultValue, "") {
+		}
+		public VariableDefinition(string name, ParameterType type, VariableFlags flags, Parameter defaultValue, string description) {
 			Name = name;
 			Type = type;
 			DefaultValue = defaultValue;
 			Flags = flags;
+			Description = description;
 		}
 	}
 
