@@ -48,18 +48,24 @@ namespace VGameServerTest {
 			//TestClient.Local.Disconnect();
 		}
 	}
-	public class TestEntity : Entity {
+
+	public class TestEntity : SharedEntity {
+
+		// Properties
 		[EntityProperty]
 		public string TestProperty { get; set; }
 		[EntityProperty]
-		public int TestString {
-			get {
-				return Environment.TickCount;
-			}
+		public int TestInt { get; set; }
+
+		// Constructor
+		public TestEntity() : base() {
+			TestProperty = "ohai test";
+			TestInt = 0;
 		}
 
-		public TestEntity() : base("test") {
-			TestProperty = "ohai test";
+		// Static constructor
+		static TestEntity() {
+			Entity.Add("ent_test", typeof(TestEntity));
 		}
 	}
 	class MainClass {
@@ -67,8 +73,14 @@ namespace VGameServerTest {
 			//TestGame game = new TestGame(false);
 			//game.Run();
 			TestEntity ent = new TestEntity();
-			foreach (KeyValuePair<string, object> kvp in ent.Serialize())
+			ent.TestInt = 108;
+			Console.WriteLine("Serializing...");
+			Dictionary<string, object> data = ent.Serialize();
+			foreach (KeyValuePair<string, object> kvp in data)
 				Console.WriteLine(string.Format("{0,16}{2,8}{1,16}", kvp.Key, kvp.Value, kvp.Value.GetType().Name));
+			Console.WriteLine("Deserializing...");
+			TestEntity ent2 = (TestEntity)Entity.Deserialize(data);
+			Console.WriteLine(ent2.TestInt);
 			Console.ReadLine();
 		}
 	}
