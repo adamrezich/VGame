@@ -81,7 +81,6 @@
     <Compile Include="IPrimitive.cs" />
     <Compile Include="CommandSystem\Parameter.cs" />
     <Compile Include="GameStateSystem\Entity.cs" />
-    <Compile Include="GameStateSystem\EntityClass.cs" />
     <Compile Include="GameStateSystem\GameStateManager.cs" />
     <Compile Include="GameStateSystem\Player.cs" />
     <Compile Include="GameStateSystem\GameState.cs" />

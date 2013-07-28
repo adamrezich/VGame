@@ -62,9 +62,9 @@ namespace VGame.Multiplayer {
 				gameStateManager = new GameStateManager();
 				NetPeerConfiguration config = new NetPeerConfiguration(Identifier);
 				client = new NetClient(config);
+				Thread = new Thread(Loop);
+				Thread.Start();
 			}
-			Thread = new Thread(Loop);
-			Thread.Start();
 			Local = this;
 		}
 

@@ -18,7 +18,7 @@ namespace VGame.GameStateSystem {
 		// Public methods
 		public int AddEntity() {
 			int id = Entities.Count;
-			Entities.Add(id, new Entity());
+			Entities.Add(id, new PlayerEntity());
 			return id;
 		}
 		public void RemoveEntity(int id) {

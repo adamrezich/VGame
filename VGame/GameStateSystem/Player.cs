@@ -10,4 +10,9 @@ namespace VGame.GameStateSystem {
 			EntityID = entityID;
 		}
 	}
+
+	public class PlayerEntity : Entity {
+		public PlayerEntity() : base("player") {
+		}
+	}
 }
