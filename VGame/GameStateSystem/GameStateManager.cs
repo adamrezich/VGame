@@ -6,7 +6,7 @@ namespace VGame.GameStateSystem {
 	public class GameStateManager {
 
 		// Properties
-		public Queue<GameState> States { get; internal set; }
+		public List<GameState> States { get; internal set; }
 		public int StatesToKeep { get; internal set; }
 		public GameState CurrentGameState {
 			get {
@@ -21,17 +21,13 @@ namespace VGame.GameStateSystem {
 					return null;
 				if (States.Count == 1)
 					return States.Last();
-				return GameState.GetDelta(lastState, States.LastOrDefault());
+				return GameState.GetDelta(States[States.Count - 2], States.Last());
 			}
 		}
 
-		// Fields
-		private uint tick = 0;
-		private GameState lastState = null;
-
 		// Constructor
 		public GameStateManager() {
-			States = new Queue<GameState>();
+			States = new List<GameState>();
 			StatesToKeep = 10;
 			Add(new GameState());
 		}
@@ -43,14 +39,27 @@ namespace VGame.GameStateSystem {
 
 		// Public methods
 		public void Add(GameState state) {
-			state.Tick = tick;
-			tick++;
-			if (States.Count > 0)
-				lastState = States.Peek();
-			States.Enqueue(state);
+			States.Add(state);
 			while (States.Count > StatesToKeep) {
-				States.Dequeue();
+				States.RemoveAt(0);
 			}
+		}
+		public void Add() {
+			if (States.Count == 0)
+				throw new Exception("Tried to create a new GameState from an existing one, but there was no existing one.");
+			Add(CurrentGameState.CreateNext());
+
+		}
+		public GameState GetDeltaToCurrent(int tick) {
+			if (tick >= CurrentGameState.Tick)
+				throw new Exception("Player is updating faster than the server. This probably shouldn't be happening.");
+			if (tick > (int)CurrentGameState.Tick - States.Count) {
+				int index = (int)CurrentGameState.Tick - tick;
+				return GameState.GetDelta(States[index], States.Last());
+			}
+			//if (tick < (int)CurrentGameState.Tick - States.Count) {
+				return null;
+			//}
 		}
 
 	}

@@ -45,5 +45,5 @@ byte	number of inputs
 special properties:
 __class
 	Entity class name, used only when making a new entity.
-__remove
+__destroy
 	Signals that this entity should be destroyed.

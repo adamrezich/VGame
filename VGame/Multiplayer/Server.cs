@@ -50,7 +50,12 @@ namespace VGame.Multiplayer {
 		}
 		protected int TickRate {
 			get {
-				return 15;
+				return 66;
+			}
+		}
+		protected int Timeout {
+			get {
+				return Game.Cmd.Variables["sv_timeout"].Value.IntData;
 			}
 		}
 		public Thread Thread { get; internal set; }
@@ -96,7 +101,6 @@ namespace VGame.Multiplayer {
 			Thread.Start();
 		}
 		public void Stop() {
-			DebugMessage("Shutting down...");
 			isExiting = true;
 			Thread.Join();
 			if (IsLocalServer)
@@ -104,14 +108,13 @@ namespace VGame.Multiplayer {
 			else
 				NetServer.Shutdown("Server is shutting down.");
 			Started = false;
-			DebugMessage("Shut down.");
+			DebugMessage("Server stopped.");
 			Server.Local = null;
 		}
 		public void Tick() {
+			GameStateManager.Add();
 			if (!IsLocalServer) {
 				CheckIncomingMessages();
-				foreach (RemoteClient rc in AllClients())
-					rc.SendGameState(GameStateManager.CurrentGameStateDelta);
 			}
 		}
 		public int AddPlayer(NetConnection connection, string name, int updateRate) {
@@ -130,7 +133,7 @@ namespace VGame.Multiplayer {
 		public void RemovePlayer(int id, string message) {
 			GameState currentGameState = GameStateManager.CurrentGameState;
 			RemoteClient rc = RemoteClients[id];
-			OnDisconnect(rc);
+			OnDisconnect(rc, message);
 			if (rc.Connection != null) {
 				rc.Connection.Disconnect(message);
 			}
@@ -164,10 +167,23 @@ namespace VGame.Multiplayer {
 			}
 		}
 		private void Step() {
-			if (tickStopwatch.ElapsedMilliseconds >= TickRate) {
+			if (tickStopwatch.ElapsedMilliseconds >= 1000 / TickRate) {
 				Tick();
 				tickStopwatch.Reset();
 				tickStopwatch.Start();
+			}
+			if (!IsLocalServer) {
+				foreach (RemoteClient rc in AllClients()) {
+					if (rc.Stopwatch.ElapsedMilliseconds >= ClampUpdateRate(rc.UpdateRate)) {
+						GameState stateToSend = GameStateManager.GetDeltaToCurrent(rc.LastTickSent);
+						if (stateToSend == null) // full update
+							rc.SendGameState(GameStateManager.CurrentGameState, true);
+						else
+							rc.SendGameState(stateToSend);
+						rc.Stopwatch.Reset();
+						rc.Stopwatch.Start();
+					}
+				}
 			}
 		}
 		private void CheckIncomingMessages() {
@@ -184,8 +200,9 @@ namespace VGame.Multiplayer {
 								incoming.SenderConnection.Deny("Server is currently unjoinable.");
 							}
 							else {
-								incoming.SenderConnection.Approve();
-
+								NetOutgoingMessage msg = NetServer.CreateMessage();
+								msg.Write((byte)PacketType.Connect);
+								incoming.SenderConnection.Approve(msg);
 								int newClientID = AddPlayer(incoming.SenderConnection, incoming.ReadString(), incoming.ReadInt16());
 								ReadConnectMessage(ref incoming, RemoteClients[newClientID]);
 								OnConnect(RemoteClients[newClientID]);
@@ -195,9 +212,10 @@ namespace VGame.Multiplayer {
 
 					case NetIncomingMessageType.StatusChanged:
 						if (incoming.SenderConnection.Status == NetConnectionStatus.Disconnected) {
+							incoming.ReadByte(); // TODO: Figure out why we need this
 							RemoteClient disconnectedClient = GetRemoteClientByConnection(incoming.SenderConnection);
 							if (disconnectedClient != null) {
-								ClientsToRemove.Add(new Tuple<int, string>(disconnectedClient.PlayerID, ""));
+								ClientsToRemove.Add(new Tuple<int, string>(disconnectedClient.PlayerID, incoming.ReadString()));
 							}
 						}
 						break;
@@ -213,26 +231,29 @@ namespace VGame.Multiplayer {
 			}
 			ClientsToRemove.Clear();
 		}
+		private int ClampUpdateRate(int clientRate) {
+			clientRate = Math.Min(MathHelper.Clamp(clientRate, MinUpdateRate, MaxUpdateRate), TickRate);
+			return 1000 / clientRate;
+		}
 
 		// Virtual methods
 		protected virtual void OnConnect(RemoteClient client) {
 			DebugMessage(string.Format("Player {0} connected.", GameStateManager.CurrentGameState.Players[client.PlayerID].Name));
-			if (!IsLocalServer)
-				client.SendGameState(GameStateManager.CurrentGameState);
 		}
-		protected virtual void OnDisconnect(RemoteClient client) {
-			DebugMessage(string.Format("Player {0} disconnected.", GameStateManager.CurrentGameState.Players[client.PlayerID].Name));
+		protected virtual void OnDisconnect(RemoteClient client, string message) {
+			DebugMessage(string.Format("Player {0} disconnected: {1}", GameStateManager.CurrentGameState.Players[client.PlayerID].Name, message));
 		}
 		protected virtual void OnData(NetIncomingMessage msg) {
 		}
 		protected virtual void GetConfig(ref NetPeerConfiguration config) {
-			config.ConnectionTimeout = 10;
+			config.ConnectionTimeout = Timeout;
 			config.MaximumConnections = 16;
 		}
 		protected virtual void ReadConnectMessage(ref NetIncomingMessage msg, RemoteClient remoteClient) {
 		}
 		protected virtual void DebugMessage(string message) {
 			Console.WriteLine("[S] " + message);
+			//Debug.Write("[S]" + message + "\n");
 		}
 
 		// Internal methods
@@ -249,6 +270,7 @@ namespace VGame.Multiplayer {
 		Connect,
 		Disconnect,
 		GameState,
+		FullGameState,
 		Input
 	}
 }

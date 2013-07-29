@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 using Lidgren.Network;
 
 namespace VGame.GameStateSystem {
+	[Serializable]
 	public class GameState {
 
 		// Properties
@@ -32,9 +35,15 @@ namespace VGame.GameStateSystem {
 		}
 		public void RemovePlayer(int id) {
 		}
+		public GameState CreateNext() {
+			GameState gs = this.Copy();
+			gs.Tick = Tick + 1;
+			return gs;
+		}
 
 		// Static methods
 		public static GameState GetDelta(GameState state1, GameState state2) {
+			// TODO: Delta compression
 			return state2;
 		}
 
@@ -58,6 +67,7 @@ namespace VGame.GameStateSystem {
 
 			return gs;
 		}
+
 	}
 	public enum GameStateObject {
 		Entity,

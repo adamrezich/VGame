@@ -6,6 +6,7 @@ namespace VGame.CommandSystem {
 		public static void Load(CommandManager cmdMan) {
 			Add(new VariableDefinition("cl_showfps", ParameterType.Bool, VariableFlags.Client | VariableFlags.Archive, new Parameter(true), "Draw FPS at top of screen"));
 			Add(new VariableDefinition("sv_cheats", ParameterType.Bool, VariableFlags.Server));
+			Add(new VariableDefinition("sv_timeout", ParameterType.Int, VariableFlags.Server | VariableFlags.Archive, new Parameter(10), "After this many seconds without a message from a client, the client is dropped"));
 			Add(new VariableDefinition("sv_minrate", ParameterType.Int, VariableFlags.Server | VariableFlags.Archive, new Parameter(0), "Minimum client rate (0 means no limit)"));
 			Add(new VariableDefinition("sv_maxrate", ParameterType.Int, VariableFlags.Server | VariableFlags.Archive, new Parameter(0), "Maximum client rate (0 means no limit)"));
 			Add(new VariableDefinition("sv_minupdaterate", ParameterType.Int, VariableFlags.Server | VariableFlags.Archive, new Parameter(10), "Minimum client update rate"));

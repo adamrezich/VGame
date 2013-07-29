@@ -34,11 +34,6 @@ namespace VGameServerTest {
 
 		public TestClient(Game game, bool isLocalServer) : base(game, isLocalServer) {
 		}
-
-		protected override void OnReceiveGameState(GameState gameState) {
-			base.OnReceiveGameState(gameState);
-
-		}
 	}
 	public class TestGame : Game {
 		public TestGame(bool initializeRenderer) : base(initializeRenderer) {
@@ -49,7 +44,7 @@ namespace VGameServerTest {
 	}
 	public class TestState : State {
 		public override void Initialize() {
-			SingleplayerTest();
+			//SingleplayerTest();
 			MultiplayerTest();
 			Game.Exit();
 		}
@@ -74,8 +69,8 @@ namespace VGameServerTest {
 			System.Threading.Thread.Sleep(1000);
 			TestClient.Local.Connect("localhost", 1337);
 			System.Threading.Thread.Sleep(3000);
-			FakeDraw();
-			System.Threading.Thread.Sleep(1000);
+			TestClient.Local.Disconnect("Peace");
+			System.Threading.Thread.Sleep(3000);
 			TestServer.Local.Stop();
 		}
 

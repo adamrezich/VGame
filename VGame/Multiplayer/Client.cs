@@ -49,7 +49,6 @@ namespace VGame.Multiplayer {
 		protected GameState GameState;
 		protected NetClient NetClient;
 		private GameStateManager gameStateManager;
-		private Stopwatch updateStopwatch;
 		private Stopwatch commandStopwatch;
 		private bool isExiting = false;
 
@@ -68,8 +67,6 @@ namespace VGame.Multiplayer {
 			Local = this;
 		}
 		~Client() {
-			if (updateStopwatch != null)
-				updateStopwatch.Stop();
 			if (commandStopwatch != null)
 			commandStopwatch.Stop();
 		}
@@ -103,20 +100,16 @@ namespace VGame.Multiplayer {
 				Server.Local.RemovePlayer(0, message);
 			}
 			else {
-				if (IsConnected)
+				if (IsConnected) {
 					NetClient.Disconnect(message);
-				DebugMessage("Stopping client...");
+				}
 				Thread.Join();
 			}
 			IsConnected = false;
 			Client.Local = null;
 		}
 		public void Step() {
-			if (updateStopwatch.ElapsedMilliseconds >= 1000 / UpdateRate) {
-				CheckIncomingMessages();
-				updateStopwatch.Reset();
-				updateStopwatch.Start();
-			}
+			CheckIncomingMessages(); // TODO: Move?
 			if (commandStopwatch.ElapsedMilliseconds >= 1000 / CommandRate) {
 				// Send commands
 				commandStopwatch.Reset();
@@ -126,7 +119,6 @@ namespace VGame.Multiplayer {
 
 		// Private methods
 		private void Loop() {
-			updateStopwatch = Stopwatch.StartNew();
 			commandStopwatch = Stopwatch.StartNew();
 			while (!isExiting) {
 				Step();
@@ -136,24 +128,35 @@ namespace VGame.Multiplayer {
 		private void CheckIncomingMessages() {
 			NetIncomingMessage incoming;
 			while ((incoming = NetClient.ReadMessage()) != null) {
-				NetConnectionStatus status = (NetConnectionStatus)incoming.ReadByte();
-				switch (status) {
-					case NetConnectionStatus.Disconnected:
-						OnRemoteDisconnect(incoming.ReadString());
-						IsConnected = false;
-						isExiting = true;
-						return;
-				}
 				switch (incoming.MessageType) {
-					case NetIncomingMessageType.ConnectionApproval:
-						OnConnectionApproval();
+					case NetIncomingMessageType.StatusChanged:
+						NetConnectionStatus status = (NetConnectionStatus)incoming.SenderConnection.Status;
+						switch (status) {
+							case NetConnectionStatus.Connected:
+								IsConnected = true;
+								OnConnect();
+								break;
+							case NetConnectionStatus.Disconnected:
+								OnRemoteDisconnect(incoming.ReadString());
+								IsConnected = false;
+								isExiting = true;
+								return;
+						}
 						break;
 					case NetIncomingMessageType.Data:
 						switch ((PacketType)incoming.ReadByte()) {
+							case PacketType.Connect:
+								OnConnect();
+								break;
 							case PacketType.GameState:
 								GameState gs = GameState.NetDeserialize(ref incoming);
 								GameStateManager.Add(gs);
-								OnReceiveGameState(gs);
+								OnReceiveGameState(gs, false);
+								break;
+							case PacketType.FullGameState:
+								GameState fgs = GameState.NetDeserialize(ref incoming);
+								GameStateManager.Add(fgs);
+								OnReceiveGameState(fgs, true);
 								break;
 						}
 						break;
@@ -165,16 +168,17 @@ namespace VGame.Multiplayer {
 		protected virtual void WriteConnectMessage(ref NetOutgoingMessage msg) {
 		}
 		protected virtual void OnRemoteDisconnect(string message) {
-			DebugMessage("Disconnected from remost host: " + message);
+			DebugMessage("Disconnected from remote host: " + message);
 		}
-		protected virtual void OnConnectionApproval() {
+		protected virtual void OnConnect() {
 			DebugMessage("Connected to remote host.");
 		}
-		protected virtual void OnReceiveGameState(GameState gameState) {
-			DebugMessage(string.Format("Received game state from server with {0} entities.", gameState.Entities.Count));
+		protected virtual void OnReceiveGameState(GameState gameState, bool full) {
+			DebugMessage(string.Format("Received {2}game state Tick {0} from server with {1} entities.", gameState.Tick, gameState.Entities.Count, full ? "** A FULL ** " : ""));
 		}
 		protected virtual void DebugMessage(string message) {
 			Console.WriteLine("[C] " + message);
+			//Debug.Write("[C]" + message + "\n");
 		}
 	}
 }
