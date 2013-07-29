@@ -16,6 +16,14 @@ namespace VGameServerTest {
 
 		public TestServer(Game game, bool isLocalServer) : base(game, isLocalServer, 1337) {
 		}
+
+		protected override void OnConnect(RemoteClient client) {
+			System.Threading.Thread.Sleep(1000);
+			TestEntity ent = new TestEntity();
+			ent.TestProperty = "OMG IT WORKS";
+			GameStateManager.CurrentGameState.AddEntity(ent);
+			base.OnConnect(client);
+		}
 	}
 	public class TestClient : Client {
 		public override string Identifier {
@@ -25,6 +33,11 @@ namespace VGameServerTest {
 		}
 
 		public TestClient(Game game, bool isLocalServer) : base(game, isLocalServer) {
+		}
+
+		protected override void OnReceiveGameState(GameState gameState) {
+			base.OnReceiveGameState(gameState);
+
 		}
 	}
 	public class TestGame : Game {
@@ -36,18 +49,42 @@ namespace VGameServerTest {
 	}
 	public class TestState : State {
 		public override void Initialize() {
-			Console.WriteLine("VGame multiplayer test");
-			Console.WriteLine("----------------------");
-			new TestServer(Game, false); // true = is local server (single player)
-			new TestClient(Game, false); // true = is local server (single player)
+			SingleplayerTest();
+			MultiplayerTest();
+			Game.Exit();
+		}
+
+		private void SingleplayerTest() {
+			Console.WriteLine("Singleplayer test");
+			Console.WriteLine("-----------------");
+			new TestServer(Game, true);
+			new TestClient(Game, true);
+			Server.Local.Start();
+			TestClient.Local.Connect();
+			FakeDraw();
+			TestServer.Local.Stop();
+			Console.WriteLine("");
+		}
+		private void MultiplayerTest() {
+			Console.WriteLine("Multiplayer test");
+			Console.WriteLine("----------------");
+			new TestServer(Game, false);
+			new TestClient(Game, false);
 			Server.Local.Start();
 			System.Threading.Thread.Sleep(1000);
 			TestClient.Local.Connect("localhost", 1337);
-			//TestClient.Local.Connect();
-			System.Threading.Thread.Sleep(5000);
+			System.Threading.Thread.Sleep(3000);
+			FakeDraw();
+			System.Threading.Thread.Sleep(1000);
 			TestServer.Local.Stop();
-			//TestClient.Local.Disconnect("Bye");
-			Game.Exit();
+		}
+
+		private void FakeDraw() {
+			foreach (KeyValuePair<int, Entity> kvp2 in Client.Local.GameStateManager.CurrentGameState.Entities) {
+				foreach (KeyValuePair<string, object> kvp in kvp2.Value.Serialize())
+					Console.WriteLine(string.Format("{0,16}{2,8}{1,16}", kvp.Key, kvp.Value, kvp.Value.GetType().Name));
+				Console.WriteLine("");
+			}
 		}
 	}
 
@@ -72,17 +109,6 @@ namespace VGameServerTest {
 			Entity.Add("ent_test", typeof(TestEntity));
 			TestGame game = new TestGame(false);
 			game.Run();
-			/*TestEntity ent = new TestEntity();
-			ent.TestInt = 108;
-			Console.WriteLine("Serializing...");
-			Dictionary<string, object> data = ent.Serialize();
-			foreach (KeyValuePair<string, object> kvp in data)
-				Console.WriteLine(string.Format("{0,16}{2,8}{1,16}", kvp.Key, kvp.Value, kvp.Value.GetType().Name));
-			Console.WriteLine("Deserializing (and, technically, reserializing [just to show you the data])...");
-			TestEntity ent2 = (TestEntity)Entity.Deserialize(data);
-			foreach (KeyValuePair<string, object> kvp in ent2.Serialize())
-				Console.WriteLine(string.Format("{0,16}{2,8}{1,16}", kvp.Key, kvp.Value, kvp.Value.GetType().Name));
-			Console.WriteLine("TestInt defaults to 0 so this proves that it works awesomely.");*/
 			Console.ReadLine();
 		}
 	}

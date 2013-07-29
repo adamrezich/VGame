@@ -6,6 +6,7 @@ namespace VGame.GameStateSystem {
 	public class GameState {
 
 		// Properties
+		public uint Tick { get; internal set; }
 		public SortedDictionary<int, Entity> Entities { get; internal set; }
 		public SortedDictionary<int, Player> Players { get; internal set; }
 
@@ -16,9 +17,10 @@ namespace VGame.GameStateSystem {
 		}
 
 		// Public methods
-		public int AddEntity() {
+		public int AddEntity(Entity entity) {
 			int id = Entities.Count;
-			Entities.Add(id, new PlayerEntity());
+			entity.ID = (ushort)id;
+			Entities.Add(id, entity);
 			return id;
 		}
 		public void RemoveEntity(int id) {
@@ -33,7 +35,28 @@ namespace VGame.GameStateSystem {
 
 		// Static methods
 		public static GameState GetDelta(GameState state1, GameState state2) {
-			return null;
+			return state2;
+		}
+
+		// Internal methods
+		internal void NetSerialize(ref NetOutgoingMessage msg) {
+			msg.Write(Tick);
+			msg.Write((byte)Entities.Count);
+			foreach (KeyValuePair<int, Entity> kvp in Entities) {
+				kvp.Value.NetSerialize(ref msg);
+			}
+		}
+		static internal GameState NetDeserialize(ref NetIncomingMessage msg) {
+			GameState gs = new GameState();
+
+			gs.Tick = msg.ReadUInt32();
+			int entCount = (int)msg.ReadByte();
+
+			for (int i = 0; i < entCount; i++) {
+				gs.AddEntity((Entity)Entity.NetDeserialize(ref msg));
+			}
+
+			return gs;
 		}
 	}
 	public enum GameStateObject {

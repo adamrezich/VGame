@@ -23,6 +23,7 @@ namespace VGame.Multiplayer {
 			NetOutgoingMessage msg = Server.Local.CreateMessage();
 			msg.Write((byte)NetConnectionStatus.Connected);
 			msg.Write((byte)PacketType.GameState);
+			gameState.NetSerialize(ref msg);
 			Server.Local.SendMessage(msg, Connection, NetDeliveryMethod.ReliableOrdered);
 		}
 

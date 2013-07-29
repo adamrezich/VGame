@@ -99,13 +99,19 @@ namespace VGame.Multiplayer {
 			DebugMessage("Shutting down...");
 			isExiting = true;
 			Thread.Join();
-			NetServer.Shutdown("Server is shutting down.");
+			if (IsLocalServer)
+				Client.Local.Disconnect("Local server stopping.");
+			else
+				NetServer.Shutdown("Server is shutting down.");
 			Started = false;
 			DebugMessage("Shut down.");
+			Server.Local = null;
 		}
 		public void Tick() {
 			if (!IsLocalServer) {
 				CheckIncomingMessages();
+				foreach (RemoteClient rc in AllClients())
+					rc.SendGameState(GameStateManager.CurrentGameStateDelta);
 			}
 		}
 		public int AddPlayer(NetConnection connection, string name, int updateRate) {
@@ -114,7 +120,7 @@ namespace VGame.Multiplayer {
 			if (RemoteClients.Count > 0)
 				newClientID = RemoteClients.Last().Key + 1;
 			RemoteClients.Add(newClientID, new RemoteClient(newClientID, connection, updateRate));
-			int entID = currentGameState.AddEntity();
+			int entID = currentGameState.AddEntity(new PlayerEntity());
 			currentGameState.Players.Add(newClientID, new Player(name, entID));
 			if (IsLocalServer) {
 				OnConnect(RemoteClients[newClientID]);
@@ -140,6 +146,14 @@ namespace VGame.Multiplayer {
 					return kvp.Value;
 			}
 			return null;
+		}
+		protected List<RemoteClient> AllClientsButOne(int one) {
+			Dictionary<int, RemoteClient> dict = new Dictionary<int, RemoteClient>(RemoteClients);
+			if (dict.ContainsKey(one)) dict.Remove(one);
+			return dict.Values.ToList<RemoteClient>();
+		}
+		protected List<RemoteClient> AllClients() {
+			return RemoteClients.Values.ToList<RemoteClient>();
 		}
 		
 		// Private methods
@@ -203,11 +217,8 @@ namespace VGame.Multiplayer {
 		// Virtual methods
 		protected virtual void OnConnect(RemoteClient client) {
 			DebugMessage(string.Format("Player {0} connected.", GameStateManager.CurrentGameState.Players[client.PlayerID].Name));
-			System.Threading.Thread.Sleep(1000);
-			client.SendGameState(GameStateManager.CurrentGameState);
-			System.Threading.Thread.Sleep(1000);
-			DebugMessage(" -- Testing kick functionality --");
-			RemovePlayer(client.PlayerID, "KICKED");
+			if (!IsLocalServer)
+				client.SendGameState(GameStateManager.CurrentGameState);
 		}
 		protected virtual void OnDisconnect(RemoteClient client) {
 			DebugMessage(string.Format("Player {0} disconnected.", GameStateManager.CurrentGameState.Players[client.PlayerID].Name));

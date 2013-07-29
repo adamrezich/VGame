@@ -12,7 +12,7 @@ namespace VGame.GameStateSystem {
 	}
 
 	public class PlayerEntity : SharedEntity {
-		public PlayerEntity() : base("player") {
+		public PlayerEntity() : base() {
 		}
 	}
 }

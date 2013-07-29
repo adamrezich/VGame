@@ -17,7 +17,7 @@ namespace VGame.GameStateSystem {
 			}
 		}
 		public string Name { get; internal set; }
-		public short ID { get; internal set; }
+		public ushort ID { get; internal set; }
 		public abstract bool Shared { get; }
 		internal bool JustCreated { get; set; }
 		internal bool JustDestroyed { get; set; }
@@ -80,11 +80,49 @@ namespace VGame.GameStateSystem {
 			}
 			return o;
 		}
+		public static object NetDeserialize(ref NetIncomingMessage msg) {
+			ushort id = msg.ReadUInt16();
+			string cl = msg.ReadString();
+			Type type = typeList[cl];
+			object o = Activator.CreateInstance(type);
+			((Entity)o).ID = id;
+			int props = (int)msg.ReadByte();
+			for (int i = 0; i < props; i++) {
+				string k = msg.ReadString();
+				object v = null;
+				Type t = propertyInfoList[type][i].PropertyType;
+				if (t == typeof(Int16)) {
+					v = msg.ReadInt16();
+				}
+				if (t == typeof(Int32)) {
+					v = msg.ReadInt32();
+				}
+				if (t == typeof(Int64)) {
+					v = msg.ReadInt64();
+				}
+				if (t == typeof(Single)) {
+					v = msg.ReadSingle();
+				}
+				if (t == typeof(Double)) {
+					v = msg.ReadDouble();
+				}
+				if (t == typeof(String)) {
+					v = msg.ReadString();
+				}
+				if (t == typeof(Boolean)) {
+					v = msg.ReadBoolean();
+				}
+				var prop = type.GetProperty(k);
+				prop.SetValue(o, v, null);
+			}
+			return o;
+		}
 
 		// Public methods
 		public Dictionary<string, object> Serialize() {
 			properties.Clear();
-			properties.Add("__name", Name);
+			properties.Add("__id", ID);
+			//properties.Add("__name", Name);
 			properties.Add("__class", Class);
 			if (!propertyInfoList.ContainsKey(this.GetType()))
 				throw new Exception(string.Format("Class \"{0}\" not found in registered entity list!", this.GetType()));
@@ -95,10 +133,9 @@ namespace VGame.GameStateSystem {
 			return properties;
 		}
 		public void NetSerialize(ref NetOutgoingMessage msg) {
-			msg.Write("__name");
-			msg.Write(Name);
-			msg.Write("__class");
+			msg.Write(ID);
 			msg.Write(Class);
+			msg.Write((byte)(propertyInfoList[this.GetType()].Length));
 			foreach (PropertyInfo prop in propertyInfoList[this.GetType()]) {
 				msg.Write(prop.Name);
 				Type type = prop.PropertyType;

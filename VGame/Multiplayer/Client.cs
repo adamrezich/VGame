@@ -68,7 +68,9 @@ namespace VGame.Multiplayer {
 			Local = this;
 		}
 		~Client() {
-			updateStopwatch.Stop();
+			if (updateStopwatch != null)
+				updateStopwatch.Stop();
+			if (commandStopwatch != null)
 			commandStopwatch.Stop();
 		}
 
@@ -106,6 +108,8 @@ namespace VGame.Multiplayer {
 				DebugMessage("Stopping client...");
 				Thread.Join();
 			}
+			IsConnected = false;
+			Client.Local = null;
 		}
 		public void Step() {
 			if (updateStopwatch.ElapsedMilliseconds >= 1000 / UpdateRate) {
@@ -147,6 +151,9 @@ namespace VGame.Multiplayer {
 					case NetIncomingMessageType.Data:
 						switch ((PacketType)incoming.ReadByte()) {
 							case PacketType.GameState:
+								GameState gs = GameState.NetDeserialize(ref incoming);
+								GameStateManager.Add(gs);
+								OnReceiveGameState(gs);
 								break;
 						}
 						break;
@@ -162,6 +169,9 @@ namespace VGame.Multiplayer {
 		}
 		protected virtual void OnConnectionApproval() {
 			DebugMessage("Connected to remote host.");
+		}
+		protected virtual void OnReceiveGameState(GameState gameState) {
+			DebugMessage(string.Format("Received game state from server with {0} entities.", gameState.Entities.Count));
 		}
 		protected virtual void DebugMessage(string message) {
 			Console.WriteLine("[C] " + message);
