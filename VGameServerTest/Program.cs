@@ -44,8 +44,10 @@ namespace VGameServerTest {
 			System.Threading.Thread.Sleep(1000);
 			TestClient.Local.Connect("localhost", 1337);
 			//TestClient.Local.Connect();
-			System.Threading.Thread.Sleep(3000);
-			//TestClient.Local.Disconnect();
+			System.Threading.Thread.Sleep(5000);
+			TestServer.Local.Stop();
+			//TestClient.Local.Disconnect("Bye");
+			Game.Exit();
 		}
 	}
 
@@ -56,31 +58,31 @@ namespace VGameServerTest {
 		public string TestProperty { get; set; }
 		[EntityProperty]
 		public int TestInt { get; set; }
+		//[EntityProperty]
+		public Vector2 Asdf { get; set; }
 
 		// Constructor
 		public TestEntity() : base() {
 			TestProperty = "ohai test";
 			TestInt = 0;
 		}
-
-		// Static constructor
-		static TestEntity() {
-			Entity.Add("ent_test", typeof(TestEntity));
-		}
 	}
 	class MainClass {
 		public static void Main(string[] args) {
-			//TestGame game = new TestGame(false);
-			//game.Run();
-			TestEntity ent = new TestEntity();
+			Entity.Add("ent_test", typeof(TestEntity));
+			TestGame game = new TestGame(false);
+			game.Run();
+			/*TestEntity ent = new TestEntity();
 			ent.TestInt = 108;
 			Console.WriteLine("Serializing...");
 			Dictionary<string, object> data = ent.Serialize();
 			foreach (KeyValuePair<string, object> kvp in data)
 				Console.WriteLine(string.Format("{0,16}{2,8}{1,16}", kvp.Key, kvp.Value, kvp.Value.GetType().Name));
-			Console.WriteLine("Deserializing...");
+			Console.WriteLine("Deserializing (and, technically, reserializing [just to show you the data])...");
 			TestEntity ent2 = (TestEntity)Entity.Deserialize(data);
-			Console.WriteLine(ent2.TestInt);
+			foreach (KeyValuePair<string, object> kvp in ent2.Serialize())
+				Console.WriteLine(string.Format("{0,16}{2,8}{1,16}", kvp.Key, kvp.Value, kvp.Value.GetType().Name));
+			Console.WriteLine("TestInt defaults to 0 so this proves that it works awesomely.");*/
 			Console.ReadLine();
 		}
 	}

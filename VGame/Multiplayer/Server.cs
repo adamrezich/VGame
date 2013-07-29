@@ -58,7 +58,7 @@ namespace VGame.Multiplayer {
 
 		// Fields
 		private bool isExiting = false;
-		internal NetServer server;
+		protected NetServer NetServer;
 		protected NetPeerConfiguration config;
 		protected NetIncomingMessage incoming;
 		private Stopwatch tickStopwatch;
@@ -87,8 +87,8 @@ namespace VGame.Multiplayer {
 		// Public methods
 		public void Start() {
 			if (!IsLocalServer) {
-				server = new NetServer(config);
-				server.Start();
+				NetServer = new NetServer(config);
+				NetServer.Start();
 			}
 			Started = true;
 			Thread = new Thread(Loop);
@@ -96,9 +96,12 @@ namespace VGame.Multiplayer {
 			Thread.Start();
 		}
 		public void Stop() {
+			DebugMessage("Shutting down...");
 			isExiting = true;
 			Thread.Join();
-			server.Shutdown("Server is shutting down.");
+			NetServer.Shutdown("Server is shutting down.");
+			Started = false;
+			DebugMessage("Shut down.");
 		}
 		public void Tick() {
 			if (!IsLocalServer) {
@@ -156,11 +159,11 @@ namespace VGame.Multiplayer {
 		private void CheckIncomingMessages() {
 			GameState currentGameState = GameStateManager.CurrentGameState;
 			List<RemoteClient> clients = new List<RemoteClient>(RemoteClients.Values.ToList());
-			if ((incoming = server.ReadMessage()) != null) {
+			if ((incoming = NetServer.ReadMessage()) != null) {
 				switch (incoming.MessageType) {
 					case NetIncomingMessageType.ConnectionApproval:
 						if (incoming.ReadByte() == (byte)PacketType.Connect) {
-							if (server.ConnectionsCount >= server.Configuration.MaximumConnections) {
+							if (NetServer.ConnectionsCount >= NetServer.Configuration.MaximumConnections) {
 								incoming.SenderConnection.Deny("Server full.");
 							}
 							else if (!Joinable) {
@@ -189,7 +192,7 @@ namespace VGame.Multiplayer {
 						OnData(incoming);
 						break;
 				}
-				server.Recycle(incoming);
+				NetServer.Recycle(incoming);
 			}
 			foreach (Tuple<int, string> t in ClientsToRemove) {
 				RemovePlayer(t.Item1, t.Item2);
@@ -200,6 +203,8 @@ namespace VGame.Multiplayer {
 		// Virtual methods
 		protected virtual void OnConnect(RemoteClient client) {
 			DebugMessage(string.Format("Player {0} connected.", GameStateManager.CurrentGameState.Players[client.PlayerID].Name));
+			System.Threading.Thread.Sleep(1000);
+			client.SendGameState(GameStateManager.CurrentGameState);
 			System.Threading.Thread.Sleep(1000);
 			DebugMessage(" -- Testing kick functionality --");
 			RemovePlayer(client.PlayerID, "KICKED");
@@ -217,6 +222,14 @@ namespace VGame.Multiplayer {
 		}
 		protected virtual void DebugMessage(string message) {
 			Console.WriteLine("[S] " + message);
+		}
+
+		// Internal methods
+		internal NetOutgoingMessage CreateMessage() {
+			return NetServer.CreateMessage();
+		}
+		internal void SendMessage(NetOutgoingMessage msg, NetConnection recipient, NetDeliveryMethod method) {
+			NetServer.SendMessage(msg, recipient, method);
 		}
 
 	}

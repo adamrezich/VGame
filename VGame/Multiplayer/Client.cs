@@ -46,8 +46,8 @@ namespace VGame.Multiplayer {
 		public Thread Thread { get; internal set; }
 
 		// Fields
-		protected GameState gameState;
-		protected NetClient client;
+		protected GameState GameState;
+		protected NetClient NetClient;
 		private GameStateManager gameStateManager;
 		private Stopwatch updateStopwatch;
 		private Stopwatch commandStopwatch;
@@ -61,11 +61,15 @@ namespace VGame.Multiplayer {
 			if (!IsLocalServer) {
 				gameStateManager = new GameStateManager();
 				NetPeerConfiguration config = new NetPeerConfiguration(Identifier);
-				client = new NetClient(config);
+				NetClient = new NetClient(config);
 				Thread = new Thread(Loop);
 				Thread.Start();
 			}
 			Local = this;
+		}
+		~Client() {
+			updateStopwatch.Stop();
+			commandStopwatch.Stop();
 		}
 
 		// Public methods
@@ -80,28 +84,30 @@ namespace VGame.Multiplayer {
 		}
 		public void Connect(string address, int port) {
 			if (!IsLocalServer) {
-				client.Start();
-				NetOutgoingMessage msg = client.CreateMessage();
+				NetClient.Start();
+				NetOutgoingMessage msg = NetClient.CreateMessage();
 				msg.Write((byte)PacketType.Connect);
 				msg.Write(Name);
 				msg.Write((short)UpdateRate);
 				WriteConnectMessage(ref msg);
-				client.Connect(address, port, msg);
+				NetClient.Connect(address, port, msg);
 			}
 			else
 				throw new Exception("Can't remote-connect to local server.");
 		}
 		public void Disconnect(string message) {
+			isExiting = true;
 			if (IsLocalServer) {
 				Server.Local.RemovePlayer(0, message);
 			}
 			else {
-				client.Disconnect(message);
+				if (IsConnected)
+					NetClient.Disconnect(message);
+				DebugMessage("Stopping client...");
+				Thread.Join();
 			}
-			isExiting = true;
-			//Thread.Join();
 		}
-		public void Tick() {
+		public void Step() {
 			if (updateStopwatch.ElapsedMilliseconds >= 1000 / UpdateRate) {
 				CheckIncomingMessages();
 				updateStopwatch.Reset();
@@ -119,18 +125,20 @@ namespace VGame.Multiplayer {
 			updateStopwatch = Stopwatch.StartNew();
 			commandStopwatch = Stopwatch.StartNew();
 			while (!isExiting) {
-				Tick();
+				Step();
 			}
+			DebugMessage("Client stopped.");
 		}
 		private void CheckIncomingMessages() {
 			NetIncomingMessage incoming;
-			while ((incoming = client.ReadMessage()) != null) {
+			while ((incoming = NetClient.ReadMessage()) != null) {
 				NetConnectionStatus status = (NetConnectionStatus)incoming.ReadByte();
 				switch (status) {
 					case NetConnectionStatus.Disconnected:
 						OnRemoteDisconnect(incoming.ReadString());
-						Disconnect("Leaving!");
-						break;
+						IsConnected = false;
+						isExiting = true;
+						return;
 				}
 				switch (incoming.MessageType) {
 					case NetIncomingMessageType.ConnectionApproval:

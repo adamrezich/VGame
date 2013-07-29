@@ -20,9 +20,10 @@ namespace VGame.Multiplayer {
 
 		// Internal methods
 		internal void SendGameState(GameState gameState) {
-			NetOutgoingMessage msg = Server.Local.server.CreateMessage();
+			NetOutgoingMessage msg = Server.Local.CreateMessage();
 			msg.Write((byte)NetConnectionStatus.Connected);
-			Server.Local.server.SendMessage(msg, Connection, NetDeliveryMethod.ReliableOrdered);
+			msg.Write((byte)PacketType.GameState);
+			Server.Local.SendMessage(msg, Connection, NetDeliveryMethod.ReliableOrdered);
 		}
 
 	}
