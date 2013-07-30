@@ -15,7 +15,7 @@ namespace VGame.CommandSystem {
 		}
 
 		public override string ToString() {
-			return string.Format("bind {0} {1}", Combination.ToString(), Command);
+			return string.Format("bind {0} {1}", Combination.ToString(), Command.Contains(" ") ? string.Format("\"{0}\"", Command.Replace('"', '\'')) : Command);
 		}
 
 		public static void Bind(InputCombination combination, string command) {

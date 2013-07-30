@@ -75,6 +75,7 @@ namespace VGame.CommandSystem {
 			}
 			MouseButton button;
 			if (Enum.TryParse<MouseButton>(split[0], true, out button)) {
+				return new MouseCombination(button, control, shift, alt);
 			}
 			return null;
 		}
