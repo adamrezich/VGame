@@ -25,25 +25,25 @@ sv_minupdaterate
 sv_maxupdaterate
 
 
-
-int		tick
-byte	type of object
-byte	number of objects of this type to update
+// Delta GameState format
+int			tick
+byte		entities added
+(entities)
+byte		entities destroyed
+(entities)
+byte		entities changed
+(entities)
 
 [entity]
-short	id of this entity
-byte	number of properties to update
-string	name of property to update
-*		value of property to update
+short		id of this entity
+byte		number of properties to update
+(properties)
+
+[property]
+string		name of property to update
+*			value of property to update
 
 
-
+// Player command format
 int		tick
 byte	number of inputs
-
-
-special properties:
-__class
-	Entity class name, used only when making a new entity.
-__destroy
-	Signals that this entity should be destroyed.

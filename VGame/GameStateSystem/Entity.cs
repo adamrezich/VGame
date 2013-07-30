@@ -19,8 +19,6 @@ namespace VGame.GameStateSystem {
 		public string Name { get; internal set; }
 		public ushort ID { get; internal set; }
 		public abstract bool Shared { get; }
-		internal bool JustCreated { get; set; }
-		internal bool JustDestroyed { get; set; }
 
 		// Static properties
 		private static Dictionary<string, Type> typeList { get; set; }
@@ -190,8 +188,6 @@ namespace VGame.GameStateSystem {
 		}
 		public LocalEntity(string name) {
 			Name = name;
-			JustCreated = false;
-			JustDestroyed = false;
 		}
 
 	}
@@ -210,8 +206,6 @@ namespace VGame.GameStateSystem {
 		}
 		public SharedEntity(string name) {
 			Name = name;
-			JustCreated = false;
-			JustDestroyed = false;
 		}
 
 	}

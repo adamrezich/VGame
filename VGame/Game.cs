@@ -142,14 +142,15 @@ namespace VGame {
 			StateManager.ClearStates();
 			exiting = true;
 			rendering = false;
+			OnExit();
 		}
 
 		public virtual bool IsClient() {
-			return true;
+			return VGame.Multiplayer.Client.Local != null;
 		}
 
 		public virtual bool IsServer() {
-			return false;
+			return VGame.Multiplayer.Server.Local == null;
 		}
 
 		protected virtual void LoadFonts() {
@@ -157,6 +158,9 @@ namespace VGame {
 			Renderer.LoadFont("chunky", "ProFontWindows.ttf", true);
 			Renderer.LoadFont("pixel", "ProFontWindows.ttf");
 			Renderer.LoadFont("wide", "ProFontWindows.ttf", true);
+		}
+
+		public virtual void OnExit() {
 		}
 
 		private void BeginDrawLoop() {
@@ -260,6 +264,20 @@ namespace VGame {
 			}
 		}
 
+		public virtual void DebugMessage(string message) {
+			if (Cmd != null && Cmd.Console != null)
+				Cmd.Console.WriteLine(message);
+			else
+				Console.WriteLine(message);
+		}
+
+		public virtual void ErrorMessage(string message) {
+			if (Cmd != null && Cmd.Console != null)
+				Cmd.Console.WriteLine(message, ConsoleMessageType.Error);
+			else
+				Console.WriteLine("ERROR: " + message);
+		}
+
 		protected void PollEvents() {
 			Sdl.SDL_Event e;
 			while (Sdl.SDL_PollEvent(out e) == 1) {
@@ -295,15 +313,6 @@ namespace VGame {
 			if (useSeparateDrawThread)
 				BeginDrawLoop();
 			return true;
-		}
-
-		public void ErrorMessage(string message) {
-			if (Cmd != null)
-				Cmd.Console.WriteLine(message, ConsoleMessageType.Error);
-		}
-		public void WarningMessage(string message) {
-			if (Cmd != null)
-				Cmd.Console.WriteLine(message, ConsoleMessageType.Error);
 		}
 
 		public GameTime GetGameTime() {

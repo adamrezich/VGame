@@ -191,7 +191,7 @@ namespace VGame {
 					break;
 			}
 		}
-		protected bool IsValidUnicode(char c) {
+		public static bool IsValidUnicode(char c) {
 			// hopefully this isn't bad
 			return (char.IsLetterOrDigit(c) || char.IsPunctuation(c) || char.IsWhiteSpace(c) || Char.IsSymbol(c)) && !char.IsControl(c);
 		}

@@ -6,6 +6,7 @@ namespace VGame.CommandSystem {
 		public Game Game;
 		public CommandConsole Console;
 		public Dictionary<string, Variable> Variables = new Dictionary<string, Variable>();
+		public List<string> UserInfoToSend = new List<string>();
 
 		public CommandManager(Game game) {
 			Game = game;
@@ -20,7 +21,7 @@ namespace VGame.CommandSystem {
 				cmd = Command.Parse(command);
 			}
 			catch (Exception e) {
-				Console.WriteLine("ERROR: " + e.Message, ConsoleMessageType.Error);
+				Game.ErrorMessage(e.Message);
 				return;
 			}
 			Run(cmd);
@@ -30,7 +31,7 @@ namespace VGame.CommandSystem {
 				cmd.Run(this);
 			}
 			catch (Exception e) {
-				Console.WriteLine("ERROR: " + e.Message, ConsoleMessageType.Error);
+				Game.ErrorMessage(e.Message);
 			}
 		}
 	}

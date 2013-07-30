@@ -12,11 +12,19 @@ namespace VGame.GameStateSystem {
 		public uint Tick { get; internal set; }
 		public SortedDictionary<int, Entity> Entities { get; internal set; }
 		public SortedDictionary<int, Player> Players { get; internal set; }
+		public List<int> CreatedEntities { get; internal set; }
+		public List<int> DestroyedEntities { get; internal set; }
+		public List<int> AddedPlayers { get; internal set; }
+		public List<int> RemovedPlayers { get; internal set; }
 
 		// Constructor
 		public GameState() {
 			Entities = new SortedDictionary<int, Entity>();
 			Players = new SortedDictionary<int, Player>();
+			CreatedEntities = new List<int>();
+			DestroyedEntities = new List<int>();
+			AddedPlayers = new List<int>();
+			RemovedPlayers = new List<int>();
 		}
 
 		// Public methods
@@ -24,20 +32,33 @@ namespace VGame.GameStateSystem {
 			int id = Entities.Count;
 			entity.ID = (ushort)id;
 			Entities.Add(id, entity);
+			CreatedEntities.Add(id);
 			return id;
 		}
 		public void RemoveEntity(int id) {
-			if (Entities.ContainsKey(id))
+			if (Entities.ContainsKey(id)) {
 				Entities.Remove(id);
+				DestroyedEntities.Add(id);
+			}
 		}
-		public void AddPlayer(int id) {
-
+		public void AddPlayer(int id, Player player) {
+			AddedPlayers.Add(id);
+			Players.Add(id, player);
 		}
 		public void RemovePlayer(int id) {
+			RemovedPlayers.Add(id);
+			RemoveEntity(Players[id].EntityID);
+			Players.Remove(id);
 		}
 		public GameState CreateNext() {
 			GameState gs = this.Copy();
 			gs.Tick = Tick + 1;
+			gs.CreatedEntities.Clear();
+			gs.DestroyedEntities.Clear();
+			gs.AddedPlayers.Clear();
+			gs.RemovedPlayers.Clear();
+			/*foreach (KeyValuePair<int, Entity> kvp in gs.Entities) {
+			}*/
 			return gs;
 		}
 

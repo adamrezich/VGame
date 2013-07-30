@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 
 using VGame.StateSystem;
+using VGame.Multiplayer;
 
 namespace VGame.CommandSystem {
 	public class Commands {
@@ -10,7 +11,7 @@ namespace VGame.CommandSystem {
 				cmdMan.Game.Exit();
 			}));
 			Add("echo", new CommandDefinition(new List<ParameterType>() { ParameterType.String }, delegate(CommandManager cmdMan, Command cmd) {
-				cmdMan.Console.WriteLine(cmd.Parameters[0].StringData);
+				cmdMan.Game.DebugMessage(cmd.Parameters[0].StringData);
 			}));
 			Add("escape", new CommandDefinition(delegate(CommandManager cmdMan, Command cmd) {
 				State s = cmdMan.Game.StateManager.LastActiveState;
@@ -59,7 +60,7 @@ namespace VGame.CommandSystem {
 					cmdMan.Console.Buffer = "";
 			}));
 			Add("get", new CommandDefinition(new List<ParameterType>() { ParameterType.String }, delegate(CommandManager cmdMan, Command cmd) {
-				cmdMan.Console.WriteLine(cmdMan.Variables[cmd.Parameters[0].StringData].Value.ToString());
+				cmdMan.Game.DebugMessage(cmdMan.Variables[cmd.Parameters[0].StringData].Value.ToString());
 			}));
 			Add("set", new CommandDefinition(new List<ParameterType>() { ParameterType.String, ParameterType.String }, delegate(CommandManager cmdMan, Command cmd) {
 				//cmdMan.Console.WriteLine(cmdMan.Variables[cmd.Parameters[0].StringData].Value.ToString());
@@ -119,6 +120,19 @@ namespace VGame.CommandSystem {
 				if (!cmdMan.Game.IsServer() && def.Flags.HasFlag(VariableFlags.Server))
 					throw new Exception("You're not a server!");
 				cmdMan.Variables[cmd.Parameters[0].StringData].Value = param;
+				if (cmdMan.Game.IsClient() && def.Flags.HasFlag(VariableFlags.UserInfo)) {
+					cmdMan.Game.DebugMessage("Saving userinfo var: " + cmd.Parameters[0].StringData);
+					if (!cmdMan.UserInfoToSend.Contains(cmd.Parameters[0].StringData))
+						cmdMan.UserInfoToSend.Add(cmd.Parameters[0].StringData);
+				}
+			}));
+			Add("say", new CommandDefinition(new List<ParameterType>() { ParameterType.String }, delegate(CommandManager cmdMan, Command cmd) {
+				if (cmdMan.Game.IsClient()) {
+					Client.Local.CommandsToSend.Add(cmd);
+				}
+				if (cmdMan.Game.IsServer()) {
+					//cmdMan.Game.DebugMessage("[S] 
+				}
 			}));
 		}
 		public static void Add(string name, CommandDefinition commandDefinition) {

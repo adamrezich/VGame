@@ -124,7 +124,8 @@ namespace VGame.Multiplayer {
 				newClientID = RemoteClients.Last().Key + 1;
 			RemoteClients.Add(newClientID, new RemoteClient(newClientID, connection, updateRate));
 			int entID = currentGameState.AddEntity(new PlayerEntity());
-			currentGameState.Players.Add(newClientID, new Player(name, entID));
+			//currentGameState.Players.Add(newClientID, new Player(name, entID));
+			currentGameState.AddPlayer(newClientID, new Player(name, entID));
 			if (IsLocalServer) {
 				OnConnect(RemoteClients[newClientID]);
 			}
@@ -137,8 +138,7 @@ namespace VGame.Multiplayer {
 			if (rc.Connection != null) {
 				rc.Connection.Disconnect(message);
 			}
-			currentGameState.Entities.Remove(currentGameState.Players[id].EntityID);
-			currentGameState.Players.Remove(id);
+			currentGameState.RemovePlayer(id);
 			RemoteClients.Remove(id);
 		}
 
@@ -231,9 +231,9 @@ namespace VGame.Multiplayer {
 			}
 			ClientsToRemove.Clear();
 		}
-		private int ClampUpdateRate(int clientRate) {
-			clientRate = Math.Min(MathHelper.Clamp(clientRate, MinUpdateRate, MaxUpdateRate), TickRate);
-			return 1000 / clientRate;
+		private int ClampUpdateRate(int clientUpdateRate) {
+			clientUpdateRate = Math.Min(MathHelper.Clamp(clientUpdateRate, MinUpdateRate, MaxUpdateRate), TickRate);
+			return 1000 / clientUpdateRate;
 		}
 
 		// Virtual methods
@@ -244,6 +244,46 @@ namespace VGame.Multiplayer {
 			DebugMessage(string.Format("Player {0} disconnected: {1}", GameStateManager.CurrentGameState.Players[client.PlayerID].Name, message));
 		}
 		protected virtual void OnData(NetIncomingMessage msg) {
+			switch ((PacketType)msg.ReadByte()) {
+				case PacketType.Input:
+					OnUserInput(ref msg);
+					break;
+			}
+		}
+		protected virtual void OnUserInput(ref NetIncomingMessage msg) {
+			RemoteClient rc = GetRemoteClientByConnection(msg.SenderConnection);
+			if (rc == null)
+				return;
+			int userInfoCount = (int)msg.ReadByte();
+			if (userInfoCount > 0)
+				DebugMessage(string.Format("Got {0} UserInfo vars from client.", userInfoCount));
+			for (int i = 0; i < userInfoCount; i++) {
+				string ui_k = msg.ReadString();
+				if (!VariableDefinition.List.ContainsKey(ui_k)) {
+					DebugMessage(string.Format("Got invalid UserInfo var {0} from client!", ui_k));
+					continue;
+				}
+				VariableDefinition ui_def = VariableDefinition.List[ui_k];
+				Parameter ui_v = new Parameter();
+				switch (ui_def.Type) {
+					case ParameterType.Bool:
+						ui_v = new Parameter(msg.ReadBoolean());
+						break;
+					case ParameterType.Float:
+						ui_v = new Parameter(msg.ReadFloat());
+						break;
+					case ParameterType.Int:
+						ui_v = new Parameter(msg.ReadInt32());
+						break;
+					case ParameterType.String:
+						ui_v = new Parameter(msg.ReadString());
+						break;
+				}
+				if (rc.Variables.ContainsKey(ui_k))
+					rc.Variables[ui_k].Value = ui_v;
+				else
+					rc.Variables.Add(ui_k, new Variable(ui_def, ui_v));
+			}
 		}
 		protected virtual void GetConfig(ref NetPeerConfiguration config) {
 			config.ConnectionTimeout = Timeout;

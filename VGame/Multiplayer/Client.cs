@@ -6,6 +6,7 @@ using System.Threading;
 using Lidgren.Network;
 
 using VGame.GameStateSystem;
+using VGame.CommandSystem;
 
 namespace VGame.Multiplayer {
 	public abstract class Client {
@@ -30,12 +31,12 @@ namespace VGame.Multiplayer {
 		public bool IsConnected { get; set; }
 		public int UpdateRate {
 			get {
-				return Game.Cmd.Variables["cl_updaterate"].Value.IntData;
+				return Math.Max(Game.Cmd.Variables["cl_updaterate"].Value.IntData, 1);
 			}
 		}
 		public int CommandRate {
 			get {
-				return Game.Cmd.Variables["cl_cmdrate"].Value.IntData;
+				return Math.Max(Game.Cmd.Variables["cl_cmdrate"].Value.IntData, 1);
 			}
 		}
 		public string Name {
@@ -44,6 +45,7 @@ namespace VGame.Multiplayer {
 			}
 		}
 		public Thread Thread { get; internal set; }
+		public List<Command> CommandsToSend { get; internal set; }
 
 		// Fields
 		protected GameState GameState;
@@ -57,6 +59,7 @@ namespace VGame.Multiplayer {
 			Game = game;
 			IsLocalServer = isLocalServer;
 			IsConnected = false;
+			CommandsToSend = new List<Command>();
 			if (!IsLocalServer) {
 				gameStateManager = new GameStateManager();
 				NetPeerConfiguration config = new NetPeerConfiguration(Identifier);
@@ -108,13 +111,8 @@ namespace VGame.Multiplayer {
 			IsConnected = false;
 			Client.Local = null;
 		}
-		public void Step() {
-			CheckIncomingMessages(); // TODO: Move?
-			if (commandStopwatch.ElapsedMilliseconds >= 1000 / CommandRate) {
-				// Send commands
-				commandStopwatch.Reset();
-				commandStopwatch.Start();
-			}
+		public void Chat(string message, byte flags) {
+
 		}
 
 		// Private methods
@@ -162,6 +160,36 @@ namespace VGame.Multiplayer {
 						break;
 				}
 			}
+		}
+		private void Step() {
+			CheckIncomingMessages(); // TODO: Move?
+			if (commandStopwatch.ElapsedMilliseconds >= 1000 / CommandRate) {
+				// Send commands
+				SendCommands();
+				commandStopwatch.Reset();
+				commandStopwatch.Start();
+			}
+		}
+		private void SendCommands() {
+			if (CommandsToSend.Count == 0 && Game.Cmd.UserInfoToSend.Count == 0)
+				return;
+			DebugMessage("Sending commands!");
+			NetOutgoingMessage msg = NetClient.CreateMessage();
+			msg.Write((byte)PacketType.Input);
+
+			// User info to send
+			if (Game.Cmd != null) {
+				msg.Write((byte)Game.Cmd.UserInfoToSend.Count);
+				foreach (string str in Game.Cmd.UserInfoToSend) {
+					Game.Cmd.Variables[str].NetSerialize(ref msg);
+				}
+				Game.Cmd.UserInfoToSend.Clear();
+			}
+			else {
+				msg.Write((byte)0);
+			}
+
+			NetClient.SendMessage(msg, NetDeliveryMethod.ReliableOrdered, 0);
 		}
 
 		// Virtual methods

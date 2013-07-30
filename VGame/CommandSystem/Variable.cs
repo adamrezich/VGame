@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 
+using Lidgren.Network;
+
 namespace VGame.CommandSystem {
 	public class Variable {
 		public VariableDefinition Definition;
@@ -8,6 +10,10 @@ namespace VGame.CommandSystem {
 		public Variable(VariableDefinition definition, Parameter value) {
 			Definition = definition;
 			Value = value;
+		}
+		public void NetSerialize(ref NetOutgoingMessage msg) {
+			msg.Write(Definition.Name);
+			Value.NetSerialize(ref msg);
 		}
 	}
 

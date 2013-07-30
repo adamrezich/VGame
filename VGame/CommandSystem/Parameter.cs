@@ -1,4 +1,5 @@
 using System;
+using Lidgren.Network;
 
 namespace VGame.CommandSystem {
 	public struct Parameter {
@@ -92,6 +93,23 @@ namespace VGame.CommandSystem {
 					return stringData;
 			}
 			throw new Exception("Somehow a variable didn't have a value.");
+		}
+
+		public void NetSerialize(ref NetOutgoingMessage msg) {
+			switch (DataType) {
+				case ParameterType.Bool:
+					msg.Write((bool)boolData);
+					break;
+				case ParameterType.Int:
+					msg.Write((int)intData);
+					break;
+				case ParameterType.Float:
+					msg.Write((float)floatData);
+					break;
+				case ParameterType.String:
+					msg.Write(stringData);
+					break;
+			}
 		}
 	}
 	public enum ParameterType {
