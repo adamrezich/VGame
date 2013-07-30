@@ -15,13 +15,13 @@ namespace VGame {
 		List<char> newUnicode = new List<char>();
 
 		public InputManager() {
-			downMouseButtons.Add(MouseButton.Left, false);
-			downMouseButtons.Add(MouseButton.Middle, false);
-			downMouseButtons.Add(MouseButton.Right, false);
+			downMouseButtons.Add(MouseButton.Mouse0, false);
+			downMouseButtons.Add(MouseButton.Mouse2, false);
+			downMouseButtons.Add(MouseButton.Mouse1, false);
 			downMouseButtons.Add(MouseButton.ScrollUp, false);
 			downMouseButtons.Add(MouseButton.ScrollDown, false);
-			downMouseButtons.Add(MouseButton.XButton1, false);
-			downMouseButtons.Add(MouseButton.XButton2, false);
+			downMouseButtons.Add(MouseButton.Mouse3, false);
+			downMouseButtons.Add(MouseButton.Mouse4, false);
 			mouseState = new MouseState(0, 0, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up);
 			lastMouseState = new MouseState(0, 0, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up, ButtonState.Up);
 			keyboardState = new KeyboardState();
@@ -58,19 +58,19 @@ namespace VGame {
 		}
 		public ButtonState MouseButtonState(MouseButton button) {
 			switch (button) {
-				case MouseButton.Left:
+				case MouseButton.Mouse0:
 					return mouseState.LeftButton;
-				case MouseButton.Middle:
+				case MouseButton.Mouse2:
 					return mouseState.MiddleButton;
-				case MouseButton.Right:
+				case MouseButton.Mouse1:
 					return mouseState.RightButton;
 				case MouseButton.ScrollDown:
 					return mouseState.ScrollWheelDown;
 				case MouseButton.ScrollUp:
 					return mouseState.ScrollWheelUp;
-				case MouseButton.XButton1:
+				case MouseButton.Mouse3:
 					return mouseState.XButton1;
-				case MouseButton.XButton2:
+				case MouseButton.Mouse4:
 					return mouseState.XButton2;
 			}
 			return ButtonState.Up;
@@ -98,11 +98,11 @@ namespace VGame {
 			mouseState = new MouseState(x, y,
 			                            NewButtonState(lastMouseState.ScrollWheelUp, downMouseButtons[MouseButton.ScrollUp]),
 			                            NewButtonState(lastMouseState.ScrollWheelDown, downMouseButtons[MouseButton.ScrollDown]),
-			                            NewButtonState(lastMouseState.LeftButton, downMouseButtons[MouseButton.Left]),
-			                            NewButtonState(lastMouseState.MiddleButton, downMouseButtons[MouseButton.Middle]),
-			                            NewButtonState(lastMouseState.RightButton, downMouseButtons[MouseButton.Right]),
-			                            NewButtonState(lastMouseState.XButton1, downMouseButtons[MouseButton.XButton1]),
-			                            NewButtonState(lastMouseState.XButton2, downMouseButtons[MouseButton.XButton2]));
+			                            NewButtonState(lastMouseState.LeftButton, downMouseButtons[MouseButton.Mouse0]),
+			                            NewButtonState(lastMouseState.MiddleButton, downMouseButtons[MouseButton.Mouse2]),
+			                            NewButtonState(lastMouseState.RightButton, downMouseButtons[MouseButton.Mouse1]),
+			                            NewButtonState(lastMouseState.XButton1, downMouseButtons[MouseButton.Mouse3]),
+			                            NewButtonState(lastMouseState.XButton2, downMouseButtons[MouseButton.Mouse4]));
 
 			keyboardState.Keys.Clear();
 			keyboardState.Unicode = new List<char>(newUnicode);
@@ -124,13 +124,13 @@ namespace VGame {
 				case Sdl.SDL_MOUSEBUTTONDOWN:
 					switch (e.button.button) {
 						case Sdl.SDL_BUTTON_LEFT:
-							downMouseButtons[MouseButton.Left] = true;
+							downMouseButtons[MouseButton.Mouse0] = true;
 							break;
 						case Sdl.SDL_BUTTON_MIDDLE:
-							downMouseButtons[MouseButton.Middle] = true;
+							downMouseButtons[MouseButton.Mouse2] = true;
 							break;
 						case Sdl.SDL_BUTTON_RIGHT:
-							downMouseButtons[MouseButton.Right] = true;
+							downMouseButtons[MouseButton.Mouse1] = true;
 							break;
 						case Sdl.SDL_BUTTON_WHEELUP:
 							downMouseButtons[MouseButton.ScrollUp] = true;
@@ -139,23 +139,23 @@ namespace VGame {
 							downMouseButtons[MouseButton.ScrollDown] = true;
 							break;
 						case Sdl.SDL_BUTTON_X1:
-							downMouseButtons[MouseButton.XButton1] = true;
+							downMouseButtons[MouseButton.Mouse3] = true;
 							break;
 						case Sdl.SDL_BUTTON_X2:
-							downMouseButtons[MouseButton.XButton2] = true;
+							downMouseButtons[MouseButton.Mouse4] = true;
 							break;
 					}
 					break;
 				case Sdl.SDL_MOUSEBUTTONUP:
 					switch (e.button.button) {
 						case Sdl.SDL_BUTTON_LEFT:
-							downMouseButtons[MouseButton.Left] = false;
+							downMouseButtons[MouseButton.Mouse0] = false;
 							break;
 						case Sdl.SDL_BUTTON_MIDDLE:
-							downMouseButtons[MouseButton.Middle] = false;
+							downMouseButtons[MouseButton.Mouse2] = false;
 							break;
 						case Sdl.SDL_BUTTON_RIGHT:
-							downMouseButtons[MouseButton.Right] = false;
+							downMouseButtons[MouseButton.Mouse1] = false;
 							break;
 						case Sdl.SDL_BUTTON_WHEELUP:
 							downMouseButtons[MouseButton.ScrollUp] = false;
@@ -164,10 +164,10 @@ namespace VGame {
 							downMouseButtons[MouseButton.ScrollDown] = false;
 							break;
 						case Sdl.SDL_BUTTON_X1:
-							downMouseButtons[MouseButton.XButton1] = false;
+							downMouseButtons[MouseButton.Mouse3] = false;
 							break;
 						case Sdl.SDL_BUTTON_X2:
-							downMouseButtons[MouseButton.XButton2] = false;
+							downMouseButtons[MouseButton.Mouse4] = false;
 							break;
 					}
 					break;
@@ -217,13 +217,13 @@ namespace VGame {
 		Down
 	}
 	public enum MouseButton {
-		Left,
-		Middle,
-		Right,
+		Mouse0,
+		Mouse2,
+		Mouse1,
 		ScrollUp,
 		ScrollDown,
-		XButton1,
-		XButton2
+		Mouse3,
+		Mouse4
 	}
 	public enum Keys {
 		Up = Sdl.SDLK_UP,

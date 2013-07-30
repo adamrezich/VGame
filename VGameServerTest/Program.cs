@@ -24,6 +24,10 @@ namespace VGameServerTest {
 			GameStateManager.CurrentGameState.AddEntity(ent);
 			base.OnConnect(client);
 		}
+		protected override void OnTick() {
+			((TestGame)Game).CurrentTick = (int)GameStateManager.CurrentGameState.Tick;
+			((TestGame)Game).DrawGUI();
+		}
 
 		protected override void DebugMessage(string message) {
 			((TestGame)Game).Buffer.Add(string.Format("[S] {0}", message));
@@ -54,8 +58,25 @@ namespace VGameServerTest {
 	public class TestGame : Game {
 		private int BufferHeight = 19;
 
-		public TestGame(bool initializeRenderer) : base(initializeRenderer) {
+		public TestGame(bool isSinglePlayer, bool isServer) : base(false) {
+			IsSinglePlayer = isSinglePlayer;
 			Cmd.Variables["cl_updaterate"].Value = new VGame.CommandSystem.Parameter(10);
+			if (IsSinglePlayer) {
+				new TestServer(this, true);
+				Server.Local.Start();
+				new TestClient(this, true);
+				Client.Local.Connect();
+			}
+			else {
+				if (isServer) {
+					new TestServer(this, false);
+					Server.Local.Start();
+				}
+				else {
+					new TestClient(this, false);
+					Client.Local.Connect("localhost", 1337);
+				}
+			}
 		}
 
 		public List<string> Buffer = new List<string>();
@@ -127,11 +148,8 @@ namespace VGameServerTest {
 			//Console.BackgroundColor = ConsoleColor.Cyan;
 			//SingleplayerTest();
 			//MultiplayerTest();
-			new TestServer(Game, false);
-			new TestClient(Game, false);
-			Server.Local.Start();
-			Client.Local.Connect("localhost", 1337);
 			Console.SetWindowSize(80, 25);
+			((TestGame)Game).DrawGUI();
 		}
 		public override void Update(GameTime gameTime) {
 			consoleKey = Console.ReadKey();
@@ -143,8 +161,8 @@ namespace VGameServerTest {
 				((TestGame)Game).Buffer.Add("> " + ((TestGame)Game).InputBuffer);
 				Game.Cmd.Run(((TestGame)Game).InputBuffer);
 				((TestGame)Game).InputBuffer = "";
-				((TestGame)Game).DrawGUI();
 			}
+			((TestGame)Game).DrawGUI();
 		}
 
 		private void SingleplayerTest() {
@@ -200,7 +218,31 @@ namespace VGameServerTest {
 	class MainClass {
 		public static void Main(string[] args) {
 			Entity.Add("ent_test", typeof(TestEntity));
-			TestGame game = new TestGame(false);
+
+			ConsoleKeyInfo cki = new ConsoleKeyInfo();
+			bool server = false;
+			bool singleplayer = false;
+			while (true) {
+				Console.Clear();
+				Console.Write("[S]erver, [C]lient, or Single[P]layer?");
+				cki = Console.ReadKey(true);
+				if (cki.KeyChar == 's' || cki.KeyChar == 'S') {
+					server = true;
+					break;
+				}
+				if (cki.KeyChar == 'c' || cki.KeyChar == 'C') {
+					server = false;
+					break;
+				}
+				if (cki.KeyChar == 'p' || cki.KeyChar == 'P') {
+					singleplayer = true;
+					break;
+				}
+			}
+			Console.Clear();
+
+
+			TestGame game = new TestGame(singleplayer, server);
 			game.Run();
 		}
 	}

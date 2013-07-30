@@ -41,7 +41,7 @@ namespace VGame.StateSystem {
 		public override void HandleInput(GameTime gameTime) {
 			if (InputManager.MouseMoved)
 				mousing = true;
-			if (InputManager.MouseButtonState(MouseButton.Left) == ButtonState.Pressed) {
+			if (InputManager.MouseButtonState(MouseButton.Mouse0) == ButtonState.Pressed) {
 				UpdateSelected();
 				if (selectedIndex.HasValue && entries[(int)selectedIndex].Enabled)
 					OnSelectEntry((int)selectedIndex);

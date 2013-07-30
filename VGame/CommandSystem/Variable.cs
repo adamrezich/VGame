@@ -15,6 +15,9 @@ namespace VGame.CommandSystem {
 			msg.Write(Definition.Name);
 			Value.NetSerialize(ref msg);
 		}
+		public override string ToString() {
+			return string.Format("{0} {1}", Definition.Name, Value.ToString());
+		}
 	}
 
 	public class VariableDefinition {
@@ -36,6 +39,10 @@ namespace VGame.CommandSystem {
 			DefaultValue = defaultValue;
 			Flags = flags;
 			Description = description;
+		}
+
+		public override string ToString() {
+			return string.Format("{0} | {1} | {2} | {3} | {4}", Name, Type, DefaultValue, Flags, Description);
 		}
 	}
 

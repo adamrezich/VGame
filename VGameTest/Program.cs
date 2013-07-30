@@ -20,7 +20,7 @@ namespace VGameTest {
 		VGame.Point playerPosition = new VGame.Point();
 		public override void Update(GameTime gameTime) {
 			playerPosition = InputManager.MousePosition;
-			if (InputManager.MouseButtonState(MouseButton.Left) == ButtonState.Pressed)
+			if (InputManager.MouseButtonState(MouseButton.Mouse0) == ButtonState.Pressed)
 				Game.Exit();
 		}
 		public override void Draw(GameTime gameTime) {

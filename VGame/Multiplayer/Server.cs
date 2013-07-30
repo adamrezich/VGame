@@ -91,6 +91,7 @@ namespace VGame.Multiplayer {
 
 		// Public methods
 		public void Start() {
+			DebugMessage("Starting server...");
 			if (!IsLocalServer) {
 				NetServer = new NetServer(config);
 				NetServer.Start();
@@ -103,8 +104,10 @@ namespace VGame.Multiplayer {
 		public void Stop() {
 			isExiting = true;
 			Thread.Join();
-			if (IsLocalServer)
-				Client.Local.Disconnect("Local server stopping.");
+			if (IsLocalServer) {
+				if (Client.Local != null)
+					Client.Local.Disconnect("Local server stopping.");
+			}
 			else
 				NetServer.Shutdown("Server is shutting down.");
 			Started = false;
@@ -116,6 +119,7 @@ namespace VGame.Multiplayer {
 			if (!IsLocalServer) {
 				CheckIncomingMessages();
 			}
+			OnTick();
 		}
 		public int AddPlayer(NetConnection connection, string name, int updateRate) {
 			GameState currentGameState = GameStateManager.CurrentGameState;
@@ -284,6 +288,8 @@ namespace VGame.Multiplayer {
 				else
 					rc.Variables.Add(ui_k, new Variable(ui_def, ui_v));
 			}
+		}
+		protected virtual void OnTick() {
 		}
 		protected virtual void GetConfig(ref NetPeerConfiguration config) {
 			config.ConnectionTimeout = Timeout;

@@ -27,6 +27,11 @@ namespace VGame.StateSystem {
 				return state;
 			}
 		}
+		public int StateCount {
+			get {
+				return states.Count;
+			}
+		}
 		public Renderer Renderer {
 			get {
 				return Game.Renderer;

@@ -14,6 +14,10 @@ namespace VGame.CommandSystem {
 			Command = command;
 		}
 
+		public override string ToString() {
+			return string.Format("bind {0} {1}", Combination.ToString(), Command);
+		}
+
 		public static void Bind(InputCombination combination, string command) {
 			if (List.Exists(x => x.Combination == combination && x.Command == command))
 				return;

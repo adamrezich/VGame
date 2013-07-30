@@ -84,12 +84,13 @@ namespace VGame.CommandSystem {
 		public override string ToString() {
 			switch (DataType) {
 				case ParameterType.Bool:
-					return boolData.ToString();
-					case ParameterType.Int:
+					//return boolData.ToString();
+					return (bool)boolData ? "1" : "0";
+				case ParameterType.Int:
 					return intData.ToString();
-					case ParameterType.Float:
+				case ParameterType.Float:
 					return floatData.ToString();
-					case ParameterType.String:
+				case ParameterType.String:
 					return stringData;
 			}
 			throw new Exception("Somehow a variable didn't have a value.");

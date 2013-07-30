@@ -69,7 +69,7 @@ namespace VGame.CommandSystem {
 		public static Command Parse(string cmd) {
 			cmd = cmd.Trim();
 			if (cmd.Length == 0)
-				throw new Exception("Empty string.");
+				throw new Exception("");
 			List<string> split = cmd.Split('"').Select((element, index) => index % 2 == 0 ? element.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries) : new string[] { element }).SelectMany(element => element).ToList();
 			string name = split[0];
 			split.RemoveAt(0);
@@ -118,6 +118,12 @@ namespace VGame.CommandSystem {
 				}
 				return (Command)Activator.CreateInstance(typeof(Command), def, parameters.ToArray());
 			}
+			else if (VariableDefinition.List.ContainsKey(name)) {
+				if (split.Count == 0)
+					return Parse("get " + cmd);
+				else
+					return Parse("set " + cmd);
+			}
 			else
 				throw new Exception("Command not found.");
 		}
@@ -130,22 +136,29 @@ namespace VGame.CommandSystem {
 			}
 		}
 		public List<ParameterType> Parameters;
-		public Type State;
+		public Type State = null;
 		public Action<CommandManager, Command> RunAction;
+		public string Description { get; private set; }
 
-		public CommandDefinition(Action<CommandManager, Command> runAction) : this(new List<ParameterType>(), typeof(StateSystem.State), runAction) {
+		public CommandDefinition(Action<CommandManager, Command> runAction) : this(new List<ParameterType>(), typeof(StateSystem.State), runAction, "") {
 		}
-		public CommandDefinition(List<ParameterType> parameters, Action<CommandManager, Command> runAction) : this(parameters, typeof(StateSystem.State), runAction) {
+		public CommandDefinition(List<ParameterType> parameters, Action<CommandManager, Command> runAction) : this(parameters, typeof(StateSystem.State), runAction, "") {
 		}
-		public CommandDefinition(Type state, Action<CommandManager, Command> runAction) : this(new List<ParameterType>(), state, runAction) {
+		public CommandDefinition(Type state, Action<CommandManager, Command> runAction) : this(new List<ParameterType>(), state, runAction, "") {
 		}
-		public CommandDefinition(List<ParameterType> parameters, Type state, Action<CommandManager, Command> runAction) {
+		public CommandDefinition(List<ParameterType> parameters, Type state, Action<CommandManager, Command> runAction, string description) {
 			Parameters = parameters;
 			State = state;
 			RunAction = runAction;
+			Description = description;
 		}
 
 		public void Run(CommandManager cmdManager, Command cmd) {
+			if (cmdManager.Game.StateManager == null || cmdManager.Game.StateManager.StateCount == 0) {
+				if (State == typeof(StateSystem.State))
+					RunAction.Invoke(cmdManager, cmd);
+				return;
+			}
 			Type t = cmdManager.Game.StateManager.LastActiveState.GetType();
 			if (t.IsSubclassOf(State) || t == State)
 				RunAction.Invoke(cmdManager, cmd);
@@ -156,6 +169,10 @@ namespace VGame.CommandSystem {
 				List.Add(name, commandDefinition);
 			else
 				throw new Exception("Attempted to override existing command");
+		}
+
+		public override string ToString() {
+			return string.Format("{0} | {1}", Name, Description);
 		}
 	}
 }

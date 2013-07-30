@@ -20,8 +20,8 @@ namespace VGame.CommandSystem {
 				s.OnEscape();
 			}));
 			Add("bind", new CommandDefinition(new List<ParameterType>() { ParameterType.String, ParameterType.String }, delegate(CommandManager cmdMan, Command cmd) {
-				Keys key;
-				if (Enum.TryParse<Keys>(cmd.Parameters[0].StringData, out key)) {
+				try {
+					InputCombination inputCombo = InputCombination.Parse(cmd.Parameters[0].StringData);
 					Command test = null;
 					string newCmd = cmd.Parameters[1].StringData.Replace("'", "\"");
 					try {
@@ -31,12 +31,12 @@ namespace VGame.CommandSystem {
 						throw new Exception(string.Format("Would-be-bound command was invalid: {0}", e.Message));
 					}
 					if (test.Name == "bind")
-						throw new Exception("Can't bind a key to a bind command.");
-					else
-						Binding.Bind(new KeyCombination(key, false, false, false), newCmd);
+						throw new Exception("Can't bind an input to a \"bind\" command. That would be silly.");
+					Binding.Bind(inputCombo, newCmd);
 				}
-				else
-					throw new Exception(string.Format("Invalid key '{0}'.", cmd.Parameters[0].StringData));
+				catch (Exception e) {
+					throw new Exception(string.Format("Binding failed: {0}", e.Message));
+				}
 			}));
 			Add("clear", new CommandDefinition(delegate(CommandManager cmdMan, Command cmd) {
 				cmdMan.Console.History.Clear();
@@ -120,18 +120,31 @@ namespace VGame.CommandSystem {
 				if (!cmdMan.Game.IsServer() && def.Flags.HasFlag(VariableFlags.Server))
 					throw new Exception("You're not a server!");
 				cmdMan.Variables[cmd.Parameters[0].StringData].Value = param;
-				if (cmdMan.Game.IsClient() && def.Flags.HasFlag(VariableFlags.UserInfo)) {
-					cmdMan.Game.DebugMessage("Saving userinfo var: " + cmd.Parameters[0].StringData);
+				if (cmdMan.Game.IsClient() && def.Flags.HasFlag(VariableFlags.UserInfo) && VGame.Multiplayer.Client.Local != null && VGame.Multiplayer.Client.Local.IsConnected == true) {
 					if (!cmdMan.UserInfoToSend.Contains(cmd.Parameters[0].StringData))
 						cmdMan.UserInfoToSend.Add(cmd.Parameters[0].StringData);
 				}
 			}));
 			Add("say", new CommandDefinition(new List<ParameterType>() { ParameterType.String }, delegate(CommandManager cmdMan, Command cmd) {
+				if (cmdMan.Game.IsSinglePlayer) {
+					return;
+				}
 				if (cmdMan.Game.IsClient()) {
 					Client.Local.CommandsToSend.Add(cmd);
 				}
 				if (cmdMan.Game.IsServer()) {
 					//cmdMan.Game.DebugMessage("[S] 
+				}
+			}));
+			Add("host_writeconfig", new CommandDefinition(delegate(CommandManager cmdMan, Command cmd) {
+				cmdMan.Save();
+			}));
+			Add("help", new CommandDefinition(new List<ParameterType>() { ParameterType.String }, delegate(CommandManager cmdMan, Command cmd) {
+				if (CommandDefinition.List.ContainsKey(cmd.Parameters[0].StringData)) {
+					cmdMan.Game.DebugMessage(CommandDefinition.List[cmd.Parameters[0].StringData].ToString());
+				}
+				if (VariableDefinition.List.ContainsKey(cmd.Parameters[0].StringData)) {
+					cmdMan.Game.DebugMessage(VariableDefinition.List[cmd.Parameters[0].StringData].ToString());
 				}
 			}));
 		}

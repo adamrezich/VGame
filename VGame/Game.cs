@@ -17,6 +17,7 @@ namespace VGame {
 		public InputManager InputManager;
 		public StateManager StateManager;
 		public CommandManager Cmd;
+		public bool IsSinglePlayer = true;
 		private TimeSpan _targetElapsedTime = TimeSpan.FromTicks((long)10000000 / (long)60f);
 		//private TimeSpan _inactiveSleepTime = TimeSpan.FromSeconds(1);
 		private readonly TimeSpan _maxElapsedTime = TimeSpan.FromMilliseconds(500);
@@ -85,15 +86,6 @@ namespace VGame {
 			StateManager = new StateManager(this);
 			Cmd = new CommandManager(this);
 			Initialize();
-			Binding.Bind(InputCombination.Create(Keys.Escape, false, false, false), "escape");
-			Binding.Bind(InputCombination.Create(Keys.Escape, true, false, true), "quit");
-			Binding.Bind(InputCombination.Create(Keys.Up, false, false, false), "menu_up");
-			Binding.Bind(InputCombination.Create(Keys.Down, false, false, false), "menu_down");
-			Binding.Bind(InputCombination.Create(Keys.Tab, false, false, false), "menu_down");
-			Binding.Bind(InputCombination.Create(Keys.Tab, false, true, false), "menu_up");
-			Binding.Bind(InputCombination.Create(Keys.Space, false, false, false), "menu_select");
-			Binding.Bind(InputCombination.Create(Keys.Enter, false, false, false), "menu_select");
-			Binding.Bind(InputCombination.Create(Keys.Backquote, false, false, false), "console_toggle");
 			Cmd.Console.WriteLine("Command console test");
 			Cmd.Console.WriteLine("--------------------");
 		}
@@ -142,15 +134,17 @@ namespace VGame {
 			StateManager.ClearStates();
 			exiting = true;
 			rendering = false;
+			if (Cmd != null)
+				Cmd.Save();
 			OnExit();
 		}
 
 		public virtual bool IsClient() {
-			return VGame.Multiplayer.Client.Local != null;
+			return IsSinglePlayer || VGame.Multiplayer.Server.Local == null;
 		}
 
 		public virtual bool IsServer() {
-			return VGame.Multiplayer.Server.Local == null;
+			return IsSinglePlayer || VGame.Multiplayer.Client.Local == null;
 		}
 
 		protected virtual void LoadFonts() {
