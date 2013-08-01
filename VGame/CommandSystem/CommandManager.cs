@@ -8,6 +8,7 @@ namespace VGame.CommandSystem {
 		public CommandConsole Console;
 		public Dictionary<string, Variable> Variables = new Dictionary<string, Variable>();
 		public List<string> UserInfoToSend = new List<string>();
+		internal List<Command> CommandsToSend = new List<Command>();
 
 		public CommandManager(Game game) {
 			Game = game;
@@ -17,25 +18,29 @@ namespace VGame.CommandSystem {
 			Load();
 		}
 
-		public void Run(string command) {
+		public void Run(string command, Multiplayer.RemoteClient sender) {
 			Command cmd = null;
 			try {
-				cmd = Command.Parse(command);
+				cmd = Command.Parse(command, sender);
 			}
 			catch (Exception e) {
 				if (e.Message != "")
 					Game.ErrorMessage(e.Message);
 				return;
 			}
-			Run(cmd);
+			Run(cmd, sender);
 		}
-		public void Run(Command cmd) {
+		public void Run(Command cmd, Multiplayer.RemoteClient sender) {
 			try {
-				cmd.Run(this);
+				cmd.Run(this, sender);
 			}
 			catch (Exception e) {
 				Game.ErrorMessage(e.Message);
 			}
+		}
+
+		public void SendCommand(Command cmd) {
+			CommandsToSend.Add(cmd);
 		}
 
 		public void Save() {
@@ -54,7 +59,7 @@ namespace VGame.CommandSystem {
 			if (File.Exists("config.cfg")) {
 				string[] lines = File.ReadAllLines("config.cfg");
 				foreach (string line in lines) {
-					Run(line);
+					Run(line, null);
 				}
 			}
 			else {

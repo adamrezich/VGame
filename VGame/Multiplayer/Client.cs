@@ -45,7 +45,17 @@ namespace VGame.Multiplayer {
 			}
 		}
 		public Thread Thread { get; internal set; }
-		public List<Command> CommandsToSend { get; internal set; }
+		public List<Command> CommandsToSend {
+			get {
+				if (Game.Cmd != null)
+					return Game.Cmd.CommandsToSend;
+				else {
+					if (commandsToSend == null)
+						commandsToSend = new List<Command>();
+					return commandsToSend;
+				}
+			}
+		}
 
 		// Fields
 		protected GameState GameState;
@@ -53,13 +63,13 @@ namespace VGame.Multiplayer {
 		private GameStateManager gameStateManager;
 		private Stopwatch commandStopwatch;
 		private bool isExiting = false;
+		private List<Command> commandsToSend = null;
 
 		// Constructor
 		public Client(Game game, bool isLocalServer) {
 			Game = game;
 			IsLocalServer = isLocalServer;
 			IsConnected = false;
-			CommandsToSend = new List<Command>();
 			if (!IsLocalServer) {
 				gameStateManager = new GameStateManager();
 				NetPeerConfiguration config = new NetPeerConfiguration(Identifier);
@@ -113,6 +123,9 @@ namespace VGame.Multiplayer {
 		}
 		public void Chat(string message, byte flags) {
 
+		}
+		public void SendCommand(Command cmd) {
+			CommandsToSend.Add(cmd);
 		}
 
 		// Private methods
@@ -188,6 +201,12 @@ namespace VGame.Multiplayer {
 			else {
 				msg.Write((byte)0);
 			}
+			msg.Write((byte)CommandsToSend.Count);
+			foreach (Command cmd in CommandsToSend) {
+				//cmd.NetSerialize(ref msg);
+				msg.Write(cmd.ToString());
+			}
+			CommandsToSend.Clear();
 
 			NetClient.SendMessage(msg, NetDeliveryMethod.ReliableOrdered, 0);
 		}
@@ -202,7 +221,7 @@ namespace VGame.Multiplayer {
 			DebugMessage("Connected to remote host.");
 		}
 		protected virtual void OnReceiveGameState(GameState gameState, bool full) {
-			DebugMessage(string.Format("Received {2}game state Tick {0} from server with {1} entities.", gameState.Tick, gameState.Entities.Count, full ? "** A FULL ** " : ""));
+			DebugMessage(string.Format("Received {2}game state Tick {0} from server with {1} entities and {3} chat messages.", gameState.Tick, gameState.Entities.Count, full ? "** A FULL ** " : "", gameState.Messages.Count));
 		}
 		protected virtual void DebugMessage(string message) {
 			Console.WriteLine("[C] " + message);

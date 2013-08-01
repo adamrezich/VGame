@@ -45,7 +45,7 @@ namespace VGameServerTest {
 		}
 
 		protected override void OnReceiveGameState(GameState gameState, bool full) {
-			//base.OnReceiveGameState(gameState, full);
+			base.OnReceiveGameState(gameState, full);
 			((TestGame)Game).CurrentTick = (int)gameState.Tick;
 			((TestGame)Game).DrawGUI();
 		}
@@ -159,7 +159,7 @@ namespace VGameServerTest {
 				((TestGame)Game).InputBuffer = ((TestGame)Game).InputBuffer.Substring(0, ((TestGame)Game).InputBuffer.Length - 1);
 			if (consoleKey.Key == ConsoleKey.Enter) {
 				((TestGame)Game).Buffer.Add("> " + ((TestGame)Game).InputBuffer);
-				Game.Cmd.Run(((TestGame)Game).InputBuffer);
+				Game.Cmd.Run(((TestGame)Game).InputBuffer, null);
 				((TestGame)Game).InputBuffer = "";
 			}
 			((TestGame)Game).DrawGUI();

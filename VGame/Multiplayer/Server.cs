@@ -145,6 +145,16 @@ namespace VGame.Multiplayer {
 			currentGameState.RemovePlayer(id);
 			RemoteClients.Remove(id);
 		}
+		public Player GetPlayer(int id) {
+			if (GameStateManager.CurrentGameState.Players.ContainsKey(id))
+				return GameStateManager.CurrentGameState.Players[id];
+			else
+				return null;
+		}
+		public void AddMessage(Message msg) {
+			DebugMessage(msg.ToString());
+			GameStateManager.CurrentGameState.Messages.Add(msg);
+		}
 
 		// Protected methods
 		protected RemoteClient GetRemoteClientByConnection(NetConnection connection) {
@@ -259,34 +269,42 @@ namespace VGame.Multiplayer {
 			if (rc == null)
 				return;
 			int userInfoCount = (int)msg.ReadByte();
-			if (userInfoCount > 0)
+			if (userInfoCount > 0) {
 				DebugMessage(string.Format("Got {0} UserInfo vars from client.", userInfoCount));
-			for (int i = 0; i < userInfoCount; i++) {
-				string ui_k = msg.ReadString();
-				if (!VariableDefinition.List.ContainsKey(ui_k)) {
-					DebugMessage(string.Format("Got invalid UserInfo var {0} from client!", ui_k));
-					continue;
+				for (int i = 0; i < userInfoCount; i++) {
+					string ui_k = msg.ReadString();
+					if (!VariableDefinition.List.ContainsKey(ui_k)) {
+						DebugMessage(string.Format("Got invalid UserInfo var {0} from client!", ui_k));
+						continue;
+					}
+					VariableDefinition ui_def = VariableDefinition.List[ui_k];
+					Parameter ui_v = new Parameter();
+					switch (ui_def.Type) {
+						case ParameterType.Bool:
+							ui_v = new Parameter(msg.ReadBoolean());
+							break;
+						case ParameterType.Float:
+							ui_v = new Parameter(msg.ReadFloat());
+							break;
+						case ParameterType.Int:
+							ui_v = new Parameter(msg.ReadInt32());
+							break;
+						case ParameterType.String:
+							ui_v = new Parameter(msg.ReadString());
+							break;
+					}
+					if (rc.Variables.ContainsKey(ui_k))
+						rc.Variables[ui_k].Value = ui_v;
+					else
+						rc.Variables.Add(ui_k, new Variable(ui_def, ui_v));
 				}
-				VariableDefinition ui_def = VariableDefinition.List[ui_k];
-				Parameter ui_v = new Parameter();
-				switch (ui_def.Type) {
-					case ParameterType.Bool:
-						ui_v = new Parameter(msg.ReadBoolean());
-						break;
-					case ParameterType.Float:
-						ui_v = new Parameter(msg.ReadFloat());
-						break;
-					case ParameterType.Int:
-						ui_v = new Parameter(msg.ReadInt32());
-						break;
-					case ParameterType.String:
-						ui_v = new Parameter(msg.ReadString());
-						break;
+			}
+			int commandCount = (int)msg.ReadByte();
+			if (commandCount > 0) {
+				DebugMessage(string.Format("Got {0} commands from client.", commandCount));
+				for (int i = 0; i < commandCount; i++) {
+					Game.Cmd.Run(msg.ReadString(), GetRemoteClientByConnection(msg.SenderConnection));
 				}
-				if (rc.Variables.ContainsKey(ui_k))
-					rc.Variables[ui_k].Value = ui_v;
-				else
-					rc.Variables.Add(ui_k, new Variable(ui_def, ui_v));
 			}
 		}
 		protected virtual void OnTick() {

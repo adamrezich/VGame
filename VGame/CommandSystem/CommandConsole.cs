@@ -35,7 +35,7 @@ namespace VGame.CommandSystem {
 					Buffer = Buffer.Trim();
 					WriteLine(string.Format(cmdLineFormat, Buffer), ConsoleMessageType.Input);
 					if (Buffer.Length > 0) {
-						commandManager.Run(Buffer);
+						commandManager.Run(Buffer, null);
 						Buffer = "";
 					}
 					//IsActive = false;

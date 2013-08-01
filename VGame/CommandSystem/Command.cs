@@ -7,9 +7,11 @@ namespace VGame.CommandSystem {
 		public string Name;
 		public List<Parameter> Parameters = new List<Parameter>();
 		public CommandDefinition CommandDefinition;
+		public Multiplayer.RemoteClient Sender;
 
-		public Command(CommandDefinition commandDefinition, params object[] args) {
+		public Command(CommandDefinition commandDefinition, Multiplayer.RemoteClient sender, params object[] args) {
 			CommandDefinition = commandDefinition;
+			Sender = sender;
 			Name = commandDefinition.Name;
 			if (args.Length < commandDefinition.Parameters.Count) {
 				throw new Exception("Too few arguments.");
@@ -40,8 +42,8 @@ namespace VGame.CommandSystem {
 			}
 		}
 
-		public void Run(CommandManager commandManager) {
-			CommandDefinition.Run(commandManager, this);
+		public void Run(CommandManager commandManager, Multiplayer.RemoteClient sender) {
+			CommandDefinition.Run(commandManager, this, sender);
 		}
 
 		public override string ToString() {
@@ -52,13 +54,13 @@ namespace VGame.CommandSystem {
 					case ParameterType.Bool:
 						str += p.BoolData ? "1" : "0";
 						break;
-						case ParameterType.Int:
+					case ParameterType.Int:
 						str += p.IntData.ToString();
 						break;
-						case ParameterType.Float:
+					case ParameterType.Float:
 						str += p.FloatData.ToString();
 						break;
-						case ParameterType.String:
+					case ParameterType.String:
 						str += p.StringData;
 						break;
 				}
@@ -66,7 +68,7 @@ namespace VGame.CommandSystem {
 			return str;
 		}
 		
-		public static Command Parse(string cmd) {
+		public static Command Parse(string cmd, Multiplayer.RemoteClient sender) {
 			cmd = cmd.Trim();
 			if (cmd.Length == 0)
 				throw new Exception("");
@@ -116,13 +118,13 @@ namespace VGame.CommandSystem {
 							break;
 					}
 				}
-				return (Command)Activator.CreateInstance(typeof(Command), def, parameters.ToArray());
+				return (Command)Activator.CreateInstance(typeof(Command), def, sender, parameters.ToArray());
 			}
 			else if (VariableDefinition.List.ContainsKey(name)) {
 				if (split.Count == 0)
-					return Parse("get " + cmd);
+					return Parse("get " + cmd, sender);
 				else
-					return Parse("set " + cmd);
+					return Parse("set " + cmd, sender);
 			}
 			else
 				throw new Exception("Command not found.");
@@ -137,31 +139,31 @@ namespace VGame.CommandSystem {
 		}
 		public List<ParameterType> Parameters;
 		public Type State = null;
-		public Action<CommandManager, Command> RunAction;
+		public Action<CommandManager, Command, Multiplayer.RemoteClient> RunAction;
 		public string Description { get; private set; }
 
-		public CommandDefinition(Action<CommandManager, Command> runAction) : this(new List<ParameterType>(), typeof(StateSystem.State), runAction, "") {
+		public CommandDefinition(Action<CommandManager, Command, Multiplayer.RemoteClient> runAction) : this(new List<ParameterType>(), typeof(StateSystem.State), runAction, "") {
 		}
-		public CommandDefinition(List<ParameterType> parameters, Action<CommandManager, Command> runAction) : this(parameters, typeof(StateSystem.State), runAction, "") {
+		public CommandDefinition(List<ParameterType> parameters, Action<CommandManager, Command, Multiplayer.RemoteClient> runAction) : this(parameters, typeof(StateSystem.State), runAction, "") {
 		}
-		public CommandDefinition(Type state, Action<CommandManager, Command> runAction) : this(new List<ParameterType>(), state, runAction, "") {
+		public CommandDefinition(Type state, Action<CommandManager, Command, Multiplayer.RemoteClient> runAction) : this(new List<ParameterType>(), state, runAction, "") {
 		}
-		public CommandDefinition(List<ParameterType> parameters, Type state, Action<CommandManager, Command> runAction, string description) {
+		public CommandDefinition(List<ParameterType> parameters, Type state, Action<CommandManager, Command, Multiplayer.RemoteClient> runAction, string description) {
 			Parameters = parameters;
 			State = state;
 			RunAction = runAction;
 			Description = description;
 		}
 
-		public void Run(CommandManager cmdManager, Command cmd) {
+		public void Run(CommandManager cmdManager, Command cmd, Multiplayer.RemoteClient sender) {
 			if (cmdManager.Game.StateManager == null || cmdManager.Game.StateManager.StateCount == 0) {
 				if (State == typeof(StateSystem.State))
-					RunAction.Invoke(cmdManager, cmd);
+					RunAction.Invoke(cmdManager, cmd, sender);
 				return;
 			}
 			Type t = cmdManager.Game.StateManager.LastActiveState.GetType();
 			if (t.IsSubclassOf(State) || t == State)
-				RunAction.Invoke(cmdManager, cmd);
+				RunAction.Invoke(cmdManager, cmd, sender);
 		}
 
 		public static void Add(string name, CommandDefinition commandDefinition) {

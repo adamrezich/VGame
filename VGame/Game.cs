@@ -106,7 +106,7 @@ namespace VGame {
 			SuppressInput = wasActive;
 			foreach (Binding b in Binding.List)
 				if (b.Combination.IsPressed(InputManager) && (!SuppressInput || b.Command == "console_toggle"))
-					Cmd.Run(b.Command);
+					Cmd.Run(b.Command, null);
 		}
 
 		protected virtual void Update(GameTime gameTime) {

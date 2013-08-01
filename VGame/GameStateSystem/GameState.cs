@@ -16,6 +16,7 @@ namespace VGame.GameStateSystem {
 		public List<int> DestroyedEntities { get; internal set; }
 		public List<int> AddedPlayers { get; internal set; }
 		public List<int> RemovedPlayers { get; internal set; }
+		public List<Message> Messages { get; internal set; }
 
 		// Constructor
 		public GameState() {
@@ -25,6 +26,7 @@ namespace VGame.GameStateSystem {
 			DestroyedEntities = new List<int>();
 			AddedPlayers = new List<int>();
 			RemovedPlayers = new List<int>();
+			Messages = new List<Message>();
 		}
 
 		// Public methods
@@ -72,8 +74,17 @@ namespace VGame.GameStateSystem {
 		internal void NetSerialize(ref NetOutgoingMessage msg) {
 			msg.Write(Tick);
 			msg.Write((byte)Entities.Count);
-			foreach (KeyValuePair<int, Entity> kvp in Entities) {
+			foreach (KeyValuePair<int, Entity> kvp in Entities)
 				kvp.Value.NetSerialize(ref msg);
+			/*msg.Write((byte)Players.Count);
+			foreach (KeyValuePair<int, Player> kvp in Players)
+				kvp.Value.NetSerialize(ref msg);*/
+			msg.Write(Messages.Count);
+			foreach (Message message in Messages) {
+				//msg.Write(message.ToString());
+				msg.Write(message.Sender);
+				msg.Write(message.Contents);
+				msg.Write(message.Flags);
 			}
 		}
 		static internal GameState NetDeserialize(ref NetIncomingMessage msg) {
@@ -84,6 +95,11 @@ namespace VGame.GameStateSystem {
 
 			for (int i = 0; i < entCount; i++) {
 				gs.AddEntity((Entity)Entity.NetDeserialize(ref msg));
+			}
+
+			int msgCount = (int)msg.ReadInt32();
+			for (int i = 0; i < msgCount; i++) {
+				gs.Messages.Add(new Message(msg.ReadString(), msg.ReadString(), msg.ReadByte()));
 			}
 
 			return gs;

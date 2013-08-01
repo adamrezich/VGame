@@ -7,25 +7,25 @@ using VGame.Multiplayer;
 namespace VGame.CommandSystem {
 	public class Commands {
 		public static void Load() {
-			Add("quit", new CommandDefinition(delegate(CommandManager cmdMan, Command cmd) {
+			Add("quit", new CommandDefinition(delegate(CommandManager cmdMan, Command cmd, RemoteClient sender) {
 				cmdMan.Game.Exit();
 			}));
-			Add("echo", new CommandDefinition(new List<ParameterType>() { ParameterType.String }, delegate(CommandManager cmdMan, Command cmd) {
+			Add("echo", new CommandDefinition(new List<ParameterType>() { ParameterType.String }, delegate(CommandManager cmdMan, Command cmd, RemoteClient sender) {
 				cmdMan.Game.DebugMessage(cmd.Parameters[0].StringData);
 			}));
-			Add("escape", new CommandDefinition(delegate(CommandManager cmdMan, Command cmd) {
+			Add("escape", new CommandDefinition(delegate(CommandManager cmdMan, Command cmd, RemoteClient sender) {
 				State s = cmdMan.Game.StateManager.LastActiveState;
 				if (s == null)
 					return;
 				s.OnEscape();
 			}));
-			Add("bind", new CommandDefinition(new List<ParameterType>() { ParameterType.String, ParameterType.String }, delegate(CommandManager cmdMan, Command cmd) {
+			Add("bind", new CommandDefinition(new List<ParameterType>() { ParameterType.String, ParameterType.String }, delegate(CommandManager cmdMan, Command cmd, RemoteClient sender) {
 				try {
 					InputCombination inputCombo = InputCombination.Parse(cmd.Parameters[0].StringData);
 					Command test = null;
 					string newCmd = cmd.Parameters[1].StringData.Replace("'", "\"");
 					try {
-						test = Command.Parse(newCmd);
+						test = Command.Parse(newCmd, sender);
 					}
 					catch (Exception e) {
 						throw new Exception(string.Format("Would-be-bound command was invalid: {0}", e.Message));
@@ -38,31 +38,31 @@ namespace VGame.CommandSystem {
 					throw new Exception(string.Format("Binding failed: {0}", e.Message));
 				}
 			}));
-			Add("clear", new CommandDefinition(delegate(CommandManager cmdMan, Command cmd) {
+			Add("clear", new CommandDefinition(delegate(CommandManager cmdMan, Command cmd, RemoteClient sender) {
 				cmdMan.Console.History.Clear();
 			}));
-			Add("menu_up", new CommandDefinition(typeof(Menu), delegate(CommandManager cmdMan, Command cmd) {
+			Add("menu_up", new CommandDefinition(typeof(Menu), delegate(CommandManager cmdMan, Command cmd, RemoteClient sender) {
 				if (!cmdMan.Game.InputManager.MouseMoved)
 					((Menu)cmdMan.Game.StateManager.LastActiveState).OnMoveUp();
 			}));
-			Add("menu_down", new CommandDefinition(typeof(Menu), delegate(CommandManager cmdMan, Command cmd) {
+			Add("menu_down", new CommandDefinition(typeof(Menu), delegate(CommandManager cmdMan, Command cmd, RemoteClient sender) {
 				if (!cmdMan.Game.InputManager.MouseMoved)
 					((Menu)cmdMan.Game.StateManager.LastActiveState).OnMoveDown();
 			}));
-			Add("menu_select", new CommandDefinition(typeof(Menu), delegate(CommandManager cmdMan, Command cmd) {
+			Add("menu_select", new CommandDefinition(typeof(Menu), delegate(CommandManager cmdMan, Command cmd, RemoteClient sender) {
 				if (!cmdMan.Game.InputManager.MouseMoved)
 					((Menu)cmdMan.Game.StateManager.LastActiveState).OnSelect();
 			}));
-			Add("console_toggle", new CommandDefinition(delegate(CommandManager cmdMan, Command cmd) {
+			Add("console_toggle", new CommandDefinition(delegate(CommandManager cmdMan, Command cmd, RemoteClient sender) {
 				cmdMan.Console.IsActive = !cmdMan.Console.IsActive;
 				cmdMan.Console.IsVisible = cmdMan.Console.IsActive;
 				if (!cmdMan.Console.IsActive)
 					cmdMan.Console.Buffer = "";
 			}));
-			Add("get", new CommandDefinition(new List<ParameterType>() { ParameterType.String }, delegate(CommandManager cmdMan, Command cmd) {
+			Add("get", new CommandDefinition(new List<ParameterType>() { ParameterType.String }, delegate(CommandManager cmdMan, Command cmd, RemoteClient sender) {
 				cmdMan.Game.DebugMessage(cmdMan.Variables[cmd.Parameters[0].StringData].Value.ToString());
 			}));
-			Add("set", new CommandDefinition(new List<ParameterType>() { ParameterType.String, ParameterType.String }, delegate(CommandManager cmdMan, Command cmd) {
+			Add("set", new CommandDefinition(new List<ParameterType>() { ParameterType.String, ParameterType.String }, delegate(CommandManager cmdMan, Command cmd, RemoteClient sender) {
 				//cmdMan.Console.WriteLine(cmdMan.Variables[cmd.Parameters[0].StringData].Value.ToString());
 				if (!VariableDefinition.List.ContainsKey(cmd.Parameters[0].StringData))
 					throw new Exception(string.Format("Variable \"{0}\" not found.", cmd.Parameters[0].StringData));
@@ -125,21 +125,26 @@ namespace VGame.CommandSystem {
 						cmdMan.UserInfoToSend.Add(cmd.Parameters[0].StringData);
 				}
 			}));
-			Add("say", new CommandDefinition(new List<ParameterType>() { ParameterType.String }, delegate(CommandManager cmdMan, Command cmd) {
-				if (cmdMan.Game.IsSinglePlayer) {
-					return;
+			Add("say", new CommandDefinition(new List<ParameterType>() { ParameterType.String }, delegate(CommandManager cmdMan, Command cmd, RemoteClient sender) {
+				if (sender == null) {
+					if (cmdMan.Game.IsSinglePlayer) {
+						return;
+					}
+					if (cmdMan.Game.IsClient()) {
+						Client.Local.SendCommand(cmd);
+					}
+					if (cmdMan.Game.IsServer()) {
+						//cmdMan.Game.DebugMessage("[S] 
+					}
 				}
-				if (cmdMan.Game.IsClient()) {
-					Client.Local.CommandsToSend.Add(cmd);
-				}
-				if (cmdMan.Game.IsServer()) {
-					//cmdMan.Game.DebugMessage("[S] 
+				else {
+					Server.Local.AddMessage(new Message(Server.Local.GetPlayer(sender.PlayerID).Name, cmd.Parameters[0].StringData, (byte)0));
 				}
 			}));
-			Add("host_writeconfig", new CommandDefinition(delegate(CommandManager cmdMan, Command cmd) {
+			Add("host_writeconfig", new CommandDefinition(delegate(CommandManager cmdMan, Command cmd, RemoteClient sender) {
 				cmdMan.Save();
 			}));
-			Add("help", new CommandDefinition(new List<ParameterType>() { ParameterType.String }, delegate(CommandManager cmdMan, Command cmd) {
+			Add("help", new CommandDefinition(new List<ParameterType>() { ParameterType.String }, delegate(CommandManager cmdMan, Command cmd, RemoteClient sender) {
 				if (CommandDefinition.List.ContainsKey(cmd.Parameters[0].StringData)) {
 					cmdMan.Game.DebugMessage(CommandDefinition.List[cmd.Parameters[0].StringData].ToString());
 				}
