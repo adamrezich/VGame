@@ -15,15 +15,6 @@ namespace VGame.GameStateSystem {
 				return States.Last();
 			}
 		}
-		public GameState CurrentGameStateDelta {
-			get {
-				if (States.Count == 0)
-					return null;
-				if (States.Count == 1)
-					return States.Last();
-				return GameState.GetDelta(States[States.Count - 2], States.Last());
-			}
-		}
 
 		// Constructor
 		public GameStateManager() {
@@ -54,12 +45,82 @@ namespace VGame.GameStateSystem {
 			if (tick >= CurrentGameState.Tick)
 				throw new Exception("Player is updating faster than the server. This probably shouldn't be happening.");
 			if (tick > (int)CurrentGameState.Tick - States.Count) {
-				int index = (int)CurrentGameState.Tick - tick;
-				return GameState.GetDelta(States[index], States.Last());
+				int startIndex = StatesToKeep - ((int)CurrentGameState.Tick - tick);
+				int endIndex = StatesToKeep;
+				System.Diagnostics.Debug.WriteLine(endIndex - startIndex);
+				GameState gs = new GameState();
+				gs.Tick = CurrentGameState.Tick;
+
+				// Players first
+
+				// Check for players that were added
+				/*List<int> addedPlayers = new List<int>();
+				for (int i = startIndex; i < endIndex; i++) {
+					if (States[i].AddedPlayers.Count > 0) {
+						foreach (int pl in States[i].AddedPlayers) {
+							addedPlayers.Add(pl);
+						}
+					}
+				}
+				List<int> removedPlayers = new List<int>();
+				for (int i = startIndex; i < endIndex; i++) {
+					if (States[i].RemovedPlayers.Count > 0) {
+						foreach (int pl in States[i].RemovedPlayers) {
+							removedPlayers.Add(pl);
+							if (addedPlayers.Contains(pl))
+								addedPlayers.Remove(pl);
+						}
+					}
+				}
+				foreach (int i in removedPlayers) {
+				}*/
+
+				List<int> createdEntities = new List<int>();
+				for (int i = startIndex; i < endIndex; i++) {
+					if (States[i].CreatedEntities.Count > 0) {
+						foreach (int ent in States[i].CreatedEntities) {
+							createdEntities.Add(ent);
+						}
+					}
+				}
+				List<int> destroyedEntities = new List<int>();
+				for (int i = startIndex; i < endIndex; i++) {
+					if (States[i].DestroyedEntities.Count > 0) {
+						foreach (int ent in States[i].DestroyedEntities) {
+							destroyedEntities.Add(ent);
+							if (createdEntities.Contains(ent))
+								createdEntities.Remove(ent);
+						}
+					}
+				}
+				// "Remove" entity for all entities that have been destroyed
+				foreach (int i in destroyedEntities) {
+					gs.DestroyedEntities.Add(i);
+				}
+				// Add entire entity for all entities that have been created since we last checked
+				foreach (int i in createdEntities) {
+					gs.Entities.Add(i, CurrentGameState.Entities[i]);
+				}
+				// Add delta entity for all other entities
+				foreach (KeyValuePair<int, Entity> kvp in CurrentGameState.Entities) {
+					if (!gs.Entities.ContainsKey(kvp.Key))
+						gs.Entities.Add(kvp.Key, kvp.Value);
+				}
+
+
+				/*foreach (KeyValuePair<int, Entity> kvp in state2.Entities) {
+					gs.Entities.Add(kvp.Key, kvp.Value);
+				}
+				foreach (KeyValuePair<int, Player> kvp in state2.Players) {
+					gs.Players.Add(kvp.Key, kvp.Value);
+				}
+				foreach (KeyValuePair<int, Message> kvp in state2.Messages) {
+					gs.Messages.Add(kvp.Key, kvp.Value);
+				}*/
+				// TODO: Delta compression
+				return gs;
 			}
-			//if (tick < (int)CurrentGameState.Tick - States.Count) {
-				return null;
-			//}
+			return null;
 		}
 
 	}

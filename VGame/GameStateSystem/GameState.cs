@@ -16,7 +16,32 @@ namespace VGame.GameStateSystem {
 		public List<int> DestroyedEntities { get; internal set; }
 		public List<int> AddedPlayers { get; internal set; }
 		public List<int> RemovedPlayers { get; internal set; }
-		public List<Message> Messages { get; internal set; }
+		public Dictionary<int, Message> Messages { get; internal set; }
+		private int lastEntity {
+			get {
+				return _lastEntity;
+			}
+			set {
+				_lastEntity = value;
+				while (_lastEntity >= Int16.MaxValue)
+					_lastEntity -= Int16.MaxValue;
+			}
+		}
+		private int lastPlayer {
+			get {
+				return _lastPlayer;
+			}
+			set {
+				_lastPlayer = value;
+				while (_lastPlayer >= Byte.MaxValue)
+					_lastPlayer -= Byte.MaxValue;
+			}
+		}
+
+		// Fields
+		private int _lastEntity = 0;
+		private int _lastPlayer = 0;
+
 
 		// Constructor
 		public GameState() {
@@ -26,12 +51,13 @@ namespace VGame.GameStateSystem {
 			DestroyedEntities = new List<int>();
 			AddedPlayers = new List<int>();
 			RemovedPlayers = new List<int>();
-			Messages = new List<Message>();
+			Messages = new Dictionary<int, Message>();
 		}
 
 		// Public methods
 		public int AddEntity(Entity entity) {
-			int id = Entities.Count;
+			int id = lastEntity;
+			lastEntity++;
 			entity.ID = (ushort)id;
 			Entities.Add(id, entity);
 			CreatedEntities.Add(id);
@@ -43,9 +69,12 @@ namespace VGame.GameStateSystem {
 				DestroyedEntities.Add(id);
 			}
 		}
-		public void AddPlayer(int id, Player player) {
+		public int AddPlayer(Player player) {
+			int id = lastPlayer;
+			lastPlayer++;
 			AddedPlayers.Add(id);
 			Players.Add(id, player);
+			return id;
 		}
 		public void RemovePlayer(int id) {
 			RemovedPlayers.Add(id);
@@ -64,34 +93,35 @@ namespace VGame.GameStateSystem {
 			return gs;
 		}
 
-		// Static methods
-		public static GameState GetDelta(GameState state1, GameState state2) {
-			// TODO: Delta compression
-			return state2;
-		}
-
 		// Internal methods
 		internal void NetSerialize(ref NetOutgoingMessage msg) {
 			msg.Write(Tick);
-			msg.Write((byte)Entities.Count);
+			msg.Write((ushort)DestroyedEntities.Count);
+			foreach (int ent in DestroyedEntities)
+				msg.Write((ushort)ent);
+			msg.Write((ushort)Entities.Count);
 			foreach (KeyValuePair<int, Entity> kvp in Entities)
 				kvp.Value.NetSerialize(ref msg);
 			/*msg.Write((byte)Players.Count);
 			foreach (KeyValuePair<int, Player> kvp in Players)
 				kvp.Value.NetSerialize(ref msg);*/
 			msg.Write(Messages.Count);
-			foreach (Message message in Messages) {
+			foreach (KeyValuePair<int, Message> kvp in Messages) {
 				//msg.Write(message.ToString());
-				msg.Write(message.Sender);
-				msg.Write(message.Contents);
-				msg.Write(message.Flags);
+				msg.Write(kvp.Value.Sender);
+				msg.Write(kvp.Value.Contents);
+				msg.Write(kvp.Value.Flags);
 			}
 		}
 		static internal GameState NetDeserialize(ref NetIncomingMessage msg) {
 			GameState gs = new GameState();
 
 			gs.Tick = msg.ReadUInt32();
-			int entCount = (int)msg.ReadByte();
+			int destroyedEntCount = (int)msg.ReadInt16();
+			for (int i = 0; i < destroyedEntCount; i++) {
+				gs.DestroyedEntities.Add((int)msg.ReadInt16());
+			}
+			int entCount = (int)msg.ReadInt16();
 
 			for (int i = 0; i < entCount; i++) {
 				gs.AddEntity((Entity)Entity.NetDeserialize(ref msg));
@@ -99,7 +129,7 @@ namespace VGame.GameStateSystem {
 
 			int msgCount = (int)msg.ReadInt32();
 			for (int i = 0; i < msgCount; i++) {
-				gs.Messages.Add(new Message(msg.ReadString(), msg.ReadString(), msg.ReadByte()));
+				gs.Messages.Add(gs.Messages.Count, new Message(msg.ReadString(), msg.ReadString(), msg.ReadByte()));
 			}
 
 			return gs;

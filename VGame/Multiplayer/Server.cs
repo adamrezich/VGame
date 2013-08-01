@@ -126,10 +126,11 @@ namespace VGame.Multiplayer {
 			int newClientID = 0;
 			if (RemoteClients.Count > 0)
 				newClientID = RemoteClients.Last().Key + 1;
-			RemoteClients.Add(newClientID, new RemoteClient(newClientID, connection, updateRate));
+			RemoteClient rc = new RemoteClient(0, connection, updateRate);
+			RemoteClients.Add(newClientID, rc);
 			int entID = currentGameState.AddEntity(new PlayerEntity());
-			//currentGameState.Players.Add(newClientID, new Player(name, entID));
-			currentGameState.AddPlayer(newClientID, new Player(name, entID));
+			Player p = new Player(name, entID);
+			rc.PlayerID = currentGameState.AddPlayer(p);
 			if (IsLocalServer) {
 				OnConnect(RemoteClients[newClientID]);
 			}
@@ -153,7 +154,8 @@ namespace VGame.Multiplayer {
 		}
 		public void AddMessage(Message msg) {
 			DebugMessage(msg.ToString());
-			GameStateManager.CurrentGameState.Messages.Add(msg);
+			GameStateManager.CurrentGameState.Messages.Add(GameStateManager.CurrentGameState.Messages.Count, msg);
+			OnReceiveMessage(msg);
 		}
 
 		// Protected methods
@@ -309,6 +311,11 @@ namespace VGame.Multiplayer {
 		}
 		protected virtual void OnTick() {
 		}
+		protected virtual void OnReceiveMessage(Message message) {
+			foreach (RemoteClient rc in AllClients()) {
+				rc.SendMessage(message);
+			}
+		}
 		protected virtual void GetConfig(ref NetPeerConfiguration config) {
 			config.ConnectionTimeout = Timeout;
 			config.MaximumConnections = 16;
@@ -335,7 +342,8 @@ namespace VGame.Multiplayer {
 		Disconnect,
 		GameState,
 		FullGameState,
-		Input
+		Input,
+		Message
 	}
 }
 

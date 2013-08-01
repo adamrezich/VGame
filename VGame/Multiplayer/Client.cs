@@ -56,6 +56,7 @@ namespace VGame.Multiplayer {
 				}
 			}
 		}
+		public List<Message> Messages { get; private set; }
 
 		// Fields
 		protected GameState GameState;
@@ -70,6 +71,7 @@ namespace VGame.Multiplayer {
 			Game = game;
 			IsLocalServer = isLocalServer;
 			IsConnected = false;
+			Messages = new List<Message>();
 			if (!IsLocalServer) {
 				gameStateManager = new GameStateManager();
 				NetPeerConfiguration config = new NetPeerConfiguration(Identifier);
@@ -169,6 +171,11 @@ namespace VGame.Multiplayer {
 								GameStateManager.Add(fgs);
 								OnReceiveGameState(fgs, true);
 								break;
+							case PacketType.Message:
+								Message message = Message.NetDeserialize(ref incoming);
+								OnReceiveMessage(message);
+								Messages.Add(message);
+								break;
 						}
 						break;
 				}
@@ -186,7 +193,7 @@ namespace VGame.Multiplayer {
 		private void SendCommands() {
 			if (CommandsToSend.Count == 0 && Game.Cmd.UserInfoToSend.Count == 0)
 				return;
-			DebugMessage("Sending commands!");
+			//DebugMessage("Sending commands!");
 			NetOutgoingMessage msg = NetClient.CreateMessage();
 			msg.Write((byte)PacketType.Input);
 
@@ -221,7 +228,10 @@ namespace VGame.Multiplayer {
 			DebugMessage("Connected to remote host.");
 		}
 		protected virtual void OnReceiveGameState(GameState gameState, bool full) {
-			DebugMessage(string.Format("Received {2}game state Tick {0} from server with {1} entities and {3} chat messages.", gameState.Tick, gameState.Entities.Count, full ? "** A FULL ** " : "", gameState.Messages.Count));
+			//DebugMessage(string.Format("{2}GameState Tick: {0} | Ent: {1} (D: {5}) | Plr: {4} | Msg: {3}", gameState.Tick, gameState.Entities.Count, full ? "** A FULL ** " : "", gameState.Messages.Count, gameState.Players.Count, gameState.DestroyedEntities.Count));
+		}
+		protected virtual void OnReceiveMessage(Message message) {
+			DebugMessage(message.ToString());
 		}
 		protected virtual void DebugMessage(string message) {
 			Console.WriteLine("[C] " + message);

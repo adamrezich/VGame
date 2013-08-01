@@ -45,6 +45,12 @@ namespace VGame.Multiplayer {
 			Server.Local.SendMessage(msg, Connection, NetDeliveryMethod.ReliableOrdered);
 			LastTickSent = (int)gameState.Tick;
 		}
+		internal void SendMessage(Message message) {
+			NetOutgoingMessage msg = Server.Local.CreateMessage();
+			msg.Write((byte)PacketType.Message);
+			message.NetSerialize(ref msg);
+			Server.Local.SendMessage(msg, Connection, NetDeliveryMethod.ReliableOrdered);
+		}
 
 	}
 }

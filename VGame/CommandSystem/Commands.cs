@@ -130,11 +130,13 @@ namespace VGame.CommandSystem {
 					if (cmdMan.Game.IsSinglePlayer) {
 						return;
 					}
-					if (cmdMan.Game.IsClient()) {
-						Client.Local.SendCommand(cmd);
-					}
-					if (cmdMan.Game.IsServer()) {
-						//cmdMan.Game.DebugMessage("[S] 
+					else {
+						if (cmdMan.Game.IsClient()) {
+							Client.Local.SendCommand(cmd);
+						}
+						if (cmdMan.Game.IsServer()) {
+							Server.Local.AddMessage(new Message(cmd.Parameters[0].StringData, MessageType.System));
+						}
 					}
 				}
 				else {
