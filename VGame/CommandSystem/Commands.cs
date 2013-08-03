@@ -128,19 +128,19 @@ namespace VGame.CommandSystem {
 			Add("say", new CommandDefinition(new List<ParameterType>() { ParameterType.String }, delegate(CommandManager cmdMan, Command cmd, RemoteClient sender) {
 				if (sender == null) {
 					if (cmdMan.Game.IsSinglePlayer) {
-						return;
+						Server.Local.BroadcastMessage(new Message(Client.Local.Name, cmd.Parameters[0].StringData, (byte)0));
 					}
 					else {
 						if (cmdMan.Game.IsClient()) {
 							Client.Local.SendCommand(cmd);
 						}
 						if (cmdMan.Game.IsServer()) {
-							Server.Local.AddMessage(new Message(cmd.Parameters[0].StringData, MessageType.System));
+							Server.Local.BroadcastMessage(new Message(cmd.Parameters[0].StringData, MessageType.System));
 						}
 					}
 				}
 				else {
-					Server.Local.AddMessage(new Message(Server.Local.GetPlayer(sender.PlayerID).Name, cmd.Parameters[0].StringData, (byte)0));
+					Server.Local.BroadcastMessage(new Message(Server.Local.GetPlayer(sender.PlayerID).Name, cmd.Parameters[0].StringData, (byte)0));
 				}
 			}));
 			Add("host_writeconfig", new CommandDefinition(delegate(CommandManager cmdMan, Command cmd, RemoteClient sender) {
@@ -152,6 +152,31 @@ namespace VGame.CommandSystem {
 				}
 				if (VariableDefinition.List.ContainsKey(cmd.Parameters[0].StringData)) {
 					cmdMan.Game.DebugMessage(VariableDefinition.List[cmd.Parameters[0].StringData].ToString());
+				}
+			}));
+			Add("connect", new CommandDefinition(new List<ParameterType>() { ParameterType.String }, delegate(CommandManager cmdMan, Command cmd, RemoteClient sender) {
+				if (cmdMan.Game.IsClient()) {
+					cmdMan.Variables["ip"].Value = new Parameter(cmd.Parameters[0].StringData);
+					if (Client.Local.IsConnected) {
+						cmdMan.Run("disconnect", sender);
+					}
+					cmdMan.Variables["ip"].Value = cmd.Parameters[0];
+					Client.Local.Connect();
+				}
+			}));
+			Add("disconnect", new CommandDefinition(delegate(CommandManager cmdMan, Command cmd, RemoteClient sender) {
+				if (cmdMan.Game.IsClient()) {
+					if (Client.Local.IsConnected) {
+						Client.Local.Disconnect("User intentionally disconnected.");
+					}
+					else {
+						cmdMan.Game.DebugMessage("Not currently connected to a server.");
+					}
+				}
+			}));
+			Add("retry", new CommandDefinition(delegate(CommandManager cmdMan, Command cmd, RemoteClient sender) {
+				if (cmdMan.Game.IsClient()) {
+					Client.Local.Connect();
 				}
 			}));
 		}

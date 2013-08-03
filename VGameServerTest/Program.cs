@@ -74,7 +74,7 @@ namespace VGameServerTest {
 				}
 				else {
 					new TestClient(this, false);
-					Client.Local.Connect("localhost", 1337);
+					//Client.Local.Connect("localhost", 1337);
 				}
 			}
 		}
@@ -96,9 +96,10 @@ namespace VGameServerTest {
 		}
 		public override void OnExit() {
 			if (Client.Local != null)
-				Client.Local.Disconnect("Shutting down");
+				Client.Local.Disconnect("Shutting down", false);
 			if (Server.Local != null)
 				Server.Local.Stop();
+			Console.Clear();
 		}
 
 		public void DrawGUI() {
@@ -140,6 +141,11 @@ namespace VGameServerTest {
 			Console.Write(tickString.PadRight(79, ' '));
 			Console.SetWindowPosition(0, 0);
 			Console.SetCursorPosition(1 + InputBuffer.Length, 2 + BufferHeight);
+		}
+		protected override void Update(GameTime gameTime) {
+			if (IsSinglePlayer && Client.Local != null && Client.Local.IsConnected)
+				Client.Local.Tick();
+			base.Update(gameTime);
 		}
 	}
 	public class TestState : State {
@@ -183,7 +189,7 @@ namespace VGameServerTest {
 			new TestClient(Game, false);
 			Server.Local.Start();
 			System.Threading.Thread.Sleep(1000);
-			Client.Local.Connect("localhost", 1337);
+			Client.Local.Connect();
 			System.Threading.Thread.Sleep(3000);
 			Client.Local.Disconnect("Intentional disconnect by user");
 			System.Threading.Thread.Sleep(3000);

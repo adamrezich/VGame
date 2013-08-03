@@ -42,7 +42,6 @@ namespace VGame.GameStateSystem {
 		private int _lastEntity = 0;
 		private int _lastPlayer = 0;
 
-
 		// Constructor
 		public GameState() {
 			Entities = new SortedDictionary<int, Entity>();

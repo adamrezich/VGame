@@ -93,23 +93,20 @@ namespace VGame.Multiplayer {
 				IsConnected = true;
 				Server.Local.AddPlayer(null, Name, UpdateRate);
 			}
-			else
-				throw new Exception("Can't local-connect to remote server.");
-		}
-		public void Connect(string address, int port) {
-			if (!IsLocalServer) {
+			else {
 				NetClient.Start();
 				NetOutgoingMessage msg = NetClient.CreateMessage();
 				msg.Write((byte)PacketType.Connect);
 				msg.Write(Name);
 				msg.Write((short)UpdateRate);
 				WriteConnectMessage(ref msg);
-				NetClient.Connect(address, port, msg);
+				NetClient.Connect(Game.Cmd.Variables["ip"].Value.StringData, Game.Cmd.Variables["clientport"].Value.IntData, msg);
 			}
-			else
-				throw new Exception("Can't remote-connect to local server.");
 		}
 		public void Disconnect(string message) {
+			Disconnect(message, true);
+		}
+		public void Disconnect(string message, bool startAnother) {
 			isExiting = true;
 			if (IsLocalServer) {
 				Server.Local.RemovePlayer(0, message);
@@ -122,12 +119,22 @@ namespace VGame.Multiplayer {
 			}
 			IsConnected = false;
 			Client.Local = null;
+			if (startAnother)
+				Activator.CreateInstance(this.GetType(), Game, IsLocalServer);
+		}
+		public void Tick() {
+			if (!IsLocalServer)
+				SendCommands();
 		}
 		public void Chat(string message, byte flags) {
 
 		}
 		public void SendCommand(Command cmd) {
 			CommandsToSend.Add(cmd);
+		}
+		public void ReceiveMessage(Message message) {
+			OnReceiveMessage(message);
+			Messages.Add(message);
 		}
 
 		// Private methods
@@ -173,8 +180,7 @@ namespace VGame.Multiplayer {
 								break;
 							case PacketType.Message:
 								Message message = Message.NetDeserialize(ref incoming);
-								OnReceiveMessage(message);
-								Messages.Add(message);
+								ReceiveMessage(message);
 								break;
 						}
 						break;
@@ -185,7 +191,7 @@ namespace VGame.Multiplayer {
 			CheckIncomingMessages(); // TODO: Move?
 			if (commandStopwatch.ElapsedMilliseconds >= 1000 / CommandRate) {
 				// Send commands
-				SendCommands();
+				Tick();
 				commandStopwatch.Reset();
 				commandStopwatch.Start();
 			}
