@@ -44,6 +44,11 @@ namespace VGame.Multiplayer {
 				return Game.Cmd.Variables["name"].Value.StringData;
 			}
 		}
+		public int Timeout {
+			get {
+				return Game.Cmd.Variables["cl_timeout"].Value.IntData;
+			}
+		}
 		public Thread Thread { get; internal set; }
 		public List<Command> CommandsToSend {
 			get {
@@ -63,6 +68,7 @@ namespace VGame.Multiplayer {
 		protected NetClient NetClient;
 		private GameStateManager gameStateManager;
 		private Stopwatch commandStopwatch;
+		private Stopwatch timeoutStopwatch;
 		private bool isExiting = false;
 		private List<Command> commandsToSend = null;
 
@@ -76,24 +82,25 @@ namespace VGame.Multiplayer {
 				gameStateManager = new GameStateManager();
 				NetPeerConfiguration config = new NetPeerConfiguration(Identifier);
 				NetClient = new NetClient(config);
-				Thread = new Thread(Loop);
-				Thread.Start();
 			}
 			Local = this;
 		}
 		~Client() {
 			if (commandStopwatch != null)
-			commandStopwatch.Stop();
+				commandStopwatch.Stop();
+			if (timeoutStopwatch != null)
+				timeoutStopwatch.Stop();
 		}
 
 		// Public methods
 		public void Connect() {
-			DebugMessage("Connecting...");
 			if (IsLocalServer) {
+				DebugMessage("Connecting to local server...");
 				IsConnected = true;
 				Server.Local.AddPlayer(null, Name, UpdateRate);
 			}
 			else {
+				DebugMessage(string.Format("Connecting to {0}:{1}", Game.Cmd.Variables["ip"].Value.StringData, Game.Cmd.Variables["clientport"].Value.IntData));
 				NetClient.Start();
 				NetOutgoingMessage msg = NetClient.CreateMessage();
 				msg.Write((byte)PacketType.Connect);
@@ -101,23 +108,29 @@ namespace VGame.Multiplayer {
 				msg.Write((short)UpdateRate);
 				WriteConnectMessage(ref msg);
 				NetClient.Connect(Game.Cmd.Variables["ip"].Value.StringData, Game.Cmd.Variables["clientport"].Value.IntData, msg);
+				Thread = new Thread(Loop);
+				Thread.Start();
 			}
 		}
 		public void Disconnect(string message) {
 			Disconnect(message, true);
 		}
 		public void Disconnect(string message, bool startAnother) {
-			isExiting = true;
 			if (IsLocalServer) {
+				isExiting = true;
 				Server.Local.RemovePlayer(0, message);
 			}
 			else {
 				if (IsConnected) {
-					NetClient.Disconnect(message);
+					NetClient.Disconnect(message); // Needed?
 				}
-				Thread.Join();
+				NetClient.Shutdown(message);
+				isExiting = true;
+				if (Thread.CurrentThread != null && Thread != null && Thread.CurrentThread != Thread)
+					Thread.Join();
 			}
 			IsConnected = false;
+			DebugMessage("Client disconnected: " + message);
 			Client.Local = null;
 			if (startAnother)
 				Activator.CreateInstance(this.GetType(), Game, IsLocalServer);
@@ -140,6 +153,7 @@ namespace VGame.Multiplayer {
 		// Private methods
 		private void Loop() {
 			commandStopwatch = Stopwatch.StartNew();
+			timeoutStopwatch = Stopwatch.StartNew();
 			while (!isExiting) {
 				Step();
 			}
@@ -148,6 +162,8 @@ namespace VGame.Multiplayer {
 		private void CheckIncomingMessages() {
 			NetIncomingMessage incoming;
 			while ((incoming = NetClient.ReadMessage()) != null) {
+				timeoutStopwatch.Reset();
+				timeoutStopwatch.Start();
 				switch (incoming.MessageType) {
 					case NetIncomingMessageType.StatusChanged:
 						NetConnectionStatus status = (NetConnectionStatus)incoming.SenderConnection.Status;
@@ -186,8 +202,13 @@ namespace VGame.Multiplayer {
 						break;
 				}
 			}
+			CheckTimeout();
 		}
 		private void Step() {
+			if (isExiting) {
+				DebugMessage("EXITING!!");
+				return;
+			}
 			CheckIncomingMessages(); // TODO: Move?
 			if (commandStopwatch.ElapsedMilliseconds >= 1000 / CommandRate) {
 				// Send commands
@@ -223,6 +244,12 @@ namespace VGame.Multiplayer {
 
 			NetClient.SendMessage(msg, NetDeliveryMethod.ReliableOrdered, 0);
 		}
+		private void CheckTimeout() {
+			if (timeoutStopwatch.ElapsedMilliseconds >= 1000 * Timeout) {
+				Disconnect("Remote host timed out.");
+				OnTimeout();
+			}
+		}
 
 		// Virtual methods
 		protected virtual void WriteConnectMessage(ref NetOutgoingMessage msg) {
@@ -238,6 +265,9 @@ namespace VGame.Multiplayer {
 		}
 		protected virtual void OnReceiveMessage(Message message) {
 			DebugMessage(message.ToString());
+		}
+		protected virtual void OnTimeout() {
+
 		}
 		protected virtual void DebugMessage(string message) {
 			Console.WriteLine("[C] " + message);

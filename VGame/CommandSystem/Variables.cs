@@ -18,6 +18,7 @@ namespace VGame.CommandSystem {
 			Add(new VariableDefinition("ip", ParameterType.String, VariableFlags.Archive, new Parameter("localhost"), "Current or last server IP or address"));
 			Add(new VariableDefinition("clientport", ParameterType.Int, VariableFlags.Archive, new Parameter(1337), "Host game client port"));
 			Add(new VariableDefinition("hostport", ParameterType.Int, VariableFlags.Archive, new Parameter(1337), "Host game server port"));
+			Add(new VariableDefinition("cl_timeout", ParameterType.Int, VariableFlags.Client | VariableFlags.Archive, new Parameter(10), "After this many seconds without receiving a packet from the server, the client will disconnect itself"));
 
 			foreach (KeyValuePair<string, VariableDefinition> kvp in VariableDefinition.List) {
 				cmdMan.Variables.Add(kvp.Key, new Variable(kvp.Value, kvp.Value.DefaultValue));

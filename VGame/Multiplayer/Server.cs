@@ -270,10 +270,12 @@ namespace VGame.Multiplayer {
 
 		// Virtual methods
 		protected virtual void OnConnect(RemoteClient client) {
-			DebugMessage(string.Format("Player {0} connected.", GameStateManager.CurrentGameState.Players[client.PlayerID].Name));
+			string str = string.Format("Player {0} connected.", GameStateManager.CurrentGameState.Players[client.PlayerID].Name);
+			BroadcastMessage(new Message(str));
 		}
 		protected virtual void OnDisconnect(RemoteClient client, string message) {
-			DebugMessage(string.Format("Player {0} disconnected: {1}", GameStateManager.CurrentGameState.Players[client.PlayerID].Name, message));
+			string str = string.Format("Player {0} disconnected: {1}", GameStateManager.CurrentGameState.Players[client.PlayerID].Name, message);
+			BroadcastMessage(new Message(str));
 		}
 		protected virtual void OnData(NetIncomingMessage msg) {
 			switch ((PacketType)msg.ReadByte()) {
