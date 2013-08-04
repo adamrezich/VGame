@@ -179,6 +179,21 @@ namespace VGame.CommandSystem {
 					Client.Local.Connect();
 				}
 			}));
+			CommandDefinition.Add("__template", new CommandDefinition(delegate(CommandManager cmdMan, Command cmd, RemoteClient sender) {
+				// Template command - use this to create your own networked commands
+				if (sender == null) { // If it's not the server receiving it
+					if (cmdMan.Game.IsSinglePlayer) { // If it's single-player
+					}
+					else {
+						if (cmdMan.Game.IsClient()) { // If it's a multiplayer client
+						}
+						if (cmdMan.Game.IsServer()) { // If it's a multiplayer server
+						}
+					}
+				}
+				else { // If this is a server and this is a command sent by a client
+				}
+			}));
 		}
 		public static void Add(string name, CommandDefinition commandDefinition) {
 			CommandDefinition.Add(name, commandDefinition);

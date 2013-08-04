@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using VGame;
 using VGame.Multiplayer;
 using VGame.StateSystem;
 using VGame.GameStateSystem;
+using VGame.CommandSystem;
 
 namespace VGameServerTest {
 	public class TestServer : Server {
@@ -14,14 +16,14 @@ namespace VGameServerTest {
 			}
 		}
 
-		public TestServer(Game game, bool isLocalServer) : base(game, isLocalServer, 1337) {
+		public TestServer(Game game, bool isLocalServer) : base(game, isLocalServer) {
 		}
 
 		protected override void OnConnect(RemoteClient client) {
-			System.Threading.Thread.Sleep(1000);
-			TestEntity ent = new TestEntity();
+			//System.Threading.Thread.Sleep(1000);
+			/*TestEntity ent = new TestEntity();
 			ent.TestProperty = "OMG IT WORKS";
-			GameStateManager.CurrentGameState.AddEntity(ent);
+			GameStateManager.CurrentGameState.AddEntity(ent);*/
 			base.OnConnect(client);
 		}
 		protected override void OnTick() {
@@ -32,6 +34,9 @@ namespace VGameServerTest {
 		protected override void DebugMessage(string message) {
 			((TestGame)Game).Buffer.Add(string.Format("[S] {0}", message));
 			((TestGame)Game).DrawGUI();
+		}
+		protected override PlayerEntity CreatePlayerEntity() {
+			return new TestPlayerEntity();
 		}
 	}
 	public class TestClient : Client {
@@ -84,7 +89,9 @@ namespace VGameServerTest {
 		public string InputBuffer = "";
 
 		protected override void Initialize() {
+			LoadCommands();
 			StateManager.AddState(new TestState());
+			Entity.Add("ent_player", typeof(TestPlayerEntity));
 		}
 		public override void DebugMessage(string message) {
 			Buffer.Add(message);
@@ -141,11 +148,92 @@ namespace VGameServerTest {
 			Console.Write(tickString.PadRight(79, ' '));
 			Console.SetWindowPosition(0, 0);
 			Console.SetCursorPosition(1 + InputBuffer.Length, 2 + BufferHeight);
+
+			if (Client.Local != null) {
+				foreach (KeyValuePair<int, Entity> kvp in Client.Local.GameStateManager.CurrentGameState.Entities) {
+					if (kvp.Value is TestPlayerEntity) {
+						Console.SetCursorPosition(MathHelper.Clamp(((TestPlayerEntity)kvp.Value).X, 0, Console.WindowWidth - 1), MathHelper.Clamp(((TestPlayerEntity)kvp.Value).Y, 0, Console.WindowHeight - 2));
+						Console.ForegroundColor = ConsoleColor.Green;
+						Console.Write('@');
+						Console.ResetColor();
+					}
+				}
+			}
 		}
 		protected override void Update(GameTime gameTime) {
 			if (IsSinglePlayer && Client.Local != null && Client.Local.IsConnected)
 				Client.Local.Tick();
 			base.Update(gameTime);
+		}
+		private void LoadCommands() {
+			CommandDefinition.Add("n", new CommandDefinition(delegate(CommandManager cmdMan, Command cmd, RemoteClient sender) {
+				if (sender == null) {
+					if (cmdMan.Game.IsSinglePlayer) {
+						TestPlayerEntity plrEnt = ((TestPlayerEntity)Server.Local.GameStateManager.CurrentGameState.Entities[Server.Local.GetPlayer(0).EntityID]);
+						plrEnt.Y--;
+					}
+					else {
+						if (cmdMan.Game.IsClient()) {
+							cmdMan.SendCommand(cmd);
+						}
+					}
+				}
+				else {
+					TestPlayerEntity plrEnt = ((TestPlayerEntity)Server.Local.GameStateManager.CurrentGameState.Entities[Server.Local.GetPlayer(sender.PlayerID).EntityID]);
+					plrEnt.Y--;
+				}
+			}));
+			CommandDefinition.Add("s", new CommandDefinition(delegate(CommandManager cmdMan, Command cmd, RemoteClient sender) {
+				if (sender == null) {
+					if (cmdMan.Game.IsSinglePlayer) {
+						TestPlayerEntity plrEnt = ((TestPlayerEntity)Server.Local.GameStateManager.CurrentGameState.Entities[Server.Local.GetPlayer(0).EntityID]);
+						plrEnt.Y++;
+					}
+					else {
+						if (cmdMan.Game.IsClient()) {
+							cmdMan.SendCommand(cmd);
+						}
+					}
+				}
+				else {
+					TestPlayerEntity plrEnt = ((TestPlayerEntity)Server.Local.GameStateManager.CurrentGameState.Entities[Server.Local.GetPlayer(sender.PlayerID).EntityID]);
+					plrEnt.Y++;
+				}
+			}));
+			CommandDefinition.Add("e", new CommandDefinition(delegate(CommandManager cmdMan, Command cmd, RemoteClient sender) {
+				if (sender == null) {
+					if (cmdMan.Game.IsSinglePlayer) {
+						TestPlayerEntity plrEnt = ((TestPlayerEntity)Server.Local.GameStateManager.CurrentGameState.Entities[Server.Local.GetPlayer(0).EntityID]);
+						plrEnt.X++;
+					}
+					else {
+						if (cmdMan.Game.IsClient()) {
+							cmdMan.SendCommand(cmd);
+						}
+					}
+				}
+				else {
+					TestPlayerEntity plrEnt = ((TestPlayerEntity)Server.Local.GameStateManager.CurrentGameState.Entities[Server.Local.GetPlayer(sender.PlayerID).EntityID]);
+					plrEnt.X++;
+				}
+			}));
+			CommandDefinition.Add("w", new CommandDefinition(delegate(CommandManager cmdMan, Command cmd, RemoteClient sender) {
+				if (sender == null) {
+					if (cmdMan.Game.IsSinglePlayer) {
+						TestPlayerEntity plrEnt = ((TestPlayerEntity)Server.Local.GameStateManager.CurrentGameState.Entities[Server.Local.GetPlayer(0).EntityID]);
+						plrEnt.X--;
+					}
+					else {
+						if (cmdMan.Game.IsClient()) {
+							cmdMan.SendCommand(cmd);
+						}
+					}
+				}
+				else {
+					TestPlayerEntity plrEnt = ((TestPlayerEntity)Server.Local.GameStateManager.CurrentGameState.Entities[Server.Local.GetPlayer(sender.PlayerID).EntityID]);
+					plrEnt.X--;
+				}
+			}));
 		}
 	}
 	public class TestState : State {
@@ -167,6 +255,20 @@ namespace VGameServerTest {
 				((TestGame)Game).Buffer.Add("> " + ((TestGame)Game).InputBuffer);
 				Game.Cmd.Run(((TestGame)Game).InputBuffer, null);
 				((TestGame)Game).InputBuffer = "";
+			}
+			if (Game.IsClient()) {
+				if (consoleKey.Key == ConsoleKey.UpArrow) {
+					Game.Cmd.Run("n", null);
+				}
+				if (consoleKey.Key == ConsoleKey.DownArrow) {
+					Game.Cmd.Run("s", null);
+				}
+				if (consoleKey.Key == ConsoleKey.RightArrow) {
+					Game.Cmd.Run("e", null);
+				}
+				if (consoleKey.Key == ConsoleKey.LeftArrow) {
+					Game.Cmd.Run("w", null);
+				}
 			}
 			((TestGame)Game).DrawGUI();
 		}
@@ -203,6 +305,17 @@ namespace VGameServerTest {
 				Console.WriteLine("");
 			}
 		}
+	}
+
+	public class TestPlayerEntity : PlayerEntity {
+
+		// Properties
+		[EntityProperty]
+		public int X { get; set; }
+		[EntityProperty]
+		public int Y { get; set; }
+		public Vector2 Position { get; set; }
+
 	}
 
 	public class TestEntity : SharedEntity {

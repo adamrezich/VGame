@@ -69,7 +69,7 @@ namespace VGame.Multiplayer {
 		private Stopwatch tickStopwatch;
 
 		// Constructor
-		public Server(Game game, bool isLocalServer, int port) {
+		public Server(Game game, bool isLocalServer) {
 			Game = game;
 			GameStateManager = new GameStateManager();
 			RemoteClients = new SortedDictionary<int, RemoteClient>();
@@ -77,7 +77,7 @@ namespace VGame.Multiplayer {
 			IsLocalServer = isLocalServer;
 			if (!IsLocalServer) {
 				config = new NetPeerConfiguration(Identifier);
-				config.Port = port;
+				config.Port = Game.Cmd.Variables["hostport"].Value.IntData;
 				config.EnableMessageType(NetIncomingMessageType.ConnectionApproval);
 				GetConfig(ref config);
 			}
@@ -134,7 +134,7 @@ namespace VGame.Multiplayer {
 			if (IsLocalServer) {
 				OnConnect(RemoteClients[newClientID]);
 			}*/
-			int entID = currentGameState.AddEntity(new PlayerEntity());
+			int entID = currentGameState.AddEntity(CreatePlayerEntity());
 			Player p = new Player(name, entID);
 			int newClientID = currentGameState.AddPlayer(p);
 			RemoteClient rc = new RemoteClient(newClientID, connection, updateRate);
@@ -321,7 +321,7 @@ namespace VGame.Multiplayer {
 			}
 			int commandCount = (int)msg.ReadByte();
 			if (commandCount > 0) {
-				DebugMessage(string.Format("Got {0} commands from client.", commandCount));
+				//DebugMessage(string.Format("Got {0} commands from client.", commandCount));
 				for (int i = 0; i < commandCount; i++) {
 					Game.Cmd.Run(msg.ReadString(), GetRemoteClientByConnection(msg.SenderConnection));
 				}
@@ -330,6 +330,9 @@ namespace VGame.Multiplayer {
 		protected virtual void OnTick() {
 		}
 		protected virtual void OnReceiveMessage(Message message) {
+		}
+		protected virtual PlayerEntity CreatePlayerEntity() {
+			return new PlayerEntity();
 		}
 		protected virtual void GetConfig(ref NetPeerConfiguration config) {
 			config.ConnectionTimeout = Timeout;

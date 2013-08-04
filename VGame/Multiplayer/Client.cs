@@ -236,9 +236,11 @@ namespace VGame.Multiplayer {
 				msg.Write((byte)0);
 			}
 			msg.Write((byte)CommandsToSend.Count);
-			foreach (Command cmd in CommandsToSend) {
+			List<Command> cmdsToSend = new List<Command>(CommandsToSend);
+			foreach (Command cmd in cmdsToSend) {
 				//cmd.NetSerialize(ref msg);
 				msg.Write(cmd.ToString());
+				CommandsToSend.Remove(cmd);
 			}
 			CommandsToSend.Clear();
 

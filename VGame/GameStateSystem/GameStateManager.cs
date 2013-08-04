@@ -25,7 +25,7 @@ namespace VGame.GameStateSystem {
 
 		// Static constructor
 		static GameStateManager() {
-			Entity.Add("ent_player", typeof(PlayerEntity));
+			Entity.Add("ent_player_base", typeof(PlayerEntity));
 		}
 
 		// Public methods
